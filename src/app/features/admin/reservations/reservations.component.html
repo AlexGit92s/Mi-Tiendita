@@ -27,42 +27,42 @@
     </div>
   </div>
 
-  <div class="flex flex-wrap gap-3 mb-8">
-    <button (click)="setFilter('all')" [ngClass]="statusFilter() === 'all' ? 'bg-lamour-stone text-white border-lamour-stone shadow-sm' : 'bg-white text-gray-500 border-gray-100 hover:border-lamour-stone/30'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+  <div class="flex gap-3 mb-6 md:mb-8 overflow-x-auto pb-4 md:pb-0 md:flex-wrap [&::-webkit-scrollbar]:hidden -mx-6 px-6 md:mx-0 md:px-0 snap-x">
+    <button (click)="setFilter('all')" [ngClass]="statusFilter() === 'all' ? 'bg-lamour-stone text-white border-lamour-stone shadow-sm' : 'bg-white text-gray-500 border-gray-100 hover:border-lamour-stone/30'" class="snap-start flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
       <span>Ver Todo</span>
       <span class="px-1.5 py-0.5 bg-black/10 text-[9px] rounded-sm">{{ counts().all }}</span>
     </button>
-    <button (click)="setFilter('pendiente')" [ngClass]="statusFilter() === 'pendiente' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-gray-500 border-gray-100 hover:border-amber-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+    <button (click)="setFilter('pendiente')" [ngClass]="statusFilter() === 'pendiente' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-gray-500 border-gray-100 hover:border-amber-200'" class="snap-start flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
       <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
       <span>Pendientes</span>
       <span class="px-1.5 py-0.5 bg-amber-500/15 text-amber-700 text-[9px] rounded-sm">{{ counts().pendiente }}</span>
     </button>
-    <button (click)="setFilter('pagado')" [ngClass]="statusFilter() === 'pagado' ? 'bg-sky-100 text-sky-700 border-sky-200' : 'bg-white text-gray-500 border-gray-100 hover:border-sky-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+    <button (click)="setFilter('pagado')" [ngClass]="statusFilter() === 'pagado' ? 'bg-sky-100 text-sky-700 border-sky-200' : 'bg-white text-gray-500 border-gray-100 hover:border-sky-200'" class="snap-start flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
       <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
       <span>Pagadas</span>
       <span class="px-1.5 py-0.5 bg-sky-500/15 text-sky-700 text-[9px] rounded-sm">{{ counts().pagado }}</span>
     </button>
-    <button (click)="setFilter('entregado')" [ngClass]="statusFilter() === 'entregado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-white text-gray-500 border-gray-100 hover:border-emerald-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+    <button (click)="setFilter('entregado')" [ngClass]="statusFilter() === 'entregado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-white text-gray-500 border-gray-100 hover:border-emerald-200'" class="snap-start flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
       <span>Entregadas</span>
       <span class="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-700 text-[9px] rounded-sm">{{ counts().entregado }}</span>
     </button>
-    <button (click)="setFilter('finalizado')" [ngClass]="statusFilter() === 'finalizado' ? 'bg-violet-100 text-violet-700 border-violet-200' : 'bg-white text-gray-500 border-gray-100 hover:border-violet-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+    <button (click)="setFilter('finalizado')" [ngClass]="statusFilter() === 'finalizado' ? 'bg-violet-100 text-violet-700 border-violet-200' : 'bg-white text-gray-500 border-gray-100 hover:border-violet-200'" class="snap-start flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
       <span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>
       <span>Finalizadas</span>
       <span class="px-1.5 py-0.5 bg-violet-500/15 text-violet-700 text-[9px] rounded-sm">{{ counts().finalizado }}</span>
     </button>
-    <button (click)="setFilter('cancelado')" [ngClass]="statusFilter() === 'cancelado' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-white text-gray-500 border-gray-100 hover:border-red-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+    <button (click)="setFilter('cancelado')" [ngClass]="statusFilter() === 'cancelado' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-white text-gray-500 border-gray-100 hover:border-red-200'" class="snap-start flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
       <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
       <span>Canceladas</span>
       <span class="px-1.5 py-0.5 bg-red-500/15 text-red-700 text-[9px] rounded-sm">{{ counts().cancelado }}</span>
     </button>
   </div>
 
-  <div class="bg-white border border-lamour-blush/10 rounded-lg shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="table w-full text-xs">
-        <thead class="bg-gray-50 border-b border-gray-100">
+  <div class="md:bg-white md:border md:border-lamour-blush/10 md:rounded-lg md:shadow-sm md:overflow-hidden">
+    <div class="-mx-6 px-6 md:mx-0 md:px-0">
+      <table class="table w-full text-xs block md:table">
+        <thead class="bg-gray-50 border-b border-gray-100 hidden md:table-header-group">
           <tr class="text-gray-400 font-serif uppercase tracking-widest text-[9px]">
             <th class="py-4">Pieza</th>
             <th class="py-4">Cliente / Contacto</th>
@@ -72,92 +72,104 @@
             <th class="py-4">Seguimiento</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody class="block md:table-row-group">
           @for (res of filteredReservations(); track res.id) {
-            <tr class="hover:bg-gray-50/60 transition-colors border-l-4 {{ getStatusConfig(res.status).rowAccent }}">
-              <td class="py-4 pl-4">
+            <tr class="hover:bg-gray-50/60 transition-colors border-l-4 {{ getStatusConfig(res.status).rowAccent }} flex flex-col md:table-row p-4 md:p-0 bg-white md:bg-transparent mb-4 md:mb-0 rounded-lg md:rounded-none shadow-sm md:shadow-none border border-gray-100 md:border-0 relative z-10">
+              <td class="py-3 md:py-4 md:pl-4 flex flex-col md:table-cell gap-2 md:gap-0 border-b border-gray-50 md:border-0">
+                <span class="md:hidden text-[9px] font-bold uppercase tracking-widest text-gray-400 absolute top-4 right-4">Ref #{{ res.id?.slice(-4) }}</span>
+                <span class="md:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-lamour-stone mb-2">Producto</span>
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-12 bg-gray-50 border border-gray-100 flex-shrink-0">
+                  <div class="w-12 h-16 md:w-10 md:h-12 bg-gray-50 border border-gray-100 flex-shrink-0">
                     <img *ngIf="res.products?.images?.[0]" [src]="res.products?.images?.[0]" class="w-full h-full object-cover grayscale-[20%]">
                   </div>
                   <div>
-                    <div class="font-bold text-gray-800 uppercase tracking-tighter">{{ res.products?.name }}</div>
-                    <div class="text-[9px] text-gray-400 font-sans tracking-widest">L. {{ res.products?.price }}</div>
+                    <div class="font-bold text-gray-800 uppercase tracking-tighter text-sm md:text-xs">{{ res.products?.name }}</div>
+                    <div class="text-[10px] md:text-[9px] text-gray-400 font-sans tracking-widest mt-1">L. {{ res.products?.price }}</div>
                   </div>
                 </div>
               </td>
-              <td class="py-4">
-                <div class="font-bold text-lamour-stone">{{ res.customer_name }}</div>
-                <div class="text-[10px] text-gray-400 leading-tight">
-                  <p>{{ res.customer_email }}</p>
-                  <p>{{ res.customer_phone }}</p>
+              <td class="py-3 md:py-4 flex justify-between items-center md:table-cell border-b border-gray-50 md:border-0">
+                <span class="md:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-lamour-stone">Cliente / Contacto</span>
+                <div class="text-right md:text-left">
+                  <div class="font-bold text-gray-800">{{ res.customer_name }}</div>
+                  <div class="text-[10px] text-gray-400 leading-tight mt-0.5">
+                    <p>{{ res.customer_email }}</p>
+                    <p>{{ res.customer_phone }}</p>
+                  </div>
                 </div>
               </td>
-              <td class="py-4">
-                <div class="flex flex-col">
-                  <span class="font-bold text-xs">{{ res.reservation_date | date:'mediumDate' }}</span>
-                  <span class="text-[9px] text-gray-400 uppercase tracking-widest">Cita / Fitting</span>
+              <td class="py-3 md:py-4 flex justify-between items-center md:table-cell border-b border-gray-50 md:border-0">
+                <span class="md:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-lamour-stone">Fecha Cita</span>
+                <div class="flex flex-col text-right md:text-left">
+                  <span class="font-bold text-xs text-gray-800">{{ res.reservation_date | date:'mediumDate' }}</span>
+                  <span class="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">Cita / Fitting</span>
                 </div>
               </td>
-              <td class="py-4">
-                <div class="flex flex-col items-start gap-2">
-                  <div [ngClass]="getStatusConfig(res.status).class" class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] shadow-sm">
-                    <span class="h-2 w-2 rounded-full {{ getStatusConfig(res.status).dot }}"></span>
+              <td class="py-3 md:py-4 flex justify-between items-start flex-col md:table-cell border-b border-gray-50 md:border-0">
+                <div class="flex justify-between items-center w-full mb-2 md:mb-1">
+                  <span class="md:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-lamour-stone">Estado Operativo</span>
+                  <div [ngClass]="getStatusConfig(res.status).class" class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] shadow-sm ml-auto md:ml-0">
+                    <span class="h-1.5 w-1.5 rounded-full {{ getStatusConfig(res.status).dot }}"></span>
                     <span>{{ getStatusConfig(res.status).label }}</span>
                   </div>
-
+                </div>
+                <div class="w-full flex justify-end md:justify-start">
                   @if (isLockedReservation(res) && !isCorrectionActive(res.id!)) {
-                    <span class="text-[9px] uppercase tracking-widest text-gray-400">Bloqueado por cierre</span>
+                    <span class="text-[8px] uppercase tracking-widest text-gray-400 text-right md:text-left">Bloqueado por cierre</span>
                   } @else {
-                    <span class="text-[9px] uppercase tracking-widest text-gray-400">Derivado por eventos</span>
+                    <span class="text-[8px] uppercase tracking-widest text-gray-400 text-right md:text-left">Derivado por eventos</span>
                   }
                 </div>
               </td>
-              <td class="py-4">
-                <div class="flex flex-col items-start gap-2">
-                  @if (res.fee_paid) {
-                    <div class="inline-flex items-center gap-2 rounded-full border border-lamour-gold/20 bg-lamour-gold/5 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-lamour-gold">
-                      <span class="h-1.5 w-1.5 rounded-full bg-lamour-gold"></span>
-                      Confirmado
-                    </div>
-                    <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
-                      <p>{{ getReservationSummary(res) }}</p>
-                      <p>{{ res.deposit_transferred_by || 'Sin nombre' }}</p>
-                      <p>{{ res.deposit_confirmed_at | date:'short' }}</p>
-                    </div>
-                  } @else {
-                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-gray-400">
-                      <span class="h-1.5 w-1.5 rounded-full bg-gray-300"></span>
-                        Pendiente
+              <td class="py-3 md:py-4 flex flex-col md:table-cell border-b border-gray-50 md:border-0">
+                <div class="flex flex-row justify-between items-start md:flex-col md:items-start gap-2 w-full">
+                  <span class="md:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-lamour-stone mt-1">Depósito</span>
+                  <div class="flex flex-col items-end md:items-start gap-2 text-right md:text-left w-full sm:w-auto">
+                    @if (res.fee_paid) {
+                      <div class="inline-flex items-center justify-end md:justify-start gap-2 rounded-sm border border-lamour-gold/20 bg-lamour-gold/5 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-lamour-gold w-fit self-end md:self-start">
+                        <span class="h-1.5 w-1.5 rounded-full bg-lamour-gold"></span>
+                        Confirmado
                       </div>
-                    <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
-                      <p>{{ getReservationSummary(res) }}</p>
-                    </div>
-                  }
+                      <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
+                        <p>{{ getReservationSummary(res) }}</p>
+                        <p class="font-bold text-gray-600 mt-0.5">{{ res.deposit_transferred_by || 'Sin nombre asignado' }}</p>
+                        <p>{{ res.deposit_confirmed_at | date:'shortTime' }}</p>
+                      </div>
+                    } @else {
+                      <div class="inline-flex items-center justify-end md:justify-start gap-2 rounded-sm border border-gray-200 bg-gray-50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 w-fit self-end md:self-start">
+                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                          Pendiente
+                        </div>
+                      <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
+                        <p>{{ getReservationSummary(res) }}</p>
+                      </div>
+                    }
 
-                  <button
-                    (click)="res.id && openDepositForm(res.id, res)"
-                    [disabled]="requiresCorrectionMode(res) && !isCorrectionActive(res.id!)"
-                    class="rounded-sm border border-lamour-stone/15 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-lamour-stone transition hover:border-lamour-stone hover:bg-lamour-stone hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {{ res.fee_paid ? 'Editar deposito' : 'Confirmar deposito' }}
-                  </button>
+                    <button
+                      (click)="res.id && openDepositForm(res.id, res)"
+                      [disabled]="requiresCorrectionMode(res) && !isCorrectionActive(res.id!)"
+                      class="rounded-sm border border-lamour-stone/20 bg-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-lamour-stone transition hover:border-lamour-stone hover:bg-lamour-stone hover:text-white disabled:cursor-not-allowed disabled:opacity-30 mt-1 shadow-sm w-fit self-end md:self-start"
+                    >
+                      {{ res.fee_paid ? 'Editar' : 'Confirmar' }}
+                    </button>
+                  </div>
                 </div>
               </td>
-              <td class="py-4">
-                <div class="flex flex-col items-start gap-2">
-                  <button (click)="res.id && toggleTimeline(res.id)" class="inline-flex items-center gap-2 rounded-sm border border-gray-200 bg-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 transition hover:border-lamour-blush hover:text-lamour-stone">
+              <td class="py-3 md:py-4 flex justify-between md:flex-col items-center md:items-start md:table-cell md:border-0 pt-4 pb-2 md:pt-4">
+                <span class="md:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-lamour-stone">Seguimiento</span>
+                <div class="flex flex-row md:flex-col justify-end md:justify-start gap-2">
+                  <button (click)="res.id && toggleTimeline(res.id)" class="inline-flex items-center gap-2 rounded-sm border border-lamour-blush/30 bg-lamour-blush/5 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-lamour-stone transition hover:bg-lamour-blush hover:text-white shadow-sm">
                     <span>Historial</span>
-                    <span class="rounded-sm bg-gray-100 px-1.5 py-0.5 text-[8px]">{{ getHistory(res.id).length }}</span>
+                    <span class="rounded-sm bg-white/50 px-1.5 py-0.5 text-[8px]">{{ getHistory(res.id).length }}</span>
                   </button>
 
                   @if (!isCorrectionActive(res.id!)) {
-                    <button (click)="res.id && beginCorrection(res.id)" class="rounded-sm border border-red-200 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-red-600 transition hover:bg-red-50">
-                      Correccion admin
+                    <button (click)="res.id && beginCorrection(res.id)" class="rounded-sm border-0 border-b border-transparent px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-red-400 transition hover:text-red-600 hover:border-red-600">
+                      Modo admin
                     </button>
                   } @else {
-                    <button (click)="cancelCorrection()" class="rounded-sm border border-gray-200 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 transition hover:bg-gray-50">
-                      Salir correccion
+                    <button (click)="cancelCorrection()" class="rounded-sm border-0 border-b border-transparent px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-400 transition hover:text-gray-600 hover:border-gray-600">
+                      Salir edición
                     </button>
                   }
                 </div>
@@ -165,9 +177,9 @@
             </tr>
 
             @if (res.id && (activeDepositReservationId() === res.id || activeTimelineReservationId() === res.id || feedback()[res.id] || isCorrectionActive(res.id))) {
-              <tr class="bg-[#fcfaf8]">
-                <td colspan="6" class="px-5 py-5">
-                  <div class="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+              <tr class="bg-[#fcfaf8] flex flex-col md:table-row border-l-4 {{ getStatusConfig(res.status).rowAccent }} !border-t-0 rounded-b-lg md:rounded-none relative -top-3 md:top-0 z-0">
+                <td colspan="6" class="px-4 py-8 md:px-5 md:py-5 block md:table-cell border border-gray-100 md:border-0 border-t-0 rounded-b-lg md:rounded-none">
+                  <div class="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
                     <div class="rounded-2xl border border-lamour-blush/20 bg-white p-4 shadow-sm">
                       <div class="mb-4 flex items-center justify-between gap-4">
                         <div>
@@ -304,9 +316,9 @@
               </tr>
             }
           } @empty {
-            <tr>
-              <td colspan="6" class="py-20 text-center opacity-20">
-                <p class="font-serif text-xl uppercase tracking-[0.2em]">Sin apartados</p>
+            <tr class="flex md:table-row w-full justify-center bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-10 md:p-0">
+              <td colspan="6" class="py-10 md:py-20 text-center opacity-20 block md:table-cell w-full">
+                <p class="font-serif text-lg md:text-xl uppercase tracking-[0.2em] w-full text-center">Sin apartados</p>
               </td>
             </tr>
           }
