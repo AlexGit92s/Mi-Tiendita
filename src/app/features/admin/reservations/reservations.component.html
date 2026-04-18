@@ -1,0 +1,317 @@
+<div class="px-6 py-10 mx-auto max-w-7xl min-h-screen bg-[#fcfcfc] text-[#333333]">
+  <div class="flex flex-wrap gap-4 mb-10">
+    <a routerLink="/admin/dashboard" class="group px-5 py-2.5 bg-white border border-lamour-stone/10 text-gray-500 hover:border-lamour-stone hover:bg-lamour-stone/5 hover:text-lamour-stone transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+      <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-stone group-hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+      </div>
+      Dashboard
+    </a>
+    <a routerLink="/admin/inventory" class="group px-5 py-2.5 bg-white border border-lamour-stone/10 text-gray-500 hover:border-lamour-stone hover:bg-lamour-stone/5 hover:text-lamour-stone transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+      <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-stone group-hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+      </div>
+      Inventario
+    </a>
+    <a routerLink="/admin/categories" class="group px-5 py-2.5 bg-white border border-lamour-gold/10 text-gray-500 hover:border-lamour-gold hover:bg-lamour-gold/5 hover:text-lamour-gold transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+      <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-gold group-hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.154.545-2.003 1.838-2.53.942-.382 1.98-.52 2.841-.52 1.329 0 2.47.63 3.065 1.764.584.378 1.146.653 1.828 1.08.676.427 1.46 1.04 1.925 1.655l.592.621c.406.41.627.94.627 1.533v6.036c0 1.154-.545 2.003-1.838 2.53-.942.382-1.98.52-2.841.52-1.329 0-2.47-.63-3.065-1.764-.584-.378-1.146-.653-1.828-1.08-.676-.427-1.46-1.04-1.925-1.655l-.592-.621c-.406-.41-.627-.94-.627-1.533V12.75" /></svg>
+      </div>
+      Categorias
+    </a>
+  </div>
+
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-lamour-blush/30 pb-8">
+    <div>
+      <h1 class="text-4xl font-serif text-lamour-stone uppercase tracking-[0.2em]">Registro de Apartados</h1>
+      <p class="mt-2 text-sm text-gray-400 font-sans tracking-widest uppercase font-light">Historial casi inmutable con correccion administrativa</p>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-3 mb-8">
+    <button (click)="setFilter('all')" [ngClass]="statusFilter() === 'all' ? 'bg-lamour-stone text-white border-lamour-stone shadow-sm' : 'bg-white text-gray-500 border-gray-100 hover:border-lamour-stone/30'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+      <span>Ver Todo</span>
+      <span class="px-1.5 py-0.5 bg-black/10 text-[9px] rounded-sm">{{ counts().all }}</span>
+    </button>
+    <button (click)="setFilter('pendiente')" [ngClass]="statusFilter() === 'pendiente' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-white text-gray-500 border-gray-100 hover:border-amber-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+      <span>Pendientes</span>
+      <span class="px-1.5 py-0.5 bg-amber-500/15 text-amber-700 text-[9px] rounded-sm">{{ counts().pendiente }}</span>
+    </button>
+    <button (click)="setFilter('pagado')" [ngClass]="statusFilter() === 'pagado' ? 'bg-sky-100 text-sky-700 border-sky-200' : 'bg-white text-gray-500 border-gray-100 hover:border-sky-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+      <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+      <span>Pagadas</span>
+      <span class="px-1.5 py-0.5 bg-sky-500/15 text-sky-700 text-[9px] rounded-sm">{{ counts().pagado }}</span>
+    </button>
+    <button (click)="setFilter('entregado')" [ngClass]="statusFilter() === 'entregado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-white text-gray-500 border-gray-100 hover:border-emerald-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+      <span>Entregadas</span>
+      <span class="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-700 text-[9px] rounded-sm">{{ counts().entregado }}</span>
+    </button>
+    <button (click)="setFilter('finalizado')" [ngClass]="statusFilter() === 'finalizado' ? 'bg-violet-100 text-violet-700 border-violet-200' : 'bg-white text-gray-500 border-gray-100 hover:border-violet-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+      <span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>
+      <span>Finalizadas</span>
+      <span class="px-1.5 py-0.5 bg-violet-500/15 text-violet-700 text-[9px] rounded-sm">{{ counts().finalizado }}</span>
+    </button>
+    <button (click)="setFilter('cancelado')" [ngClass]="statusFilter() === 'cancelado' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-white text-gray-500 border-gray-100 hover:border-red-200'" class="inline-flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm border transition-all">
+      <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+      <span>Canceladas</span>
+      <span class="px-1.5 py-0.5 bg-red-500/15 text-red-700 text-[9px] rounded-sm">{{ counts().cancelado }}</span>
+    </button>
+  </div>
+
+  <div class="bg-white border border-lamour-blush/10 rounded-lg shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table w-full text-xs">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr class="text-gray-400 font-serif uppercase tracking-widest text-[9px]">
+            <th class="py-4">Pieza</th>
+            <th class="py-4">Cliente / Contacto</th>
+            <th class="py-4">Fecha Cita</th>
+            <th class="py-4">Estado</th>
+            <th class="py-4">Deposito</th>
+            <th class="py-4">Seguimiento</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (res of filteredReservations(); track res.id) {
+            <tr class="hover:bg-gray-50/60 transition-colors border-l-4 {{ getStatusConfig(res.status).rowAccent }}">
+              <td class="py-4 pl-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-12 bg-gray-50 border border-gray-100 flex-shrink-0">
+                    <img *ngIf="res.products?.images?.[0]" [src]="res.products?.images?.[0]" class="w-full h-full object-cover grayscale-[20%]">
+                  </div>
+                  <div>
+                    <div class="font-bold text-gray-800 uppercase tracking-tighter">{{ res.products?.name }}</div>
+                    <div class="text-[9px] text-gray-400 font-sans tracking-widest">L. {{ res.products?.price }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4">
+                <div class="font-bold text-lamour-stone">{{ res.customer_name }}</div>
+                <div class="text-[10px] text-gray-400 leading-tight">
+                  <p>{{ res.customer_email }}</p>
+                  <p>{{ res.customer_phone }}</p>
+                </div>
+              </td>
+              <td class="py-4">
+                <div class="flex flex-col">
+                  <span class="font-bold text-xs">{{ res.reservation_date | date:'mediumDate' }}</span>
+                  <span class="text-[9px] text-gray-400 uppercase tracking-widest">Cita / Fitting</span>
+                </div>
+              </td>
+              <td class="py-4">
+                <div class="flex flex-col items-start gap-2">
+                  <div [ngClass]="getStatusConfig(res.status).class" class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.22em] shadow-sm">
+                    <span class="h-2 w-2 rounded-full {{ getStatusConfig(res.status).dot }}"></span>
+                    <span>{{ getStatusConfig(res.status).label }}</span>
+                  </div>
+
+                  @if (isLockedReservation(res) && !isCorrectionActive(res.id!)) {
+                    <span class="text-[9px] uppercase tracking-widest text-gray-400">Bloqueado por cierre</span>
+                  } @else {
+                    <span class="text-[9px] uppercase tracking-widest text-gray-400">Derivado por eventos</span>
+                  }
+                </div>
+              </td>
+              <td class="py-4">
+                <div class="flex flex-col items-start gap-2">
+                  @if (res.fee_paid) {
+                    <div class="inline-flex items-center gap-2 rounded-full border border-lamour-gold/20 bg-lamour-gold/5 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-lamour-gold">
+                      <span class="h-1.5 w-1.5 rounded-full bg-lamour-gold"></span>
+                      Confirmado
+                    </div>
+                    <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
+                      <p>{{ getReservationSummary(res) }}</p>
+                      <p>{{ res.deposit_transferred_by || 'Sin nombre' }}</p>
+                      <p>{{ res.deposit_confirmed_at | date:'short' }}</p>
+                    </div>
+                  } @else {
+                    <div class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-gray-400">
+                      <span class="h-1.5 w-1.5 rounded-full bg-gray-300"></span>
+                        Pendiente
+                      </div>
+                    <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
+                      <p>{{ getReservationSummary(res) }}</p>
+                    </div>
+                  }
+
+                  <button
+                    (click)="res.id && openDepositForm(res.id, res)"
+                    [disabled]="requiresCorrectionMode(res) && !isCorrectionActive(res.id!)"
+                    class="rounded-sm border border-lamour-stone/15 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-lamour-stone transition hover:border-lamour-stone hover:bg-lamour-stone hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {{ res.fee_paid ? 'Editar deposito' : 'Confirmar deposito' }}
+                  </button>
+                </div>
+              </td>
+              <td class="py-4">
+                <div class="flex flex-col items-start gap-2">
+                  <button (click)="res.id && toggleTimeline(res.id)" class="inline-flex items-center gap-2 rounded-sm border border-gray-200 bg-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-gray-500 transition hover:border-lamour-blush hover:text-lamour-stone">
+                    <span>Historial</span>
+                    <span class="rounded-sm bg-gray-100 px-1.5 py-0.5 text-[8px]">{{ getHistory(res.id).length }}</span>
+                  </button>
+
+                  @if (!isCorrectionActive(res.id!)) {
+                    <button (click)="res.id && beginCorrection(res.id)" class="rounded-sm border border-red-200 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-red-600 transition hover:bg-red-50">
+                      Correccion admin
+                    </button>
+                  } @else {
+                    <button (click)="cancelCorrection()" class="rounded-sm border border-gray-200 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 transition hover:bg-gray-50">
+                      Salir correccion
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+
+            @if (res.id && (activeDepositReservationId() === res.id || activeTimelineReservationId() === res.id || feedback()[res.id] || isCorrectionActive(res.id))) {
+              <tr class="bg-[#fcfaf8]">
+                <td colspan="6" class="px-5 py-5">
+                  <div class="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+                    <div class="rounded-2xl border border-lamour-blush/20 bg-white p-4 shadow-sm">
+                      <div class="mb-4 flex items-center justify-between gap-4">
+                        <div>
+                          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Confirmacion de deposito</p>
+                          <p class="mt-1 text-[10px] text-gray-400">Referencia o autorizacion mas nombre de quien transfiere.</p>
+                        </div>
+                        @if (activeDepositReservationId() === res.id) {
+                          <button (click)="closeDepositForm()" class="text-[10px] uppercase tracking-widest text-gray-400 transition hover:text-lamour-stone">Cerrar</button>
+                        }
+                      </div>
+
+                      @if (isCorrectionActive(res.id!)) {
+                        <label class="mb-4 block">
+                          <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-red-600">Motivo de correccion</span>
+                          <textarea
+                            [ngModel]="getCorrectionDraft(res.id!).reason"
+                            (ngModelChange)="updateCorrectionDraft(res.id!, $event)"
+                            class="min-h-[88px] w-full rounded-xl border border-red-200 bg-red-50/40 px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-red-300"
+                            placeholder="Explica el error original y la correccion"
+                          ></textarea>
+                        </label>
+                      }
+
+                      <div class="space-y-3">
+                        <label class="block">
+                          <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Numero de referencia</span>
+                          <input [ngModel]="getDepositDraft(res.id!, res).reference" (ngModelChange)="updateDepositDraft(res.id!, 'reference', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" placeholder="Ej. 98451233">
+                        </label>
+
+                        <label class="block">
+                          <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Numero de autorizacion</span>
+                          <input [ngModel]="getDepositDraft(res.id!, res).authorization" (ngModelChange)="updateDepositDraft(res.id!, 'authorization', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" placeholder="Ej. BAC-7782">
+                        </label>
+
+                        <label class="block">
+                          <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Quien transfiere</span>
+                          <input [ngModel]="getDepositDraft(res.id!, res).transferredBy" (ngModelChange)="updateDepositDraft(res.id!, 'transferredBy', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" placeholder="Nombre del titular">
+                        </label>
+
+                        <div class="flex flex-wrap gap-2 pt-2">
+                          <button (click)="confirmDeposit(res.id!)" class="rounded-xl bg-lamour-stone px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white transition hover:bg-black">
+                            Guardar deposito
+                          </button>
+                          @if (res.fee_paid) {
+                            <button (click)="clearDepositConfirmation(res.id!)" class="rounded-xl border border-red-200 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-600 transition hover:bg-red-50">
+                              Revertir
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-lamour-blush/20 bg-white p-4 shadow-sm">
+                      <div class="mb-4 flex items-center justify-between gap-4">
+                        <div>
+                          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Historial del producto</p>
+                          <p class="mt-1 text-[10px] text-gray-400">No se edita el pasado; se agregan eventos o correcciones. Resumen actual: {{ getReservationSummary(res) }}</p>
+                        </div>
+                        @if (activeTimelineReservationId() === res.id) {
+                          <button (click)="toggleTimeline(res.id!)" class="text-[10px] uppercase tracking-widest text-gray-400 transition hover:text-lamour-stone">Cerrar</button>
+                        }
+                      </div>
+
+                      <div class="mb-4 grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)_auto]">
+                        <select [ngModel]="getEventDraft(res.id!).eventKey" (ngModelChange)="updateEventDraft(res.id!, 'eventKey', $event)" class="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone">
+                          @for (event of trackingEventOptions; track event.value) {
+                            <option [value]="event.value">{{ event.label }}</option>
+                          }
+                        </select>
+
+                        <input [ngModel]="getEventDraft(res.id!).notes" (ngModelChange)="updateEventDraft(res.id!, 'notes', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" placeholder="Detalle opcional del evento">
+
+                        <button (click)="addTrackingEvent(res.id!)" class="rounded-xl border border-lamour-stone/20 bg-lamour-stone/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-lamour-stone transition hover:bg-lamour-stone hover:text-white">
+                          Agregar evento
+                        </button>
+                      </div>
+
+                      @if (feedback()[res.id!]) {
+                        <div class="mb-4 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-[10px] uppercase tracking-widest text-amber-700">
+                          {{ feedback()[res.id!] }}
+                        </div>
+                      }
+
+                      <div class="space-y-3">
+                        @for (item of getHistory(res.id); track item.id) {
+                          <div class="timeline-item rounded-xl border border-gray-100 bg-[#fcfcfc] px-4 py-3">
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                              <div class="flex items-center gap-3">
+                                <span class="h-2.5 w-2.5 rounded-full" [ngClass]="item.is_correction ? 'bg-red-500' : 'bg-lamour-stone'"></span>
+                                <div>
+                                  <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-lamour-stone">{{ item.event_label }}</p>
+                                  <p class="text-[10px] text-gray-400">{{ item.created_at | date:'medium' }}</p>
+                                </div>
+                              </div>
+                              <div class="flex flex-wrap items-center gap-2">
+                                @if (item.is_correction) {
+                                  <span class="rounded-full bg-red-50 px-2 py-1 text-[9px] uppercase tracking-widest text-red-600">Correccion</span>
+                                }
+                                <span class="rounded-full bg-gray-100 px-2 py-1 text-[9px] uppercase tracking-widest text-gray-500">{{ item.source }}</span>
+                              </div>
+                            </div>
+                            @if (item.notes) {
+                              <p class="mt-2 text-sm text-gray-600">{{ item.notes }}</p>
+                            }
+                            @if (item.correction_reason) {
+                              <p class="mt-2 rounded-lg bg-red-50 px-3 py-2 text-[10px] uppercase tracking-widest text-red-700">Motivo: {{ item.correction_reason }}</p>
+                            }
+                            @if (item.actor_email) {
+                              <p class="mt-2 text-[10px] text-gray-400">Registrado por {{ item.actor_email }}</p>
+                            }
+                            @if (item.metadata?.['transferred_by'] || item.metadata?.['reference'] || item.metadata?.['authorization']) {
+                              <div class="mt-2 flex flex-wrap gap-2 text-[9px] uppercase tracking-widest text-gray-400">
+                                @if (item.metadata?.['transferred_by']) {
+                                  <span class="rounded-full bg-gray-100 px-2 py-1">Transfiere: {{ item.metadata?.['transferred_by'] }}</span>
+                                }
+                                @if (item.metadata?.['reference']) {
+                                  <span class="rounded-full bg-gray-100 px-2 py-1">Ref: {{ item.metadata?.['reference'] }}</span>
+                                }
+                                @if (item.metadata?.['authorization']) {
+                                  <span class="rounded-full bg-gray-100 px-2 py-1">Auth: {{ item.metadata?.['authorization'] }}</span>
+                                }
+                              </div>
+                            }
+                          </div>
+                        } @empty {
+                          <div class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center text-[10px] uppercase tracking-[0.2em] text-gray-400">
+                            Sin eventos todavia
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          } @empty {
+            <tr>
+              <td colspan="6" class="py-20 text-center opacity-20">
+                <p class="font-serif text-xl uppercase tracking-[0.2em]">Sin apartados</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

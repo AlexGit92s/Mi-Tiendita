@@ -1,0 +1,170 @@
+<div class="px-4 py-8 mx-auto max-w-4xl min-h-screen bg-[#fcfcfc] text-[#333333]">
+  <div class="mb-8 border-b border-lamour-blush/30 pb-6">
+    <div class="flex justify-between items-start mb-4">
+      <a routerLink="/admin/inventory" class="text-xs tracking-widest uppercase text-lamour-stone hover:text-lamour-gold transition-colors">&larr; Volver al Gabinete</a>
+      <a routerLink="/admin/categories" class="text-xs tracking-widest uppercase text-lamour-blush hover:text-lamour-gold transition-colors">Gestionar Familias &rarr;</a>
+    </div>
+    <h1 class="text-3xl font-serif text-lamour-stone uppercase tracking-widest">{{ id ? 'Modificar Pieza' : 'Añadir Nueva Pieza' }}</h1>
+    <p class="mt-2 text-sm text-gray-500 font-sans tracking-wide font-light">Especifique los detalles de la pieza para su exhibición en la boutique.</p>
+  </div>
+
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="bg-white shadow-sm p-6 md:p-8 border border-lamour-blush/20 rounded-lg">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Basic Info -->
+      <div class="form-control w-full space-y-5">
+        <div class="form-control">
+          <label class="label flex flex-col items-start gap-1">
+            <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Nombre de la Pieza</span>
+          </label>
+          <input type="text" formControlName="name" 
+            class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3 
+                   focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
+                   placeholder:text-gray-300 placeholder:text-xs" 
+            placeholder="Ej. Robe de Soirée"/>
+        </div>
+
+<div class="form-control">
+           <label class="label flex flex-col items-start gap-1">
+             <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Categoría Colección</span>
+           </label>
+           @if (isLoading()) {
+             <div class="flex items-center justify-center py-4">
+               <span class="loading loading-spinner loading-md text-lamour-blush"></span>
+             </div>
+           } @else if (loadError()) {
+             <div class="bg-red-50 border border-red-200 rounded-sm p-4">
+               <p class="text-red-600 text-xs font-semibold mb-1">Error cargando categorías</p>
+               <p class="text-red-500 text-[11px] mb-3">{{ loadError() }}</p>
+               <button (click)="loadCategories()" class="px-4 py-2 bg-red-100 border border-red-300 text-red-700 hover:bg-red-200 transition-colors text-[10px] uppercase tracking-widest font-bold rounded-sm">
+                 Reintentar
+               </button>
+             </div>
+           } @else if (categories().length === 0) {
+             <div class="bg-amber-50 border border-amber-200 rounded-sm p-4">
+               <p class="text-amber-700 text-xs uppercase tracking-widest font-semibold mb-2">No hay categorías</p>
+               <p class="text-amber-600 text-[11px] mb-3">Cree categorías para organizar sus productos.</p>
+               <button (click)="loadCategories()" class="px-4 py-2 bg-amber-100 border border-amber-300 text-amber-700 hover:bg-amber-200 transition-colors text-[10px] uppercase tracking-widest font-bold rounded-sm">
+                 Recargar
+               </button>
+             </div>
+           } @else {
+             <select formControlName="category_id" 
+               class="select w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
+                      focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300">
+               <option value="">Sin categoría</option>
+               @for (cat of categories(); track cat.id) {
+                 <option [value]="cat.id">{{ cat.name }}</option>
+               }
+             </select>
+           }
+         </div>
+
+        <div class="grid grid-cols-2 gap-5">
+          <div class="form-control">
+            <label class="label flex flex-col items-start gap-1">
+              <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Precio (L.)</span>
+            </label>
+            <input type="number" formControlName="price" 
+              class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
+                     focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
+                     placeholder:text-gray-300 placeholder:text-xs" 
+              placeholder="0.00"/>
+          </div>
+          <div class="form-control">
+            <label class="label flex flex-col items-start gap-1">
+              <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Stock Disponible</span>
+            </label>
+            <input type="number" formControlName="stock"
+              class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
+                     focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
+                     placeholder:text-gray-300 placeholder:text-xs"
+              placeholder="0"/>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 py-2">
+          <input type="checkbox" formControlName="is_limited_edition" class="checkbox checkbox-primary border-gray-300 rounded-sm" id="limited-edition" />
+          <label for="limited-edition" class="text-xs uppercase tracking-[0.15em] text-lamour-stone cursor-pointer select-none">Edición Limitada</label>
+        </div>
+
+        <div class="form-control">
+          <label class="label flex flex-col items-start gap-1">
+            <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Descripción Editorial</span>
+          </label>
+          <textarea formControlName="description" 
+            class="textarea w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
+                   focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
+                   placeholder:text-gray-300 placeholder:text-xs h-24 resize-none" 
+            placeholder="Describa la narrativa y material de la pieza..."></textarea>
+        </div>
+      </div>
+
+      <!-- Multi-Image Gallery -->
+      <div class="border-t md:border-t-0 md:border-l border-lamour-blush/10 md:pl-8 pt-6 md:pt-0">
+        <label class="label flex items-center justify-between mb-4">
+          <span class="label-text font-serif text-lamour-stone uppercase tracking-widest">Galería de Campaña</span>
+          <span class="text-[10px] text-gray-400 uppercase tracking-widest">{{ images().length }} imagen(es)</span>
+        </label>
+
+        @if (images().length > 0) {
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            @for (url of images(); track url; let i = $index) {
+              <div class="relative group overflow-hidden aspect-[3/4] border border-lamour-blush/20 bg-gray-50 rounded-sm shadow-sm">
+                <img [src]="url" class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105" [alt]="'Imagen ' + (i + 1)">
+                @if (i === 0) {
+                  <span class="absolute top-2 left-2 px-2 py-0.5 text-[9px] uppercase tracking-widest bg-lamour-stone text-white rounded-sm">Principal</span>
+                }
+                <div class="absolute inset-0 bg-white/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  @if (i > 0) {
+                    <button type="button" (click)="moveImage(i, -1)" aria-label="Mover arriba" class="px-2 py-1 bg-white text-lamour-stone border border-lamour-blush hover:bg-lamour-blush hover:text-white text-[10px] uppercase rounded-sm">&larr;</button>
+                  }
+                  <button type="button" (click)="removeImageAt(i)" class="px-3 py-1 bg-white text-lamour-stone border border-lamour-blush hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors text-[10px] uppercase tracking-widest font-semibold rounded-sm">
+                    Quitar
+                  </button>
+                  @if (i < images().length - 1) {
+                    <button type="button" (click)="moveImage(i, 1)" aria-label="Mover abajo" class="px-2 py-1 bg-white text-lamour-stone border border-lamour-blush hover:bg-lamour-blush hover:text-white text-[10px] uppercase rounded-sm">&rarr;</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="bg-gray-50 border border-dashed border-gray-200 aspect-[3/4] mb-6 flex flex-col items-center justify-center text-center p-6 rounded-sm">
+            <p class="text-lamour-stone font-serif text-lg tracking-widest uppercase opacity-20">Sin Imágenes</p>
+            <p class="text-[10px] text-gray-400 tracking-wider mt-2 uppercase font-semibold">Adjunte material gráfico</p>
+          </div>
+        }
+
+        <div class="form-control">
+          <label class="cursor-pointer px-6 py-3 bg-white border border-lamour-blush text-lamour-stone
+                        hover:bg-lamour-blush hover:text-white transition-all duration-300
+                        text-[11px] uppercase tracking-[0.15em] font-semibold flex items-center justify-center gap-2 rounded-sm shadow-sm hover:shadow-md"
+                 [class.opacity-60]="isUploading()">
+            @if (isUploading()) {
+              <span class="loading loading-spinner loading-sm"></span>
+              Subiendo...
+            } @else {
+              Añadir Imágenes
+            }
+            <input type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)" [disabled]="isSaving() || isUploading()" />
+          </label>
+          <p class="mt-2 text-[10px] text-gray-400 uppercase tracking-[0.15em] text-center">Puedes seleccionar varias a la vez. La primera es la principal.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-lamour-blush/10 flex justify-end gap-4">
+      <a routerLink="/admin/inventory" class="px-6 py-3 text-[11px] uppercase tracking-[0.15em] font-semibold text-gray-400 hover:text-lamour-stone transition-colors">Cancelar</a>
+      <button type="submit" 
+        class="px-10 py-3 bg-lamour-stone text-white hover:bg-lamour-gold transition-all duration-300 uppercase tracking-[0.15em] text-[11px] font-bold rounded-sm shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed" 
+        [disabled]="productForm.invalid || isSaving()">
+        @if(isSaving()) {
+          <span class="loading loading-spinner loading-md mr-2"></span>
+        } @else {
+          Finalizar Registro
+        }
+      </button>
+    </div>
+  </form>
+</div>

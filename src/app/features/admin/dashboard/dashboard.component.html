@@ -1,0 +1,113 @@
+<div class="px-6 py-10 mx-auto max-w-7xl min-h-screen bg-[#fcfcfc] text-[#333333]">
+
+  <!-- Quick Access Links -->
+  <div class="flex flex-wrap gap-4 mb-10">
+    <a routerLink="/admin/inventory" class="group px-5 py-2.5 bg-white border border-lamour-stone/10 text-gray-500 hover:border-lamour-stone hover:bg-lamour-stone/5 hover:text-lamour-stone transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+      <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-stone group-hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+      </div>
+      Inventario
+    </a>
+    <a routerLink="/admin/reservations" class="group px-5 py-2.5 bg-white border border-lamour-blush/10 text-gray-500 hover:border-lamour-blush hover:bg-lamour-blush/5 hover:text-lamour-blush transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+      <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-blush group-hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0020.25 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+      </div>
+      Apartados
+    </a>
+    <a routerLink="/admin/categories" class="group px-5 py-2.5 bg-white border border-lamour-gold/10 text-gray-500 hover:border-lamour-gold hover:bg-lamour-gold/5 hover:text-lamour-gold transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+      <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-gold group-hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.154.545-2.003 1.838-2.53.942-.382 1.98-.52 2.841-.52 1.329 0 2.47.63 3.065 1.764.584.378 1.146.653 1.828 1.08.676.427 1.46 1.04 1.925 1.655l.592.621c.406.41.627.94.627 1.533v6.036c0 1.154-.545 2.003-1.838 2.53-.942.382(1.98.52-2.841.52-1.329 0-2.47-.63-3.065-1.764-.584-.378-1.146-.653-1.828-1.08-.676-.427-1.46-1.04-1.925-1.655l-.592-.621c-.406-.41-.627-.94-.627-1.533V12.75" /></svg>
+      </div>
+      Categorías
+    </a>
+  </div>
+  
+  <!-- Header Section -->
+  <div class="mb-12 border-b border-lamour-blush/30 pb-8">
+    <h1 class="text-4xl font-serif text-lamour-stone uppercase tracking-[0.2em]">Panel de Gestión</h1>
+    <p class="mt-2 text-sm text-gray-400 font-sans tracking-widest uppercase font-light">Métricas de Rendimiento Mi Tiendita Lamour</p>
+  </div>
+
+  <!-- Metrics Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+    <!-- Revenue -->
+    <div class="bg-white p-8 border border-lamour-blush/20 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="p-3 bg-lamour-gold/10 text-lamour-gold rounded-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Valor Confirmado</span>
+      </div>
+      <div class="text-4xl font-serif text-lamour-stone">L. {{ totalConfirmedValue() | number:'1.2-2' }}</div>
+      <p class="text-[10px] text-emerald-500 mt-2 font-bold uppercase tracking-widest">Ingresos Estimados</p>
+    </div>
+
+    <!-- Active Reservations -->
+    <div class="bg-white p-8 border border-lamour-blush/20 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="p-3 bg-lamour-blush/20 text-lamour-stone rounded-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+          </svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Apartados Activos</span>
+      </div>
+      <div class="text-4xl font-serif text-lamour-stone">{{ activeReservations() }}</div>
+      <p class="text-[10px] text-amber-500 mt-2 font-bold uppercase tracking-widest">Pendientes de Atención</p>
+    </div>
+
+    <!-- Inventory Health -->
+    <div class="bg-white p-8 border border-lamour-blush/20 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="p-3 bg-lamour-stone/10 text-lamour-stone rounded-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Salud del Stock</span>
+      </div>
+      <div class="text-4xl font-serif text-lamour-stone text-sm">Buen Estado</div>
+      <p class="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest">Inventario Saludable</p>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <!-- Chart Section -->
+    <div class="bg-white p-8 border border-lamour-blush/20 rounded-lg shadow-sm">
+      <h3 class="text-xl font-serif text-lamour-stone uppercase tracking-widest mb-8">Fluctuación Semanal</h3>
+      <div style="display: block;">
+        <canvas baseChart
+          [data]="barChartData"
+          [options]="barChartOptions"
+          [type]="barChartType">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <div class="bg-white p-8 border border-lamour-blush/20 rounded-lg shadow-sm flex flex-col">
+      <h3 class="text-xl font-serif text-lamour-stone uppercase tracking-widest mb-8">Actividad Reciente</h3>
+      <div class="space-y-6">
+        @for (item of recentFeed(); track item.title) {
+          <div class="flex gap-4 border-l-2 border-lamour-blush/30 pl-4 py-1 hover:border-lamour-gold transition-colors">
+            <div class="flex-grow">
+              <div class="flex justify-between items-start">
+                <p class="text-xs font-bold text-lamour-stone uppercase tracking-widest">{{ item.title }}</p>
+                <span class="text-[9px] text-gray-300 font-sans tracking-widest">{{ item.time }}</span>
+              </div>
+              <p class="text-[10px] text-gray-400 font-sans mt-1 uppercase tracking-wider font-light">{{ item.desc }}</p>
+            </div>
+          </div>
+        } @empty {
+          <div class="text-center py-20 grayscale opacity-30">
+            <p class="font-serif italic text-gray-400">Sin actividad reciente...</p>
+          </div>
+        }
+      </div>
+      <a routerLink="/admin/reservations" class="mt-auto pt-8 text-center text-[10px] uppercase tracking-widest font-bold text-gray-400 hover:text-lamour-gold transition-colors">Ver todos los apartados &rarr;</a>
+    </div>
+  </div>
+</div>

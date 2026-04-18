@@ -1,0 +1,118 @@
+<div class="min-h-screen bg-[#fcfcfc] py-12">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="mb-8">
+      <a routerLink="/catalog" class="text-xs uppercase tracking-widest text-lamour-stone hover:text-lamour-gold transition-colors">&larr; Volver al catálogo</a>
+    </div>
+
+    @if (loading()) {
+      <div class="py-32 text-center">
+        <span class="loading loading-spinner loading-lg text-lamour-blush"></span>
+        <p class="mt-6 text-xs uppercase tracking-widest text-gray-400">Cargando pieza...</p>
+      </div>
+    }
+
+    @if (!loading() && notFound()) {
+      <div class="py-24 text-center bg-white border border-dashed border-gray-200 rounded-lg">
+        <h2 class="text-2xl font-serif text-lamour-stone mb-2 uppercase tracking-widest">Producto no encontrado</h2>
+        <p class="text-xs text-gray-400 uppercase tracking-widest font-light mb-8">La pieza solicitada no existe o fue retirada.</p>
+        <a routerLink="/catalog" class="px-8 py-3 border border-lamour-stone text-lamour-stone hover:bg-lamour-stone hover:text-white transition-all text-xs uppercase tracking-widest font-bold rounded-sm">Ver Catálogo</a>
+      </div>
+    }
+
+    @if (product(); as p) {
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+
+        <!-- Gallery -->
+        <div class="flex flex-col gap-4">
+          <div class="aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-50 border border-lamour-blush/20 shadow-sm relative">
+            @if (activeImage(); as url) {
+              <img [src]="url" [alt]="p.name" class="object-cover w-full h-full" />
+            } @else {
+              <div class="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-12 h-12 mb-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z" />
+                </svg>
+                <span class="font-serif text-xs uppercase tracking-widest">Sin imagen disponible</span>
+              </div>
+            }
+
+            @if (p.is_limited_edition) {
+              <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm text-lamour-stone text-[10px] uppercase tracking-widest px-3 py-1 rounded-sm border border-lamour-stone/20">
+                Edición Limitada
+              </div>
+            }
+          </div>
+
+          @if (p.images && p.images.length > 1) {
+            <div class="grid grid-cols-5 gap-2">
+              @for (img of p.images; track img; let i = $index) {
+                <button type="button" (click)="selectImage(i)"
+                        [class.ring-2]="activeImageIndex() === i"
+                        [class.ring-lamour-blush]="activeImageIndex() === i"
+                        class="aspect-[3/4] overflow-hidden rounded-sm border border-gray-100 bg-gray-50 hover:border-lamour-blush transition-colors">
+                  <img [src]="img" [alt]="'Miniatura ' + (i + 1)" class="object-cover w-full h-full" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Info -->
+        <div class="flex flex-col">
+          @if (p.categories?.name) {
+            <p class="text-[10px] uppercase tracking-[0.3em] text-lamour-blush mb-3 font-bold">{{ p.categories?.name }}</p>
+          }
+          <h1 class="text-3xl md:text-4xl font-serif text-lamour-stone tracking-wide mb-4">{{ p.name }}</h1>
+
+          <div class="flex items-baseline gap-4 mb-6 border-b border-lamour-blush/20 pb-6">
+            <span class="text-3xl font-sans font-black text-lamour-gold">L. {{ p.price }}</span>
+            @if (isAvailable()) {
+              <span class="text-[10px] uppercase tracking-widest bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-bold">En stock · {{ p.stock }} disponibles</span>
+            } @else {
+              <span class="text-[10px] uppercase tracking-widest bg-red-50 text-red-500 px-3 py-1 rounded-full font-bold">Agotado</span>
+            }
+          </div>
+
+          @if (p.description) {
+            <div class="mb-8">
+              <h2 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-3">Descripción</h2>
+              <p class="text-sm text-gray-600 leading-relaxed font-light whitespace-pre-line">{{ p.description }}</p>
+            </div>
+          }
+
+          @if (p.sizes && p.sizes.length > 0) {
+            <div class="mb-8">
+              <h2 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-3">Tallas disponibles</h2>
+              <div class="flex flex-wrap gap-2">
+                @for (size of p.sizes; track size) {
+                  <span class="px-4 py-1.5 text-xs uppercase tracking-widest border border-lamour-blush/30 text-gray-600 rounded-sm">{{ size }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="mt-auto space-y-3 pt-4 border-t border-lamour-blush/20">
+            <button type="button"
+                    (click)="reserve()"
+                    [disabled]="!isAvailable()"
+                    class="w-full px-8 py-4 bg-lamour-stone text-white hover:bg-lamour-gold transition-all duration-300 uppercase tracking-[0.2em] text-xs font-bold rounded-sm shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">
+              @if (isAvailable()) {
+                Añadir al apartado
+              } @else {
+                No disponible
+              }
+            </button>
+            <a routerLink="/catalog" class="block w-full text-center px-8 py-3 border border-lamour-blush/40 text-lamour-stone hover:border-lamour-blush hover:bg-lamour-blush/5 transition-all uppercase tracking-widest text-[11px] font-semibold rounded-sm">
+              Seguir explorando
+            </a>
+          </div>
+
+          <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-6 leading-relaxed">
+            Para confirmar el apartado se requiere una seña del 50% por transferencia. Los datos bancarios se muestran al registrar la reserva.
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</div>
