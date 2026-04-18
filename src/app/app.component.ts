@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
   title = 'Mi Tiendita L\'Amour';
   isAdminRoute = false;
   isAuthRoute = false;
+  isMobileMenuOpen = false;
 
   private router = inject(Router);
   protected auth = inject(AuthService);
@@ -26,7 +27,12 @@ export class AppComponent implements OnInit {
       const url: string = event.urlAfterRedirects;
       this.isAdminRoute = url.includes('/admin');
       this.isAuthRoute = url.startsWith('/login');
+      this.isMobileMenuOpen = false;
     });
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
   async logout(): Promise<void> {

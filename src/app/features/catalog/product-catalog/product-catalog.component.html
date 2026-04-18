@@ -49,13 +49,13 @@
               </div>
             }
 
-            <!-- Hover Action Overlay -->
-            <div class="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-2">
-              <button class="w-full bg-white/90 backdrop-blur-md text-lamour-stone border border-lamour-stone/30 hover:bg-lamour-stone hover:text-white transition-colors py-2.5 text-[11px] uppercase tracking-widest font-medium rounded-sm shadow-sm"
+            <!-- Hover Action Overlay (Visible on mobile, hover on desktop) -->
+            <div class="absolute inset-x-0 bottom-0 p-3 md:p-4 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-2 bg-gradient-to-t from-black/5 md:from-transparent to-transparent">
+              <button class="w-full bg-white/95 backdrop-blur-md text-lamour-stone border border-lamour-stone/30 hover:bg-lamour-stone hover:text-white transition-colors py-2.5 text-[10px] md:text-[11px] uppercase tracking-widest font-bold md:font-medium rounded-sm shadow-sm"
                       (click)="product.id && viewDetail(product.id)">
                 Ver Detalle
               </button>
-              <button class="w-full bg-white/90 backdrop-blur-md text-lamour-stone border border-lamour-blush hover:bg-lamour-blush hover:text-white transition-colors py-2.5 text-[11px] uppercase tracking-widest font-medium rounded-sm shadow-sm"
+              <button class="w-full bg-white/95 backdrop-blur-md text-lamour-stone border border-lamour-blush hover:bg-lamour-blush hover:text-white transition-colors py-2.5 text-[10px] md:text-[11px] uppercase tracking-widest font-bold md:font-medium rounded-sm shadow-sm"
                       (click)="product.id && reserveProduct(product.id)">
                 Solicitar Apartado
               </button>

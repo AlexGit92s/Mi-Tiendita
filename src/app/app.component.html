@@ -63,14 +63,67 @@
         
         <!-- Mobile menu button -->
         <div class="md:hidden flex items-center">
-          <button class="text-gray-500 hover:text-lamour-stone focus:outline-none">
-            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+          <button (click)="toggleMobileMenu()" class="text-gray-500 hover:text-lamour-stone focus:outline-none p-2 -mr-2 rounded-md transition-colors active:bg-lamour-blush/10">
+            <svg *ngIf="!isMobileMenuOpen" class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg *ngIf="isMobileMenuOpen" class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
       </div>
     </div>
+
+    <!-- Mobile Menu dropdown -->
+    @if (isMobileMenuOpen) {
+      <div class="md:hidden bg-white/98 backdrop-blur-xl border-t border-lamour-blush/20 shadow-lg absolute w-full left-0 top-full">
+        <div class="px-4 py-4 space-y-1 bg-white">
+          @if (isAdminRoute) {
+            <a routerLink="/admin/dashboard" routerLinkActive="bg-lamour-stone/5 text-lamour-stone border-lamour-stone" class="block px-4 py-3 border-l-4 border-transparent text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-50 hover:text-lamour-stone transition-all rounded-r-md">
+              Dashboard
+            </a>
+            <a routerLink="/admin/inventory" routerLinkActive="bg-lamour-stone/5 text-lamour-stone border-lamour-stone" class="block px-4 py-3 border-l-4 border-transparent text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-50 hover:text-lamour-stone transition-all rounded-r-md">
+              Inventario
+            </a>
+            <a routerLink="/admin/reservations" routerLinkActive="bg-lamour-stone/5 text-lamour-stone border-lamour-stone" class="block px-4 py-3 border-l-4 border-transparent text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-50 hover:text-lamour-stone transition-all rounded-r-md">
+              Apartados
+            </a>
+            <div class="my-3 border-t border-lamour-blush/20"></div>
+            <a routerLink="/catalog" class="block px-4 py-3 border-l-4 border-transparent text-lamour-gold hover:bg-lamour-gold/5 text-xs uppercase tracking-widest font-bold transition-all rounded-r-md">
+              Ver Catálogo &rarr;
+            </a>
+            <button
+              type="button"
+              (click)="logout()"
+              class="w-full text-left block px-4 py-3 border-l-4 border-transparent text-gray-400 hover:bg-red-50 hover:border-red-400 hover:text-red-600 text-xs uppercase tracking-widest font-bold transition-all rounded-r-md"
+            >
+              Salir
+            </button>
+          } @else {
+            <a routerLink="/catalog" routerLinkActive="bg-lamour-stone/5 text-lamour-stone border-lamour-stone" class="block px-4 py-3 border-l-4 border-transparent text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-50 hover:text-lamour-stone transition-all rounded-r-md">
+              Catálogo
+            </a>
+            <a routerLink="/cart" routerLinkActive="bg-lamour-stone/5 text-lamour-stone border-lamour-stone" class="flex items-center px-4 py-3 border-l-4 border-transparent text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-50 hover:text-lamour-stone transition-all rounded-r-md">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3 text-lamour-blush">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>              
+              Mis Apartados
+            </a>
+            <div class="my-3 border-t border-lamour-blush/20"></div>
+            @if (auth.isAuthenticated()) {
+              <a routerLink="/admin/dashboard" class="block px-4 py-3 border-l-4 border-transparent text-xs uppercase tracking-widest font-bold text-gray-400 hover:bg-gray-50 hover:text-lamour-stone transition-all rounded-r-md">
+                Administración
+              </a>
+            } @else {
+              <a routerLink="/login" class="block px-4 py-3 border-l-4 border-transparent text-xs uppercase tracking-widest font-bold text-gray-400 hover:bg-gray-50 hover:text-lamour-stone transition-all rounded-r-md">
+                Acceso de Administración
+              </a>
+            }
+          }
+        </div>
+      </div>
+    }
   </nav>
 
   <!-- Page Content -->
