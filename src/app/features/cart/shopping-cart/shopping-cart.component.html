@@ -144,25 +144,25 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div class="form-control">
                 <label class="label flex flex-col items-start gap-1">
-                  <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Email</span>
+                  <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Email <span class="text-gray-300 normal-case tracking-normal">(opcional)</span></span>
                 </label>
-                <input type="email" formControlName="customer_email" 
-                  class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3 
+                <input type="email" formControlName="customer_email"
+                  class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                          focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
-                         placeholder:text-gray-300 placeholder:text-xs" 
+                         placeholder:text-gray-300 placeholder:text-xs"
                   placeholder="correo@ejemplo.com"/>
                 @if(checkoutForm.get('customer_email')?.invalid && checkoutForm.get('customer_email')?.touched) {
-                  <span class="text-red-400 text-[10px] mt-1">Email requerido</span>
+                  <span class="text-red-400 text-[10px] mt-1">Formato de email inválido</span>
                 }
               </div>
               <div class="form-control">
                 <label class="label flex flex-col items-start gap-1">
                   <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Teléfono</span>
                 </label>
-                <input type="tel" formControlName="customer_phone" 
-                  class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3 
+                <input type="tel" formControlName="customer_phone"
+                  class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                          focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
-                         placeholder:text-gray-300 placeholder:text-xs" 
+                         placeholder:text-gray-300 placeholder:text-xs"
                   placeholder="+504 0000-0000"/>
                 @if(checkoutForm.get('customer_phone')?.invalid && checkoutForm.get('customer_phone')?.touched) {
                   <span class="text-red-400 text-[10px] mt-1">Teléfono requerido</span>
@@ -172,31 +172,92 @@
 
             <div class="form-control">
               <label class="label flex flex-col items-start gap-1">
-                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Fecha para Cita/Fitting</span>
+                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Fecha para Entrega</span>
               </label>
-              <input type="date" formControlName="reservation_date" 
-                class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3 
+              <input type="date" formControlName="reservation_date"
+                class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                        focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300"/>
               @if(checkoutForm.get('reservation_date')?.invalid && checkoutForm.get('reservation_date')?.touched) {
                 <span class="text-red-400 text-[10px] mt-1">Seleccione una fecha</span>
               }
+              <p class="text-[10px] text-gray-500 mt-2 leading-relaxed">
+                La entrega se realizará una vez se complete el pago total.
+              </p>
+            </div>
+
+            <div class="border border-lamour-blush/30 rounded-sm bg-lamour-blush/5 p-4 space-y-4">
+              <div>
+                <h3 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold">Datos de la Transferencia</h3>
+                <p class="text-[10px] text-gray-500 mt-1">Transfiere el anticipo (50%) a la cuenta indicada y registra los datos aquí. Un asesor validará el movimiento.</p>
+              </div>
+
+              <div class="bg-white border border-lamour-blush/20 rounded-sm p-3">
+                <dl class="text-[11px] space-y-1 font-mono text-gray-700">
+                  <div class="flex justify-between"><dt class="text-gray-500">Banco:</dt><dd class="font-bold">{{ bankDetails.bank }}</dd></div>
+                  <div class="flex justify-between"><dt class="text-gray-500">Cuenta:</dt><dd class="font-bold">{{ bankDetails.accountNumber }}</dd></div>
+                  <div class="flex justify-between"><dt class="text-gray-500">Titular:</dt><dd class="font-bold">{{ bankDetails.accountHolder }}</dd></div>
+                  <div class="flex justify-between"><dt class="text-gray-500">Tipo:</dt><dd class="font-bold">{{ bankDetails.accountType }}</dd></div>
+                </dl>
+                <a [href]="whatsappLink" target="_blank" rel="noopener"
+                   class="mt-3 flex items-center justify-center gap-2 w-full px-3 py-2 bg-[#25D366] hover:bg-[#1ebd5a] text-white rounded-sm text-[11px] uppercase tracking-widest font-bold transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                    <path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.555-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.886a9.82 9.82 0 001.599 5.392l-.999 3.648 3.889-1.741zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.497.099-.198.05-.372-.025-.521-.074-.149-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51a12.86 12.86 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+                  </svg>
+                  <span>Contactar por WhatsApp</span>
+                </a>
+                <p class="text-[9px] text-center text-gray-400 mt-2">{{ bankDetails.whatsapp }}</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="form-control">
+                  <label class="label flex flex-col items-start gap-1">
+                    <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Monto transferido (L.)</span>
+                  </label>
+                  <input type="number" step="0.01" min="0" formControlName="deposit_amount"
+                    class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
+                           focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
+                           placeholder:text-gray-300 placeholder:text-xs"
+                    [placeholder]="depositAmount().toString()"/>
+                </div>
+                <div class="form-control">
+                  <label class="label flex flex-col items-start gap-1">
+                    <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Referencia / Autorización</span>
+                  </label>
+                  <input type="text" formControlName="deposit_reference"
+                    class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
+                           focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
+                           placeholder:text-gray-300 placeholder:text-xs"
+                    placeholder="N° de referencia o autorización"/>
+                </div>
+              </div>
+
+              <div class="form-control">
+                <label class="label flex flex-col items-start gap-1">
+                  <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">A nombre de quién se transfirió</span>
+                </label>
+                <input type="text" formControlName="deposit_transferred_by"
+                  class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
+                         focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
+                         placeholder:text-gray-300 placeholder:text-xs"
+                  placeholder="Nombre de quien realiza la transferencia"/>
+              </div>
             </div>
 
             <div class="form-control">
               <label class="label flex flex-col items-start gap-1">
                 <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Notas Especiales</span>
               </label>
-              <textarea formControlName="notes" 
-                class="textarea w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3 
+              <textarea formControlName="notes"
+                class="textarea w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                        focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
-                       placeholder:text-gray-300 placeholder:text-xs h-24 resize-none" 
+                       placeholder:text-gray-300 placeholder:text-xs h-24 resize-none"
                 placeholder="¿Alguna solicitud especial? Talla, color, preferencias..."></textarea>
             </div>
 
-            <button type="submit" 
-              class="w-full mt-4 px-8 py-4 bg-lamour-stone text-white hover:bg-lamour-gold 
+            <button type="submit"
+              class="w-full mt-4 px-8 py-4 bg-lamour-stone text-white hover:bg-lamour-gold
                      transition-all duration-300 uppercase tracking-[0.25em] font-bold rounded-sm
-                     shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed" 
+                     shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               [disabled]="checkoutForm.invalid || cartProducts().length === 0 || isSaving()">
               @if(isSaving()) {
                 <span class="loading loading-spinner loading-md"></span>
@@ -204,7 +265,7 @@
                  <span class="text-[12px]">Confirmar Apartado</span>
               }
             </button>
-            <p class="text-[9px] text-center mt-3 text-gray-400 uppercase tracking-[0.15em] opacity-50">Su apartado será validado por un asesor en un plazo de 24 horas.</p>
+            <p class="text-[9px] text-center mt-3 text-gray-400 uppercase tracking-[0.15em] opacity-50">Su apartado será validado por un asesor. La entrega se realizará al completar el pago total.</p>
           </form>
         </div>
       </div>

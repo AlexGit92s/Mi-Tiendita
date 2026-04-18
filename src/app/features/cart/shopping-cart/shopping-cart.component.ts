@@ -24,6 +24,8 @@ export class ShoppingCartComponent implements OnInit {
     whatsapp: '+504 9624-2967'
   };
 
+  readonly whatsappLink = `https://wa.me/${this.bankDetails.whatsapp.replace(/\D/g, '')}`;
+
   cartProducts = signal<any[]>([]);
   isSaving = signal(false);
   isLoadingProduct = signal(false);
@@ -32,9 +34,12 @@ export class ShoppingCartComponent implements OnInit {
 
   checkoutForm: FormGroup = this.fb.group({
     customer_name: ['', [Validators.required, Validators.minLength(3)]],
-    customer_email: ['', [Validators.required, Validators.email]],
+    customer_email: ['', [Validators.email]],
     customer_phone: ['', [Validators.required]],
     reservation_date: ['', [Validators.required]],
+    deposit_amount: [null],
+    deposit_reference: [''],
+    deposit_transferred_by: [''],
     notes: ['']
   });
 
@@ -131,19 +136,36 @@ export class ShoppingCartComponent implements OnInit {
     const depositNote = `[Anticipo 50%: L. ${this.depositAmount()} - Restante: L. ${this.remainingAmount()}]`;
     const finalNotes = formData.notes ? `${depositNote} ${formData.notes}` : depositNote;
 
+    const declaredDeposit = Number(formData.deposit_amount) || 0;
+    const total = this.totalPrice();
+    const items = this.cartProducts();
+
     try {
       const createdTickets: string[] = [];
+      let assignedDeposit = 0;
 
-      for (const item of this.cartProducts()) {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        let proratedDeposit = 0;
+        if (declaredDeposit > 0 && total > 0) {
+          proratedDeposit = i === items.length - 1
+            ? Math.round((declaredDeposit - assignedDeposit) * 100) / 100
+            : Math.round(((Number(item.price) / total) * declaredDeposit) * 100) / 100;
+          assignedDeposit += proratedDeposit;
+        }
+
         const reservation = await this.supabase.create('reservations', {
           product_id: item.id,
           customer_name: formData.customer_name,
-          customer_email: formData.customer_email,
+          customer_email: formData.customer_email?.trim() || null,
           customer_phone: formData.customer_phone,
           reservation_date: formData.reservation_date,
           status: 'pendiente',
           notes: finalNotes,
-          fee_paid: false
+          fee_paid: false,
+          deposit_amount: proratedDeposit,
+          deposit_reference: formData.deposit_reference?.trim() || null,
+          deposit_transferred_by: formData.deposit_transferred_by?.trim() || null
         });
 
         await this.supabase.create('product_tracking_events', {
@@ -156,7 +178,10 @@ export class ShoppingCartComponent implements OnInit {
           metadata: {
             reservation_date: formData.reservation_date,
             deposit_amount: this.depositAmount(),
-            remaining_amount: this.remainingAmount()
+            remaining_amount: this.remainingAmount(),
+            declared_transfer_amount: declaredDeposit,
+            declared_transfer_reference: formData.deposit_reference?.trim() || null,
+            declared_transferred_by: formData.deposit_transferred_by?.trim() || null
           }
         });
 

@@ -13,6 +13,9 @@
 ---
 
 ## [Unreleased]
+### Changed
+- **Checkout del carrito** — email opcional (antes obligatorio), teléfono sigue obligatorio, `Fecha para Cita/Fitting` → `Fecha para Entrega`, y nuevo bloque "Datos de la Transferencia" con `monto transferido`, `referencia/autorización` y `a nombre de quién` (se guardan en `reservations.deposit_amount|deposit_reference|deposit_transferred_by`, prorrateados por precio cuando hay varios ítems). Se añade botón WhatsApp directo a `+504 9624-2967` con `wa.me` y leyenda "entrega al completar el pago total". _(Claude/Alex)_
+
 ### Fixed
 - **Carrito duplicaba el mismo producto** — al navegar varias veces a `/cart?productId=X` (p. ej. tras fallar un submit anterior), el mismo producto podía quedar dos veces en el carrito. `loadCart` ahora deduplica por `id` al leer `localStorage` (sanando estado previo), `addProductById` re-valida la deduplicación después del fetch (blindado contra condiciones de carrera), y tras añadir se limpia el query param `productId` con `replaceUrl` para que un F5 no reañada. _(Claude/Alex)_
 - **RLS bloqueaba el apartado público** (`new row violates row-level security policy for table reservations`) — el carrito inserta la reserva con rol `anon` y las policies desplegadas solo permitían `authenticated`. Nueva migración [006_reservation_public_insert_policy.sql](./scripts/migrations/006_reservation_public_insert_policy.sql) que realinea las policies con CLAUDE.md §4: `INSERT público` + `SELECT/UPDATE/DELETE authenticated` en `reservations` y `product_tracking_events`. Rollback idempotente incluido. _(Claude/Alex)_
