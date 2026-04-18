@@ -13,13 +13,25 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <h2 class="font-serif text-2xl uppercase tracking-widest text-lamour-stone">Apartado Registrado</h2>
-          <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest">Completa la seña para confirmar tu apartado</p>
+          <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest">Completa el anticipo para confirmar tu apartado</p>
         </div>
 
+        @if (createdTicketNumbers().length > 0) {
+          <div class="mb-6 rounded-lg border border-lamour-gold/30 bg-lamour-gold/5 p-4 text-center">
+            <p class="text-[10px] uppercase tracking-[0.2em] text-lamour-stone font-bold">Numero de ticket</p>
+            <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+              @for (ticket of createdTicketNumbers(); track ticket) {
+                <span class="rounded-full border border-lamour-gold/30 bg-white px-4 py-2 font-mono text-xs font-bold tracking-[0.18em] text-lamour-gold">{{ ticket }}</span>
+              }
+            </div>
+            <p class="mt-3 text-[10px] uppercase tracking-widest text-gray-500">Compártelo con el cliente para consultas y seguimiento.</p>
+          </div>
+        }
+
         <div class="border-t border-b border-lamour-blush/30 py-6 mb-6 text-center">
-          <p class="text-[11px] uppercase tracking-[0.25em] text-gray-400 mb-2">Transfiere como seña</p>
+          <p class="text-[11px] uppercase tracking-[0.25em] text-gray-400 mb-2">Transfiere como anticipo</p>
           <p class="font-sans font-black text-4xl text-lamour-gold">L. {{ depositAmount() }}</p>
-          <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">50% del total · restante al retirar</p>
+          <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">por transferencia · resto al retirar</p>
         </div>
 
         <div class="bg-gray-50 border border-lamour-blush/30 rounded-sm p-5 mb-6">
@@ -89,8 +101,8 @@
               </div>
               <div class="flex justify-between items-center border-t border-lamour-blush/20 pt-3">
                 <div class="flex flex-col">
-                  <span class="font-serif tracking-widest uppercase text-lamour-stone text-xs font-bold">Seña 50%</span>
-                  <span class="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">por transferencia</span>
+                  <span class="font-serif tracking-widest uppercase text-lamour-stone text-xs font-bold">Anticipo</span>
+                  <span class="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">50% por transferencia</span>
                 </div>
                 <span class="font-sans font-black text-2xl text-lamour-gold">L. {{ depositAmount() }}</span>
               </div>
@@ -103,7 +115,7 @@
             <div class="mt-3 p-4 bg-lamour-blush/5 border border-lamour-blush/30 rounded-lg">
               <p class="text-[10px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-2">Para confirmar tu apartado</p>
               <p class="text-[11px] text-gray-600 leading-relaxed">
-                Debes transferir el <span class="font-bold text-lamour-gold">50% (L. {{ depositAmount() }})</span> como seña.
+                Debes transferir el anticipo <span class="font-bold text-lamour-gold">(L. {{ depositAmount() }})</span> por transferencia.
                 Al registrar el apartado te mostraremos los datos bancarios y el contacto de WhatsApp para enviar el comprobante.
               </p>
             </div>

@@ -13,13 +13,17 @@
 ---
 
 ## [Unreleased]
+### Fixed
+- **Carrito duplicaba el mismo producto** — al navegar varias veces a `/cart?productId=X` (p. ej. tras fallar un submit anterior), el mismo producto podía quedar dos veces en el carrito. `loadCart` ahora deduplica por `id` al leer `localStorage` (sanando estado previo), `addProductById` re-valida la deduplicación después del fetch (blindado contra condiciones de carrera), y tras añadir se limpia el query param `productId` con `replaceUrl` para que un F5 no reañada. _(Claude/Alex)_
+- **RLS bloqueaba el apartado público** (`new row violates row-level security policy for table reservations`) — el carrito inserta la reserva con rol `anon` y las policies desplegadas solo permitían `authenticated`. Nueva migración [006_reservation_public_insert_policy.sql](./scripts/migrations/006_reservation_public_insert_policy.sql) que realinea las policies con CLAUDE.md §4: `INSERT público` + `SELECT/UPDATE/DELETE authenticated` en `reservations` y `product_tracking_events`. Rollback idempotente incluido. _(Claude/Alex)_
+
 ### Added
 - **Detalle de producto público** — nuevo componente [product-detail](./src/app/features/catalog/product-detail/) con galería (imagen principal + miniaturas navegables), descripción, tallas, estado de stock y botón "Añadir al apartado" que reenvía a `/cart?productId=`. Ruta pública `/product/:id` enrutada en [app.routes.ts](./src/app/app.routes.ts). _(Claude/Alex)_
 - **Botón "Ver Detalle"** en cada tarjeta del catálogo ([product-catalog.component.html](./src/app/features/catalog/product-catalog/product-catalog.component.html)) y nombre clicable para navegar al detalle. _(Claude/Alex)_
 - **Historial de seguimiento por producto/reserva** — nueva tabla [003_reservation_deposits_and_tracking.sql](./scripts/migrations/003_reservation_deposits_and_tracking.sql) para registrar eventos como `reserva_creada`, `vendido`, `empaquetado`, `en_camino`, `recibido`, `cerrado_pagado`, `cerrado_devuelto` y `otro`. El carrito ahora registra el evento inicial al crear la reserva. _(Codex)_
 
 ### Changed
-- **Moneda → Lempiras (L.)** en toda la UI. Se reemplazó el símbolo `$` por `L.` en catálogo, detalle, carrito (total, seña, restante), inventario, reservaciones, dashboard (valor confirmado) y label de precio en product-form. La nota `depositNote` del carrito también usa `L.` al guardarse en `reservations.notes`. _(Claude/Alex)_
+- **Moneda → Lempiras (L.)** en toda la UI. Se reemplazó el símbolo `$` por `L.` en catálogo, detalle, carrito (total, anticipo, restante), inventario, reservaciones, dashboard (valor confirmado) y label de precio en product-form. La nota `depositNote` del carrito también usa `L.` al guardarse en `reservations.notes`. _(Claude/Alex)_
 - **Textos en francés e inglés → español** — se tradujeron literales dispersos: `Console de Gestion` → `Panel de Gestión`, `Valeur Confirmée` → `Valor Confirmado`, `Citations Actives` → `Reservas Activas`, `Stock Vitalité` → `Salud del Stock`, `Bon Status` → `Buen Estado`, `Flux d'Activité` → `Actividad Reciente`, `Silence Éthéré...` → `Sin actividad reciente...`, `Voir tout le flux` → `Ver todas las reservas`, `Ma Sélection` → `Mi Selección`, `Request a Fitting` → `Solicitar Apartado`, `Appointment` → `Cita / Fitting`, `Paid ✓ / Unpaid` → `Pagado ✓ / Pendiente`, `Pas de réservations` → `Sin reservaciones`, `Sold Out / Low Stock / In Stock / Full Stock` → `Agotado / Stock Bajo / En Stock / Stock Completo`, `Limited` → `Limitada`, `Ethereal Focus` → `Sin Imágenes`, `Management` → `Administración`, `Ir a Boutique` → `Ver Catálogo`, `Atelier Or` → `Mi Tiendita L'Amour`, `Ethereal Atelier` (footer) → `Mi Tiendita L'Amour`. _(Claude/Alex)_
 - **Admin de reservas** — el depósito dejó de ser un booleano ciego: ahora se confirma con `numero de referencia` o `autorizacion`, `quien transfiere` y fecha de confirmación. El listado agrega estado `finalizado`, panel de depósito y timeline de seguimiento por pieza. _(Codex)_
 - **Historial protegido** — reservas `finalizado` y `cancelado` quedan bloqueadas para edición normal. Los cambios posteriores solo entran por `correccion administrativa`, con motivo y usuario registrados en `product_tracking_events`. _(Codex)_
@@ -42,7 +46,7 @@
 - **[002_extend_reservations.sql](./scripts/migrations/002_extend_reservations.sql)** ✅ aplicada 2026-04-18 — añade `customer_email` TEXT, `reservation_date` DATE, `notes` TEXT, `fee_paid` BOOLEAN a `reservations`. Rollback idempotente incluido. _(Claude/Alex)_
 
 ### Added (features)
-- **Flujo de seña 50% por transferencia** en el carrito — sidebar muestra `Total`, `Seña 50%` y `Restante al retirar`; la pantalla de éxito ahora exhibe los datos bancarios (banco, cuenta, titular, tipo) y un WhatsApp para enviar el comprobante. El monto de la seña se guarda como prefijo en `notes` para que el admin lo vea en la gestión. _(Claude/Alex)_
+- **Flujo de anticipo 50% por transferencia** en el carrito — sidebar muestra `Total`, `Anticipo 50%` y `Restante al retirar`; la pantalla de éxito ahora exhibe los datos bancarios (banco, cuenta, titular, tipo) y un WhatsApp para enviar el comprobante. El monto del anticipo se guarda como prefijo en `notes` para que el admin lo vea en la gestión. _(Claude/Alex)_
 - **Carga de producto por query param** — `/cart?productId=<uuid>` ahora hace fetch del producto en Supabase y lo añade al carrito (persistido en `localStorage`, sin duplicados). Antes el link desde el catálogo no cargaba nada. _(Claude/Alex)_
 
 ### Fixed

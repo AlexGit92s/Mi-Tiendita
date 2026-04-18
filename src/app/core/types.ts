@@ -29,8 +29,8 @@ export interface Reservation {
   reservation_date?: string | null;
   notes?: string | null;
   fee_paid?: boolean;
+  deposit_amount?: number | null;
   deposit_reference?: string | null;
-  deposit_authorization?: string | null;
   deposit_transferred_by?: string | null;
   deposit_confirmed_at?: string | null;
   stock_committed?: boolean;

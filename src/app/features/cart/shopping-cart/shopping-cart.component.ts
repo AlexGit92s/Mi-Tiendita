@@ -14,10 +14,10 @@ export class ShoppingCartComponent implements OnInit {
   private supabase = inject(SupabaseService);
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  // ⚠️ Actualizar con los datos bancarios reales antes de producción
   readonly bankDetails = {
-    bank: 'Banco BacCredomatic ',
+    bank: 'Banco BacCredomatic',
     accountNumber: '749370871',
     accountHolder: 'Mi Tiendita L\'Amour',
     accountType: 'Cuenta de Ahorros',
@@ -28,6 +28,7 @@ export class ShoppingCartComponent implements OnInit {
   isSaving = signal(false);
   isLoadingProduct = signal(false);
   success = signal(false);
+  createdTicketNumbers = signal<string[]>([]);
 
   checkoutForm: FormGroup = this.fb.group({
     customer_name: ['', [Validators.required, Validators.minLength(3)]],
@@ -45,6 +46,10 @@ export class ShoppingCartComponent implements OnInit {
 
   remainingAmount = computed(() => Math.round((this.totalPrice() - this.depositAmount()) * 100) / 100);
 
+  getTicketNumber(id?: string) {
+    return `APT-${(id ?? '').slice(0, 8).toUpperCase() || 'MANUAL'}`;
+  }
+
   async ngOnInit() {
     this.loadCart();
     const productId = this.route.snapshot.queryParamMap.get('productId');
@@ -55,29 +60,56 @@ export class ShoppingCartComponent implements OnInit {
 
   loadCart() {
     const saved = localStorage.getItem('mi_tiendita_cart');
-    if (saved) {
-      try {
-        this.cartProducts.set(JSON.parse(saved));
-      } catch (e) {
-        localStorage.removeItem('mi_tiendita_cart');
-      }
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved) as any[];
+      const seen = new Set<string>();
+      const unique = parsed.filter((product) => {
+        if (!product?.id || seen.has(product.id)) return false;
+        seen.add(product.id);
+        return true;
+      });
+
+      this.cartProducts.set(unique);
+      if (unique.length !== parsed.length) this.persistCart();
+    } catch {
+      localStorage.removeItem('mi_tiendita_cart');
     }
   }
 
   async addProductById(productId: string) {
-    if (this.cartProducts().some((p) => p.id === productId)) return;
+    if (this.cartProducts().some((product) => product.id === productId)) {
+      this.clearProductIdFromUrl();
+      return;
+    }
+
     this.isLoadingProduct.set(true);
     try {
       const product: any = await this.supabase.getById('products', productId);
       if (!product) return;
+      if (this.cartProducts().some((item) => item.id === product.id)) return;
+
       const updated = [...this.cartProducts(), product];
       this.cartProducts.set(updated);
       this.persistCart();
-    } catch (e) {
-      console.error('No se pudo cargar el producto:', e);
+    } catch (error) {
+      console.error('No se pudo cargar el producto:', error);
     } finally {
       this.isLoadingProduct.set(false);
+      this.clearProductIdFromUrl();
     }
+  }
+
+  private clearProductIdFromUrl() {
+    if (!this.route.snapshot.queryParamMap.has('productId')) return;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { productId: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   private persistCart() {
@@ -93,13 +125,15 @@ export class ShoppingCartComponent implements OnInit {
 
   async onSubmit() {
     if (this.checkoutForm.invalid || this.cartProducts().length === 0 || this.isSaving()) return;
-    this.isSaving.set(true);
 
+    this.isSaving.set(true);
     const formData = this.checkoutForm.value;
-    const depositNote = `[Seña 50%: L. ${this.depositAmount()} — Restante: L. ${this.remainingAmount()}]`;
+    const depositNote = `[Anticipo 50%: L. ${this.depositAmount()} - Restante: L. ${this.remainingAmount()}]`;
     const finalNotes = formData.notes ? `${depositNote} ${formData.notes}` : depositNote;
 
     try {
+      const createdTickets: string[] = [];
+
       for (const item of this.cartProducts()) {
         const reservation = await this.supabase.create('reservations', {
           product_id: item.id,
@@ -117,22 +151,25 @@ export class ShoppingCartComponent implements OnInit {
           reservation_id: reservation.id,
           source: 'reservation',
           event_key: 'reserva_creada',
-          event_label: 'Reserva creada',
-          notes: `Reserva registrada para ${formData.customer_name}`,
+          event_label: 'Apartado creado',
+          notes: `Apartado registrado para ${formData.customer_name}`,
           metadata: {
             reservation_date: formData.reservation_date,
             deposit_amount: this.depositAmount(),
             remaining_amount: this.remainingAmount()
           }
         });
+
+        createdTickets.push(this.getTicketNumber(reservation.id));
       }
 
       this.cartProducts.set([]);
       localStorage.removeItem('mi_tiendita_cart');
+      this.createdTicketNumbers.set(createdTickets);
       this.success.set(true);
-    } catch (e: any) {
-      console.error('Reservation failed:', e);
-      alert(`Error al procesar la reserva: ${e?.message ?? 'intente nuevamente'}`);
+    } catch (error: any) {
+      console.error('Reservation failed:', error);
+      alert(`Error al procesar el apartado: ${error?.message ?? 'intente nuevamente'}`);
     } finally {
       this.isSaving.set(false);
     }

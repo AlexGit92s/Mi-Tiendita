@@ -121,26 +121,39 @@
                   }
                 </div>
               </td>
-              <td class="py-3 md:py-4 flex flex-col md:table-cell border-b border-gray-50 md:border-0">
+<td class="py-3 md:py-4 flex flex-col md:table-cell border-b border-gray-50 md:border-0">
                 <div class="flex flex-row justify-between items-start md:flex-col md:items-start gap-2 w-full">
                   <span class="md:hidden text-[9px] font-bold uppercase tracking-[0.1em] text-lamour-stone mt-1">Depósito</span>
                   <div class="flex flex-col items-end md:items-start gap-2 text-right md:text-left w-full sm:w-auto">
                     @if (res.fee_paid) {
-                      <div class="inline-flex items-center justify-end md:justify-start gap-2 rounded-sm border border-lamour-gold/20 bg-lamour-gold/5 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-lamour-gold w-fit self-end md:self-start">
-                        <span class="h-1.5 w-1.5 rounded-full bg-lamour-gold"></span>
-                        Confirmado
+                      <div class="inline-flex items-center justify-end md:justify-start gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-emerald-600 w-fit self-end md:self-start shadow-sm">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Pagado completo
                       </div>
-                      <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
+                      <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider mt-2">
                         <p>{{ getReservationSummary(res) }}</p>
+                        <p>Monto: L. {{ getTransferredAmount(res) }}</p>
+                        <p class="font-bold text-gray-600 mt-0.5">{{ res.deposit_transferred_by || 'Sin nombre asignado' }}</p>
+                        <p>{{ res.deposit_confirmed_at | date:'shortTime' }}</p>
+                      </div>
+                    } @else if (getTransferredAmount(res) > 0) {
+                      <div class="inline-flex items-center justify-end md:justify-start gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-sky-600 w-fit self-end md:self-start shadow-sm">
+                        <span class="h-2 w-2 rounded-full bg-sky-500"></span>
+                        Pago parcial
+                      </div>
+                      <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider mt-2">
+                        <p>{{ getReservationSummary(res) }}</p>
+                        <p>Monto: L. {{ getTransferredAmount(res) }}</p>
+                        <p>Pendiente: L. {{ getPendingAmount(res) }}</p>
                         <p class="font-bold text-gray-600 mt-0.5">{{ res.deposit_transferred_by || 'Sin nombre asignado' }}</p>
                         <p>{{ res.deposit_confirmed_at | date:'shortTime' }}</p>
                       </div>
                     } @else {
-                      <div class="inline-flex items-center justify-end md:justify-start gap-2 rounded-sm border border-gray-200 bg-gray-50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-500 w-fit self-end md:self-start">
-                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
-                          Pendiente
-                        </div>
-                      <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider">
+                      <div class="inline-flex items-center justify-end md:justify-start gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-amber-600 w-fit self-end md:self-start shadow-sm">
+                        <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                        Pendiente de anticipo
+                      </div>
+                      <div class="text-[9px] leading-tight text-gray-400 uppercase tracking-wider mt-2">
                         <p>{{ getReservationSummary(res) }}</p>
                       </div>
                     }
@@ -148,9 +161,18 @@
                     <button
                       (click)="res.id && openDepositForm(res.id, res)"
                       [disabled]="requiresCorrectionMode(res) && !isCorrectionActive(res.id!)"
-                      class="rounded-sm border border-lamour-stone/20 bg-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-lamour-stone transition hover:border-lamour-stone hover:bg-lamour-stone hover:text-white disabled:cursor-not-allowed disabled:opacity-30 mt-1 shadow-sm w-fit self-end md:self-start"
+                      [ngClass]="(res.fee_paid || getTransferredAmount(res) > 0) ? 'rounded-full border border-lamour-stone/30 bg-white px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-lamour-stone transition hover:border-lamour-stone hover:bg-lamour-stone hover:text-white shadow-md' : 'rounded-full border-0 bg-gradient-to-r from-lamour-gold to-yellow-400 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all'"
+                      class="mt-3 w-fit self-end md:self-start"
                     >
-                      {{ res.fee_paid ? 'Editar' : 'Confirmar' }}
+                      <span class="flex items-center gap-1.5">
+                        @if (res.fee_paid || getTransferredAmount(res) > 0) {
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                          Editar
+                        } @else {
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5c-.621 0-1.125.504-1.125 1.125v.75m0 0h.375c.621 0 1.125.504 1.125 1.125v.75m-6 3.75a.75.75 0 01.75.75v.75c0 .414.336.75.75.75h9a.75.75 0 00.75-.75v-.75a.75.75 0 01.75-.75h.375m0-3.75h.375c.621 0 1.125.504 1.125 1.125v.75m0 0h.375c.414 0 .75.336.75.75v.75" /></svg>
+                          Confirmar anticipo
+                        }
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -161,6 +183,10 @@
                   <button (click)="res.id && toggleTimeline(res.id)" class="inline-flex items-center gap-2 rounded-sm border border-lamour-blush/30 bg-lamour-blush/5 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-lamour-stone transition hover:bg-lamour-blush hover:text-white shadow-sm">
                     <span>Historial</span>
                     <span class="rounded-sm bg-white/50 px-1.5 py-0.5 text-[8px]">{{ getHistory(res.id).length }}</span>
+                  </button>
+
+                  <button (click)="generateClientTicket(res)" class="inline-flex items-center gap-2 rounded-sm border border-lamour-gold/30 bg-white px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-lamour-gold transition hover:bg-lamour-gold hover:text-white shadow-sm">
+                    Ticket PDF
                   </button>
 
                   @if (!isCorrectionActive(res.id!)) {
@@ -183,8 +209,8 @@
                     <div class="rounded-2xl border border-lamour-blush/20 bg-white p-4 shadow-sm">
                       <div class="mb-4 flex items-center justify-between gap-4">
                         <div>
-                          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Confirmacion de deposito</p>
-                          <p class="mt-1 text-[10px] text-gray-400">Referencia o autorizacion mas nombre de quien transfiere.</p>
+                          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Confirmacion de pago</p>
+                          <p class="mt-1 text-[10px] text-gray-400">Referencia, monto transferido y nombre de quien transfiere.</p>
                         </div>
                         @if (activeDepositReservationId() === res.id) {
                           <button (click)="closeDepositForm()" class="text-[10px] uppercase tracking-widest text-gray-400 transition hover:text-lamour-stone">Cerrar</button>
@@ -210,8 +236,8 @@
                         </label>
 
                         <label class="block">
-                          <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Numero de autorizacion</span>
-                          <input [ngModel]="getDepositDraft(res.id!, res).authorization" (ngModelChange)="updateDepositDraft(res.id!, 'authorization', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" placeholder="Ej. BAC-7782">
+                          <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Monto transferido</span>
+                          <input type="number" min="0" step="0.01" [ngModel]="getDepositDraft(res.id!, res).amount" (ngModelChange)="updateDepositDraft(res.id!, 'amount', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" placeholder="Ej. 300.00">
                         </label>
 
                         <label class="block">
@@ -221,9 +247,9 @@
 
                         <div class="flex flex-wrap gap-2 pt-2">
                           <button (click)="confirmDeposit(res.id!)" class="rounded-xl bg-lamour-stone px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white transition hover:bg-black">
-                            Guardar deposito
+                            Guardar pago
                           </button>
-                          @if (res.fee_paid) {
+                          @if (res.fee_paid || getTransferredAmount(res) > 0) {
                             <button (click)="clearDepositConfirmation(res.id!)" class="rounded-xl border border-red-200 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-600 transition hover:bg-red-50">
                               Revertir
                             </button>
@@ -290,7 +316,7 @@
                             @if (item.actor_email) {
                               <p class="mt-2 text-[10px] text-gray-400">Registrado por {{ item.actor_email }}</p>
                             }
-                            @if (item.metadata?.['transferred_by'] || item.metadata?.['reference'] || item.metadata?.['authorization']) {
+                            @if (item.metadata?.['transferred_by'] || item.metadata?.['reference'] || item.metadata?.['amount'] || item.metadata?.['pending_amount']) {
                               <div class="mt-2 flex flex-wrap gap-2 text-[9px] uppercase tracking-widest text-gray-400">
                                 @if (item.metadata?.['transferred_by']) {
                                   <span class="rounded-full bg-gray-100 px-2 py-1">Transfiere: {{ item.metadata?.['transferred_by'] }}</span>
@@ -298,8 +324,11 @@
                                 @if (item.metadata?.['reference']) {
                                   <span class="rounded-full bg-gray-100 px-2 py-1">Ref: {{ item.metadata?.['reference'] }}</span>
                                 }
-                                @if (item.metadata?.['authorization']) {
-                                  <span class="rounded-full bg-gray-100 px-2 py-1">Auth: {{ item.metadata?.['authorization'] }}</span>
+                                @if (item.metadata?.['amount']) {
+                                  <span class="rounded-full bg-gray-100 px-2 py-1">Monto: L. {{ item.metadata?.['amount'] }}</span>
+                                }
+                                @if (item.metadata?.['pending_amount']) {
+                                  <span class="rounded-full bg-gray-100 px-2 py-1">Pendiente: L. {{ item.metadata?.['pending_amount'] }}</span>
                                 }
                               </div>
                             }

@@ -14,8 +14,8 @@ interface ReservationWithProduct extends Reservation {
 
 interface DepositDraft {
   reference: string;
-  authorization: string;
   transferredBy: string;
+  amount: string;
 }
 
 interface EventDraft {
@@ -59,7 +59,7 @@ export class ReservationsComponent implements OnInit {
   ] as const;
   readonly eventEffects: Record<string, TrackingEventEffect> = {
     reserva_creada: { nextStatus: 'pendiente', message: 'Reserva creada y pendiente de deposito.' },
-    deposito_confirmado: { nextStatus: 'pagado', message: 'Deposito confirmado.', stockAction: 'commit' },
+    deposito_confirmado: { message: 'Pago registrado.', stockAction: 'commit' },
     deposito_revertido: { nextStatus: 'pendiente', message: 'Deposito revertido.', stockAction: 'release' },
     empaquetado: { message: 'Producto empaquetado.' },
     en_camino: { message: 'Producto en camino.' },
@@ -151,9 +151,9 @@ export class ReservationsComponent implements OnInit {
     if (!reservation) return;
 
     const draft = this.getDepositDraft(id, reservation);
-    const hasTrackingId = draft.reference.trim() || draft.authorization.trim();
-    if (!hasTrackingId || !draft.transferredBy.trim()) {
-      this.setFeedback(id, 'Ingresa referencia o autorizacion, y quien transfiere.');
+    const transferredAmount = this.parseDepositAmount(draft.amount);
+    if (!draft.reference.trim() || !draft.transferredBy.trim() || transferredAmount <= 0) {
+      this.setFeedback(id, 'Ingresa referencia, monto transferido y quien transfiere.');
       return;
     }
 
@@ -166,15 +166,20 @@ export class ReservationsComponent implements OnInit {
     if (correctionReason === null) return;
 
     try {
+      const totalAmount = this.getTotalAmount(reservation);
+      const isFullPayment = totalAmount > 0 && transferredAmount >= totalAmount;
       const updatePayload: Partial<Reservation> = {
-        fee_paid: true,
+        fee_paid: isFullPayment,
+        deposit_amount: transferredAmount,
         deposit_reference: draft.reference.trim() || null,
-        deposit_authorization: draft.authorization.trim() || null,
         deposit_transferred_by: draft.transferredBy.trim(),
         deposit_confirmed_at: new Date().toISOString()
       };
 
-      const nextStatus = reservation.status === 'pendiente' ? 'pagado' : reservation.status;
+      const nextStatus =
+        reservation.status === 'pendiente' || reservation.status === 'pagado'
+          ? (isFullPayment ? 'pagado' : 'pendiente')
+          : reservation.status;
 
       await this.supabase.update('reservations', id, {
         ...updatePayload,
@@ -200,10 +205,11 @@ export class ReservationsComponent implements OnInit {
       await this.logTrackingEvent(
         reservation,
         reservation.fee_paid ? 'deposito_corregido' : 'deposito_confirmado',
-        reservation.fee_paid ? 'Deposito corregido' : 'Deposito confirmado',
+        reservation.fee_paid ? 'Pago corregido' : (isFullPayment ? 'Pago completo registrado' : 'Pago parcial registrado'),
         {
+          amount: updatePayload.deposit_amount,
+          pending_amount: Math.max(0, totalAmount - transferredAmount),
           reference: updatePayload.deposit_reference,
-          authorization: updatePayload.deposit_authorization,
           transferred_by: updatePayload.deposit_transferred_by
         },
         null,
@@ -215,10 +221,17 @@ export class ReservationsComponent implements OnInit {
       }
 
       this.activeDepositReservationId.set(null);
-      this.finishCorrection(id, correctionReason ? 'Correccion de deposito registrada.' : 'Deposito confirmado y registrado en historial.');
+      this.finishCorrection(
+        id,
+        correctionReason
+          ? 'Correccion de pago registrada.'
+          : (isFullPayment
+            ? 'Pago completo registrado y marcado como pagado.'
+            : `Pago parcial registrado. Pendiente L. ${Math.max(0, totalAmount - transferredAmount).toFixed(2)}.`)
+      );
     } catch (error) {
       console.error(error);
-      alert('Error al confirmar deposito.');
+      alert('Error al guardar el pago.');
     }
   }
 
@@ -230,10 +243,12 @@ export class ReservationsComponent implements OnInit {
     if (correctionReason === null) return;
 
     try {
+      const nextStatus = reservation.status === 'pagado' ? 'pendiente' : reservation.status;
       await this.supabase.update('reservations', id, {
+        status: nextStatus,
         fee_paid: false,
+        deposit_amount: 0,
         deposit_reference: null,
-        deposit_authorization: null,
         deposit_transferred_by: null,
         deposit_confirmed_at: null
       });
@@ -246,12 +261,13 @@ export class ReservationsComponent implements OnInit {
             ? {
                 ...item,
                 fee_paid: false,
+                deposit_amount: 0,
                 deposit_reference: null,
-                deposit_authorization: null,
                 deposit_transferred_by: null,
                 deposit_confirmed_at: null,
                 stock_committed: false,
-                stock_committed_at: null
+                stock_committed_at: null,
+                status: nextStatus as ReservationStatus
               }
             : item
         )
@@ -260,16 +276,20 @@ export class ReservationsComponent implements OnInit {
       await this.logTrackingEvent(
         reservation,
         'deposito_revertido',
-        'Deposito revertido',
+        'Pago revertido',
         null,
         null,
         correctionReason
       );
 
-      this.finishCorrection(id, 'Correccion de deposito registrada.');
+      if (nextStatus !== reservation.status) {
+        await this.recordDerivedStatusChange(reservation, nextStatus as ReservationStatus, 'deposito_revertido', correctionReason);
+      }
+
+      this.finishCorrection(id, 'Correccion de pago registrada.');
     } catch (error) {
       console.error(error);
-      alert('Error al revertir deposito.');
+      alert('Error al revertir el pago.');
     }
   }
 
@@ -458,7 +478,7 @@ export class ReservationsComponent implements OnInit {
   }
 
   requiresCorrectionMode(reservation: ReservationWithProduct) {
-    return this.isLockedReservation(reservation) || !!reservation.fee_paid;
+    return this.isLockedReservation(reservation) || this.hasPaymentRecord(reservation);
   }
 
   beginCorrection(id: string) {
@@ -537,8 +557,12 @@ export class ReservationsComponent implements OnInit {
     const history = reservation.id ? this.getHistory(reservation.id) : [];
     const latestEffect = history.find((item) => item.metadata?.['effect_message'])?.metadata?.['effect_message'];
 
-    if (reservation.fee_paid) {
-      return 'Deposito confirmado';
+    if (this.isFullyPaid(reservation)) {
+      return 'Pagado completo, pendiente de entrega o envio';
+    }
+
+    if (this.getTransferredAmount(reservation) > 0) {
+      return `Pago parcial registrado. Pendiente L. ${this.getPendingAmount(reservation).toFixed(2)}`;
     }
 
     if (reservation.stock_committed) {
@@ -548,11 +572,287 @@ export class ReservationsComponent implements OnInit {
     return latestEffect ?? 'Pendiente de deposito';
   }
 
+  getDepositAmount(reservation: ReservationWithProduct) {
+    return Math.round(((reservation.products?.price ?? 0) * 0.5) * 100) / 100;
+  }
+
+  getTotalAmount(reservation: ReservationWithProduct) {
+    return Math.round((reservation.products?.price ?? 0) * 100) / 100;
+  }
+
+  getTransferredAmount(reservation: ReservationWithProduct) {
+    return Math.round((Number(reservation.deposit_amount ?? 0)) * 100) / 100;
+  }
+
+  getPendingAmount(reservation: ReservationWithProduct) {
+    return Math.max(0, Math.round((this.getTotalAmount(reservation) - this.getTransferredAmount(reservation)) * 100) / 100);
+  }
+
+  getRemainingAmount(reservation: ReservationWithProduct) {
+    return this.getPendingAmount(reservation);
+  }
+
+  getTicketNumber(reservation: ReservationWithProduct) {
+    return `APT-${(reservation.id ?? '').slice(0, 8).toUpperCase() || 'MANUAL'}`;
+  }
+
+  generateClientTicket(reservation: ReservationWithProduct) {
+    const ticketWindow = window.open('', '_blank', 'width=900,height=700');
+    if (!ticketWindow) {
+      alert('No se pudo abrir la ventana del ticket.');
+      return;
+    }
+
+    const history = reservation.id ? this.getHistory(reservation.id).slice(0, 5) : [];
+    const productName = reservation.products?.name ?? 'Producto';
+    const total = reservation.products?.price ?? 0;
+    const transferred = this.getTransferredAmount(reservation);
+    const remaining = this.getPendingAmount(reservation);
+    const reference = reservation.deposit_reference || '-';
+    const transferredBy = reservation.deposit_transferred_by || '-';
+    const issueDate = new Date().toLocaleString();
+    const ticketNumber = this.getTicketNumber(reservation);
+    const depositLabel = transferred > 0 ? 'Monto transferido' : 'Anticipo requerido';
+    const remainingLabel = transferred > 0 ? 'Monto pendiente' : 'Saldo total pendiente';
+    const paymentSectionTitle = transferred > 0 ? 'Confirmacion de pago' : 'Pago pendiente';
+    const timelineHtml = history.length
+      ? history.map((item) => `
+          <tr>
+            <td>${item.event_label}</td>
+            <td>${item.created_at ? new Date(item.created_at).toLocaleString() : '-'}</td>
+            <td>${item.notes ?? item.metadata?.['effect_message'] ?? '-'}</td>
+          </tr>
+        `).join('')
+      : `
+        <tr>
+          <td colspan="3">Sin eventos registrados</td>
+        </tr>
+      `;
+
+    ticketWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Ticket de Apartado</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            color: #2f2b2b;
+            margin: 0;
+            background: #f6f3f1;
+          }
+          .sheet {
+            width: 820px;
+            margin: 24px auto;
+            background: #ffffff;
+            border: 1px solid #eadfda;
+            padding: 32px;
+            box-sizing: border-box;
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            border-bottom: 2px solid #efe2dc;
+            padding-bottom: 18px;
+            margin-bottom: 24px;
+          }
+          .brand {
+            font-size: 28px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #6d5853;
+            margin: 0;
+          }
+          .subtitle {
+            margin: 8px 0 0;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-size: 11px;
+            color: #8b7d78;
+          }
+          .ticket-meta {
+            text-align: right;
+            font-size: 12px;
+            color: #7f7571;
+          }
+          .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 22px;
+          }
+          .card {
+            border: 1px solid #efe2dc;
+            padding: 16px;
+            background: #fcfaf8;
+          }
+          .label {
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #8b7d78;
+            margin-bottom: 6px;
+          }
+          .value {
+            font-size: 16px;
+            color: #312d2d;
+            margin-bottom: 10px;
+          }
+          .totals {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 22px;
+          }
+          .total-box {
+            border: 1px solid #efe2dc;
+            padding: 14px;
+            text-align: center;
+            background: #ffffff;
+          }
+          .total-box strong {
+            display: block;
+            font-size: 22px;
+            margin-top: 6px;
+            color: #6d5853;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 12px;
+          }
+          th, td {
+            border: 1px solid #efe2dc;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+          }
+          th {
+            background: #fcfaf8;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            font-size: 10px;
+            color: #8b7d78;
+          }
+          .footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #efe2dc;
+            font-size: 11px;
+            color: #7f7571;
+          }
+          @media print {
+            body {
+              background: #ffffff;
+            }
+            .sheet {
+              width: 100%;
+              margin: 0;
+              border: 0;
+              padding: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="sheet">
+          <div class="header">
+            <div>
+              <h1 class="brand">Mi Tiendita L'Amour</h1>
+              <p class="subtitle">Ticket de Apartado para Cliente</p>
+            </div>
+            <div class="ticket-meta">
+              <div><strong>${ticketNumber}</strong></div>
+              <div>Emitido: ${issueDate}</div>
+              <div>Estado: ${this.getStatusConfig(reservation.status).label}</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card">
+              <div class="label">Cliente</div>
+              <div class="value">${reservation.customer_name}</div>
+              <div>${reservation.customer_phone}</div>
+              <div>${reservation.customer_email ?? '-'}</div>
+            </div>
+            <div class="card">
+              <div class="label">Apartado</div>
+              <div class="value">${productName}</div>
+              <div>Fecha cita: ${reservation.reservation_date ? new Date(reservation.reservation_date).toLocaleDateString() : '-'}</div>
+              <div>Seguimiento: ${this.getReservationSummary(reservation)}</div>
+            </div>
+          </div>
+
+          <div class="totals">
+            <div class="total-box">
+              Total
+              <strong>L. ${total}</strong>
+            </div>
+            <div class="total-box">
+              ${depositLabel}
+              <strong>L. ${transferred > 0 ? transferred : this.getDepositAmount(reservation)}</strong>
+            </div>
+            <div class="total-box">
+              ${remainingLabel}
+              <strong>L. ${remaining}</strong>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="label">${paymentSectionTitle}</div>
+            <table>
+              <tr>
+                <th>Referencia</th>
+                <th>Transfiere</th>
+                <th>Monto</th>
+                <th>Confirmado</th>
+              </tr>
+              <tr>
+                <td>${reference}</td>
+                <td>${transferredBy}</td>
+                <td>L. ${transferred}</td>
+                <td>${reservation.deposit_confirmed_at ? new Date(reservation.deposit_confirmed_at).toLocaleString() : '-'}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="card" style="margin-top: 18px;">
+            <div class="label">Seguimiento reciente</div>
+            <table>
+              <tr>
+                <th>Evento</th>
+                <th>Fecha</th>
+                <th>Detalle</th>
+              </tr>
+              ${timelineHtml}
+            </table>
+          </div>
+
+          <div class="footer">
+            Gracias por su preferencia. Este ticket resume su apartado y puede guardarse como PDF desde la opcion de impresion del navegador.
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `);
+
+    ticketWindow.document.close();
+  }
+
   getDepositDraft(id: string, reservation?: ReservationWithProduct): DepositDraft {
     return this.depositDrafts()[id] ?? {
       reference: reservation?.deposit_reference ?? '',
-      authorization: reservation?.deposit_authorization ?? '',
-      transferredBy: reservation?.deposit_transferred_by ?? ''
+      transferredBy: reservation?.deposit_transferred_by ?? '',
+      amount: reservation?.deposit_amount ? String(reservation.deposit_amount) : String(this.getDepositAmount(reservation ?? {} as ReservationWithProduct))
     };
   }
 
@@ -623,5 +923,19 @@ export class ReservationsComponent implements OnInit {
 
   setFeedback(id: string, message: string) {
     this.feedback.update((current) => ({ ...current, [id]: message }));
+  }
+
+  private parseDepositAmount(value: string) {
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) return 0;
+    return Math.round(parsed * 100) / 100;
+  }
+
+  private isFullyPaid(reservation: ReservationWithProduct) {
+    return this.getTransferredAmount(reservation) >= this.getTotalAmount(reservation) && this.getTotalAmount(reservation) > 0;
+  }
+
+  private hasPaymentRecord(reservation: ReservationWithProduct) {
+    return this.getTransferredAmount(reservation) > 0 || !!reservation.deposit_confirmed_at;
   }
 }

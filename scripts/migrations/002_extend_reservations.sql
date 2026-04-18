@@ -9,7 +9,7 @@
 --   + customer_email    TEXT (nullable — no siempre se pide)
 --   + reservation_date  DATE (nullable — fecha tentativa de pickup/entrega)
 --   + notes             TEXT (nullable — notas del cliente)
---   + fee_paid          BOOLEAN NOT NULL DEFAULT false (seña pagada)
+--   + fee_paid          BOOLEAN NOT NULL DEFAULT false (anticipo pagado)
 --
 -- Nota sobre status:
 --   El enum reservation_status ya usa valores en español:
