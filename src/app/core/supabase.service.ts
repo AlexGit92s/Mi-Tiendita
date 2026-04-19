@@ -40,6 +40,15 @@ export class SupabaseService {
     return data;
   }
 
+  // Insert sin RETURNING — uso: el flujo público (rol anon) no tiene policy SELECT
+  // sobre `reservations` / `product_tracking_events`, así que `.select()` tras el
+  // insert falla con RLS. Cuando el caller ya conoce el id (UUID generado en cliente),
+  // esta variante evita la lectura.
+  async insertOnly(table: string, payload: any): Promise<void> {
+    const { error } = await this.supabase.from(table).insert(payload);
+    if (error) throw error;
+  }
+
   async update(table: string, id: string | number, payload: any) {
     const { data, error } = await this.supabase.from(table).update(payload).eq('id', id).select().single();
     if (error) throw error;

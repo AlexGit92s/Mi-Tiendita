@@ -162,7 +162,12 @@ export class ShoppingCartComponent implements OnInit {
           assignedDeposit += proratedDeposit;
         }
 
-        const reservation = await this.supabase.create('reservations', {
+        // id generado en cliente: el rol anon no tiene SELECT sobre reservations,
+        // así que no podemos leer la fila recién insertada vía RETURNING.
+        const reservationId = crypto.randomUUID();
+
+        await this.supabase.insertOnly('reservations', {
+          id: reservationId,
           product_id: item.id,
           customer_name: formData.customer_name,
           customer_email: formData.customer_email?.trim() || null,
@@ -176,9 +181,9 @@ export class ShoppingCartComponent implements OnInit {
           deposit_transferred_by: formData.deposit_transferred_by?.trim() || null
         });
 
-        await this.supabase.create('product_tracking_events', {
+        await this.supabase.insertOnly('product_tracking_events', {
           product_id: item.id,
-          reservation_id: reservation.id,
+          reservation_id: reservationId,
           source: 'reservation',
           event_key: 'reserva_creada',
           event_label: 'Apartado creado',
@@ -193,7 +198,7 @@ export class ShoppingCartComponent implements OnInit {
           }
         });
 
-        createdTickets.push(this.getTicketNumber(reservation.id));
+        createdTickets.push(this.getTicketNumber(reservationId));
       }
 
       this.cartProducts.set([]);
