@@ -13,7 +13,11 @@
 ---
 
 ## [Unreleased]
+### Added
+- **Búsqueda rápida de apartados en `/admin/reservations`** — nuevo input arriba de los chips de estado que matchea (case-insensitive) contra número de ticket (`APT-XXXXXXXX`), UUID, nombre, teléfono, email del cliente, nombre del producto, referencia y "transfiere" del depósito. Se combina con el filtro de estado (AND) y muestra contador `N resultado(s) de M`. Botón ✕ para limpiar. _(Claude/Alex)_
+
 ### Changed
+- **Ticket imprimible del carrito sin chrome** — en el éxito del apartado, al imprimir ahora se oculta todo lo de "sistema": navbar global (`app-root nav/header/footer` vía `@media print` en [styles.css](./src/styles.css)), se anula `min-h-screen` y paddings del `<main>` para que el ticket entre en una sola página, el título/subtítulo de la página, el ícono+titular de éxito y el botón "Explorar colecciones". Se añade un header de marca visible solo en impresión ("Mi Tiendita L'Amour · Ticket de apartado") y se aplanan sombras/bordes del card para papel. `printTicket()` clona `#ticket-print` a una ventana aislada con título "Ticket de apartado" (el navegador ya no rotula "MiTiendita" en el encabezado) y `@page { margin: 10mm }`, con fallback a `window.print()` si el popup está bloqueado. Nuevo botón **WhatsApp** junto a "Guardar / Imprimir" que abre `wa.me` con el ticket formateado como mensaje — el cliente lo envía a la tienda y al mismo tiempo lo conserva en su historial de WhatsApp como respaldo. _(Claude/Alex)_
 - **Design tokens L'Atelier aplicados de forma aditiva** — paleta y fuentes ya coincidían (`#F5D1D1` / `#735858` / `#775a19` / Noto Serif + Manrope). Se añade en [tailwind.config.js](./tailwind.config.js): color `lamour-bg` (`#FAF9F6` off-white lujo), `rounded-lamour` (8px), `shadow-luxe` (`0 40px 60px -10px rgba(26,28,28,0.05)`) y se eleva el `base-100` de DaisyUI a `#FAF9F6`. Body en [styles.css](./src/styles.css) usa el nuevo background. Sin renombrar tokens `lamour-*` ni tocar lógica/markup existente. _(Claude/Alex)_
 
 ### Security

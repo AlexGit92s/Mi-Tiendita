@@ -30,3 +30,26 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #735858; /* stone */
 }
+
+/* Impresion de ticket: solo se ve #ticket-print. Se elimina navbar/footer globales
+   y se anulan alturas minimas del layout para que el contenido entre en una pagina. */
+@media print {
+  @page {
+    margin: 10mm;
+  }
+  html, body {
+    background: #ffffff !important;
+  }
+  app-root nav,
+  app-root header,
+  app-root footer {
+    display: none !important;
+  }
+  .min-h-screen {
+    min-height: 0 !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

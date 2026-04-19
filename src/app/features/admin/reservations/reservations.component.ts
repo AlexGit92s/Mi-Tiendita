@@ -46,6 +46,7 @@ export class ReservationsComponent implements OnInit {
 
   reservations = signal<ReservationWithProduct[]>([]);
   statusFilter = signal<string>('all');
+  searchQuery = signal<string>('');
   readonly trackingEventOptions = [
     { value: 'reserva_creada', label: 'Reserva creada' },
     { value: 'vendido', label: 'Ya vendido' },
@@ -82,9 +83,34 @@ export class ReservationsComponent implements OnInit {
 
   filteredReservations = computed(() => {
     const status = this.statusFilter();
-    if (status === 'all') return this.reservations();
-    return this.reservations().filter((reservation) => reservation.status === status);
+    const query = this.searchQuery().trim().toLowerCase();
+    let list = this.reservations();
+    if (status !== 'all') list = list.filter((r) => r.status === status);
+    if (query) list = list.filter((r) => this.matchesSearch(r, query));
+    return list;
   });
+
+  private matchesSearch(r: ReservationWithProduct, q: string): boolean {
+    const haystacks = [
+      this.getTicketNumber(r),
+      r.id ?? '',
+      r.customer_name ?? '',
+      r.customer_phone ?? '',
+      r.customer_email ?? '',
+      r.products?.name ?? '',
+      r.deposit_reference ?? '',
+      r.deposit_transferred_by ?? ''
+    ];
+    return haystacks.some((h) => h.toString().toLowerCase().includes(q));
+  }
+
+  setSearchQuery(value: string) {
+    this.searchQuery.set(value);
+  }
+
+  clearSearch() {
+    this.searchQuery.set('');
+  }
 
   counts = computed(() => {
     const all = this.reservations();

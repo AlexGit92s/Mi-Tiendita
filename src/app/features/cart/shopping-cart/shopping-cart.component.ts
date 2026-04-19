@@ -31,6 +31,9 @@ export class ShoppingCartComponent implements OnInit {
   isLoadingProduct = signal(false);
   success = signal(false);
   createdTicketNumbers = signal<string[]>([]);
+  createdProductDetails = signal<{name: string, price: number, size?: string, color?: string}[]>([]);
+  createdTotals = signal<{deposit: number, remaining: number, total: number}>({deposit: 0, remaining: 0, total: 0});
+  reservationDate = signal<string>('');
 
   checkoutForm: FormGroup = this.fb.group({
     customer_name: ['', [Validators.required, Validators.minLength(3)]],
@@ -87,6 +90,96 @@ export class ShoppingCartComponent implements OnInit {
 
   getTicketNumber(id?: string) {
     return `APT-${(id ?? '').slice(0, 8).toUpperCase() || 'MANUAL'}`;
+  }
+
+  printTicket() {
+    const ticket = document.getElementById('ticket-print');
+    if (!ticket) {
+      window.print();
+      return;
+    }
+
+    const w = window.open('', '_blank', 'width=820,height=900');
+    if (!w) {
+      // Popup bloqueado → fallback: imprime la pagina actual con titulo limpio
+      const original = document.title;
+      document.title = 'Ticket de apartado';
+      window.print();
+      document.title = original;
+      return;
+    }
+
+    const doc = w.document;
+    doc.title = 'Ticket de apartado';
+
+    // Copiamos hojas de estilo y <style> globales a la ventana aislada
+    for (const node of Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'))) {
+      doc.head.appendChild(node.cloneNode(true));
+    }
+
+    const pageStyle = doc.createElement('style');
+    pageStyle.textContent = `@page { margin: 10mm; } html, body { background:#fff !important; margin:0; padding:16px; }`;
+    doc.head.appendChild(pageStyle);
+
+    doc.body.appendChild(ticket.cloneNode(true));
+    w.focus();
+
+    const doPrint = () => {
+      w.print();
+      w.close();
+    };
+    if (doc.readyState === 'complete') {
+      setTimeout(doPrint, 300);
+    } else {
+      w.addEventListener('load', () => setTimeout(doPrint, 150));
+    }
+  }
+
+  shareViaWhatsApp() {
+    const lines: string[] = [];
+    lines.push(`*Ticket de apartado - Mi Tiendita L'Amour*`);
+    lines.push('');
+    const tickets = this.createdTicketNumbers();
+    if (tickets.length === 1) {
+      lines.push(`Ticket: ${tickets[0]}`);
+    } else {
+      lines.push(`Tickets:`);
+      tickets.forEach((t, i) => lines.push(`  ${i + 1}. ${t}`));
+    }
+    lines.push('');
+
+    const products = this.createdProductDetails();
+    if (products.length > 0) {
+      lines.push(`*Articulo(s):*`);
+      for (const p of products) {
+        const variant = [p.size, p.color].filter(Boolean).join(' - ');
+        lines.push(`- ${p.name}${variant ? ` (${variant})` : ''}: L. ${p.price}`);
+      }
+      lines.push('');
+    }
+
+    const totals = this.createdTotals();
+    if (totals.total > 0) {
+      lines.push(`Total: L. ${totals.total}`);
+      if (totals.deposit > 0) lines.push(`Sena: L. ${totals.deposit}`);
+      if (totals.remaining > 0) lines.push(`Restante: L. ${totals.remaining}`);
+      lines.push('');
+    }
+
+    const resDate = this.reservationDate();
+    if (resDate) lines.push(`Fecha de entrega: ${this.formatDate(resDate)}`);
+    lines.push('');
+    lines.push('Adjunto el comprobante de la transferencia.');
+
+    const phone = this.bankDetails.whatsapp.replace(/\D/g, '');
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
+    window.open(url, '_blank', 'noopener');
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-HN', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   async ngOnInit() {
@@ -219,10 +312,24 @@ export class ShoppingCartComponent implements OnInit {
         createdTickets.push(this.getTicketNumber(reservationId));
       }
 
+      const productDetails = items.map(item => ({
+        name: item.name,
+        price: Number(item.price),
+        size: item.sizes?.[0]?.size,
+        color: item.sizes?.[0]?.color
+      }));
+
       this.cartProducts.set([]);
       localStorage.removeItem('mi_tiendita_cart');
       window.dispatchEvent(new Event('mi_tiendita_cart_updated'));
       this.createdTicketNumbers.set(createdTickets);
+      this.createdProductDetails.set(productDetails);
+      this.createdTotals.set({
+        deposit: this.depositAmount(),
+        remaining: this.remainingAmount(),
+        total: this.totalPrice()
+      });
+      this.reservationDate.set(formData.reservation_date || new Date().toISOString().split('T')[0]);
       this.success.set(true);
     } catch (error: any) {
       console.error('Reservation failed:', error);

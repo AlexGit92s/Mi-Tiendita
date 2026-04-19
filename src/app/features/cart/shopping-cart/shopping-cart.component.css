@@ -1,0 +1,25 @@
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:border-gray-200 {
+    border-color: #e5e7eb !important;
+  }
+
+  .print\:border-gray-300 {
+    border-color: #d1d5db !important;
+  }
+
+  .print\:border-gray-100 {
+    border-color: #f3f4f6 !important;
+  }
+
+  .print\:bg-gray-50 {
+    background-color: #f9fafb !important;
+  }
+
+  .print\:border-gray-300 {
+    border-color: #d1d5db !important;
+  }
+}
