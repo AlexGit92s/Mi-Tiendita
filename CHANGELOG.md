@@ -13,6 +13,9 @@
 ---
 
 ## [Unreleased]
+### Security
+- **Cierre de sesión por inactividad (30 min)** — [auth.service.ts](./src/app/core/auth.service.ts) ahora arma un watcher cuando hay sesión activa: escucha `click/keydown/mousemove/scroll/touchstart` sobre `window` y reinicia un timer de 30 min con cada evento. Al vencer, ejecuta `signOut()` + redirect a `/login`. Los listeners se adjuntan solo si hay sesión y se sueltan en `SIGNED_OUT` para no filtrar memoria. Cross-tab funciona implícitamente vía el `localStorage` sync de Supabase (un tab que cierra sesión propaga `SIGNED_OUT` a los demás). _(Claude/Alex)_
+
 ### Changed
 - **Fecha de entrega del carrito no acepta pasado** — el input `reservation_date` ahora lleva `[min]="todayIso"` para bloquear selección nativa de días previos y un validador custom `futureDateValidator` (rechaza la fecha incluso si el usuario la edita manualmente). Mensaje específico "La fecha debe ser hoy o posterior" cuando aplica. _(Claude/Alex)_
 
