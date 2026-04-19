@@ -23,6 +23,8 @@ export class ProductDetailComponent implements OnInit {
   loading = signal<boolean>(true);
   notFound = signal<boolean>(false);
   activeImageIndex = signal<number>(0);
+  addedToCart = signal(false);
+  stockLimitReached = signal(false);
 
   activeImage = computed(() => {
     const p = this.product();
@@ -70,6 +72,20 @@ export class ProductDetailComponent implements OnInit {
   reserve() {
     const p = this.product();
     if (!p?.id) return;
-    this.router.navigate(['/cart'], { queryParams: { productId: p.id } });
+
+    const saved = localStorage.getItem('mi_tiendita_cart');
+    const current = saved ? JSON.parse(saved) as ProductWithCategory[] : [];
+    const currentCount = current.filter((item) => item.id === p.id).length;
+    if (currentCount >= (p.stock ?? 0)) {
+      this.stockLimitReached.set(true);
+      setTimeout(() => this.stockLimitReached.set(false), 2000);
+      return;
+    }
+
+    localStorage.setItem('mi_tiendita_cart', JSON.stringify([...current, p]));
+    window.dispatchEvent(new Event('mi_tiendita_cart_updated'));
+
+    this.addedToCart.set(true);
+    setTimeout(() => this.addedToCart.set(false), 2000);
   }
 }

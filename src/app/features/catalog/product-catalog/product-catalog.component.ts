@@ -21,6 +21,8 @@ export class ProductCatalogComponent implements OnInit {
   products = signal<ProductWithCategory[]>([]);
   activeCategory = signal<string>('Todas');
   categories = signal<string[]>([]);
+  addedProductId = signal<string | null>(null);
+  limitProductId = signal<string | null>(null);
 
   filteredProducts = computed(() => {
     const cat = this.activeCategory();
@@ -53,7 +55,27 @@ export class ProductCatalogComponent implements OnInit {
   }
 
   reserveProduct(productId: string) {
-    this.router.navigate(['/cart'], { queryParams: { productId } });
+    const product = this.products().find((item) => item.id === productId);
+    if (!product) return;
+
+    const saved = localStorage.getItem('mi_tiendita_cart');
+    const current = saved ? JSON.parse(saved) as ProductWithCategory[] : [];
+    const currentCount = current.filter((item) => item.id === productId).length;
+    if (currentCount >= (product.stock ?? 0)) {
+      this.limitProductId.set(productId);
+      setTimeout(() => {
+        if (this.limitProductId() === productId) this.limitProductId.set(null);
+      }, 2000);
+      return;
+    }
+
+    localStorage.setItem('mi_tiendita_cart', JSON.stringify([...current, product]));
+    window.dispatchEvent(new Event('mi_tiendita_cart_updated'));
+
+    this.addedProductId.set(productId);
+    setTimeout(() => {
+      if (this.addedProductId() === productId) this.addedProductId.set(null);
+    }, 2000);
   }
 
   viewDetail(productId: string) {

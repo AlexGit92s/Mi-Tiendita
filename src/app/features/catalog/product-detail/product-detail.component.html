@@ -98,7 +98,7 @@
                     [disabled]="!isAvailable()"
                     class="w-full px-8 py-4 bg-lamour-stone text-white hover:bg-lamour-gold transition-all duration-300 uppercase tracking-[0.2em] text-xs font-bold rounded-sm shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">
               @if (isAvailable()) {
-                Añadir al apartado
+                {{ stockLimitReached() ? 'Stock maximo en carrito' : (addedToCart() ? 'Agregado al carrito' : 'Agregar al carrito') }}
               } @else {
                 No disponible
               }
@@ -106,10 +106,13 @@
             <a routerLink="/catalog" class="block w-full text-center px-8 py-3 border border-lamour-blush/40 text-lamour-stone hover:border-lamour-blush hover:bg-lamour-blush/5 transition-all uppercase tracking-widest text-[11px] font-semibold rounded-sm">
               Seguir explorando
             </a>
+            <a routerLink="/cart" class="block w-full text-center px-8 py-3 border border-lamour-stone/30 text-lamour-stone hover:border-lamour-stone hover:bg-lamour-stone/5 transition-all uppercase tracking-widest text-[11px] font-semibold rounded-sm">
+              Ir al carrito
+            </a>
           </div>
 
           <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mt-6 leading-relaxed">
-            Para confirmar el apartado se requiere un anticipo del 50% por transferencia. Los datos bancarios se muestran al registrar el apartado.
+            Agrega este producto al carrito y luego, desde el carrito, envialo a apartado. El anticipo se registra primero y el pago total se valida antes de entrega o envio.
           </p>
         </div>
       </div>

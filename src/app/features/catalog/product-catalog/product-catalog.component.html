@@ -57,7 +57,7 @@
               </button>
               <button class="w-full bg-white/95 backdrop-blur-md text-lamour-stone border border-lamour-blush hover:bg-lamour-blush hover:text-white transition-colors py-2.5 text-[10px] md:text-[11px] uppercase tracking-widest font-bold md:font-medium rounded-sm shadow-sm"
                       (click)="product.id && reserveProduct(product.id)">
-                Solicitar Apartado
+                {{ limitProductId() === product.id ? 'Stock maximo en carrito' : (addedProductId() === product.id ? 'Agregado' : 'Agregar al carrito') }}
               </button>
             </div>
           </div>

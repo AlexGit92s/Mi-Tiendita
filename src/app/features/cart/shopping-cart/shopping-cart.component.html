@@ -1,9 +1,14 @@
 <div class="min-h-screen bg-[#fcfcfc] text-[#333333] py-12">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    
     <div class="mb-10 text-center border-b border-lamour-blush/30 pb-8">
-      <h1 class="text-4xl font-serif text-lamour-stone tracking-widest uppercase">Mi Selección</h1>
-      <p class="mt-3 text-gray-500 font-sans tracking-wide font-light">Prepare su apartado para una experiencia exclusiva en nuestra boutique.</p>
+      <h1 class="text-4xl font-serif text-lamour-stone tracking-widest uppercase">{{ getSelectionTitle() }}</h1>
+      <p class="mt-3 text-gray-500 font-sans tracking-wide font-light">
+        @if (isMultipleItems()) {
+          Revisa los articulos seleccionados y desde aqui envialos a apartados. El pago total se valida antes de la entrega.
+        } @else {
+          Revisa el articulo seleccionado y desde aqui envialo a apartado. El pago total se valida antes de la entrega.
+        }
+      </p>
     </div>
 
     @if (success()) {
@@ -12,30 +17,38 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-14 h-14 text-lamour-blush mx-auto mb-4">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h2 class="font-serif text-2xl uppercase tracking-widest text-lamour-stone">Apartado Registrado</h2>
-          <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest">Completa el anticipo para confirmar tu apartado</p>
+          <h2 class="font-serif text-2xl uppercase tracking-widest text-lamour-stone">{{ getSuccessTitle() }}</h2>
+          <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest">
+            @if (isMultipleItems()) {
+              La solicitud ya fue enviada. Comparte los tickets y valida el pago total de cada apartado antes de entregar.
+            } @else {
+              La solicitud ya fue enviada. Comparte el ticket y valida el pago total del apartado antes de entregar.
+            }
+          </p>
         </div>
 
         @if (createdTicketNumbers().length > 0) {
           <div class="mb-6 rounded-lg border border-lamour-gold/30 bg-lamour-gold/5 p-4 text-center">
-            <p class="text-[10px] uppercase tracking-[0.2em] text-lamour-stone font-bold">Numero de ticket</p>
+            <p class="text-[10px] uppercase tracking-[0.2em] text-lamour-stone font-bold">
+              {{ createdTicketNumbers().length > 1 ? 'Numeros de ticket' : 'Numero de ticket' }}
+            </p>
             <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
               @for (ticket of createdTicketNumbers(); track ticket) {
                 <span class="rounded-full border border-lamour-gold/30 bg-white px-4 py-2 font-mono text-xs font-bold tracking-[0.18em] text-lamour-gold">{{ ticket }}</span>
               }
             </div>
-            <p class="mt-3 text-[10px] uppercase tracking-widest text-gray-500">Compártelo con el cliente para consultas y seguimiento.</p>
+            <p class="mt-3 text-[10px] uppercase tracking-widest text-gray-500">Compartelo con el cliente para consultas y seguimiento.</p>
           </div>
         }
 
         <div class="border-t border-b border-lamour-blush/30 py-6 mb-6 text-center">
-          <p class="text-[11px] uppercase tracking-[0.25em] text-gray-400 mb-2">Transfiere como anticipo</p>
+          <p class="text-[11px] uppercase tracking-[0.25em] text-gray-400 mb-2">{{ isMultipleItems() ? 'Anticipo total declarado' : 'Anticipo declarado' }}</p>
           <p class="font-sans font-black text-4xl text-lamour-gold">L. {{ depositAmount() }}</p>
-          <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">por transferencia · resto al retirar</p>
+          <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">por transferencia · pago total pendiente antes de entrega</p>
         </div>
 
         <div class="bg-gray-50 border border-lamour-blush/30 rounded-sm p-5 mb-6">
-          <h3 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-3">Datos Bancarios</h3>
+          <h3 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-3">Datos bancarios</h3>
           <dl class="text-xs space-y-1.5 font-mono text-gray-700">
             <div class="flex justify-between"><dt class="text-gray-500">Banco:</dt><dd class="font-bold">{{ bankDetails.bank }}</dd></div>
             <div class="flex justify-between"><dt class="text-gray-500">Cuenta:</dt><dd class="font-bold">{{ bankDetails.accountNumber }}</dd></div>
@@ -43,22 +56,20 @@
             <div class="flex justify-between"><dt class="text-gray-500">Tipo:</dt><dd class="font-bold">{{ bankDetails.accountType }}</dd></div>
           </dl>
           <p class="text-[10px] uppercase tracking-widest text-lamour-stone mt-4 pt-3 border-t border-lamour-blush/20">
-            Envía el comprobante por WhatsApp:
+            Envia el comprobante por WhatsApp:
             <span class="font-black text-lamour-gold">{{ bankDetails.whatsapp }}</span>
           </p>
         </div>
 
         <div class="flex items-center justify-center gap-3 text-center">
-          <a routerLink="/catalog" class="px-8 py-3 border border-lamour-stone text-lamour-stone hover:bg-lamour-stone hover:text-white transition-all text-xs uppercase tracking-widest font-bold rounded-sm">Explorar Colecciones</a>
+          <a routerLink="/catalog" class="px-8 py-3 border border-lamour-stone text-lamour-stone hover:bg-lamour-stone hover:text-white transition-all text-xs uppercase tracking-widest font-bold rounded-sm">Explorar colecciones</a>
         </div>
       </div>
     } @else {
-      
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
-        <!-- Wishlist Items -->
         <div class="flex flex-col gap-4">
-          <h2 class="text-2xl font-serif text-lamour-stone uppercase tracking-widest border-b border-lamour-blush/20 pb-2">Artículos</h2>
-          
+          <h2 class="text-2xl font-serif text-lamour-stone uppercase tracking-widest border-b border-lamour-blush/20 pb-2">{{ isMultipleItems() ? 'Articulos seleccionados' : 'Articulo seleccionado' }}</h2>
+
           @if (isLoadingProduct()) {
             <div class="flex items-center gap-3 bg-white p-4 border border-dashed border-lamour-blush/40 rounded-lg">
               <span class="loading loading-spinner loading-sm text-lamour-blush"></span>
@@ -72,13 +83,13 @@
                 @if (item.images?.[0]) {
                   <img [src]="item.images[0]" class="w-full h-full object-cover filter sepia-[20%]" alt="Image">
                 } @else {
-                  <div class="w-full h-full flex items-center justify-center opacity-10 text-[10px] uppercase font-bold text-lamour-stone">No Foto</div>
+                  <div class="w-full h-full flex items-center justify-center opacity-10 text-[10px] uppercase font-bold text-lamour-stone">No foto</div>
                 }
               </div>
               <div class="flex-1">
                 <h3 class="font-serif text-lg leading-tight text-gray-800 group-hover:text-lamour-stone transition-colors uppercase tracking-widest">{{ item.name }}</h3>
                 <div class="font-sans font-bold text-lamour-gold mt-2">L. {{ item.price }}</div>
-                @if(item.is_limited_edition) {
+                @if (item.is_limited_edition) {
                   <span class="text-[8px] uppercase tracking-widest text-lamour-blush font-bold">Limitada</span>
                 }
               </div>
@@ -88,8 +99,8 @@
             </div>
           } @empty {
             <div class="text-center py-12 bg-white border border-dashed border-gray-200 rounded-lg">
-              <p class="text-gray-400 font-serif text-lg uppercase tracking-widest opacity-40">Bolsa Vacía</p>
-              <a routerLink="/catalog" class="btn btn-ghost text-lamour-stone hover:bg-lamour-blush/10 rounded-none mt-6 btn-sm border border-lamour-blush uppercase tracking-widest text-[10px]">Ver Boutique</a>
+              <p class="text-gray-400 font-serif text-lg uppercase tracking-widest opacity-40">Bolsa vacia</p>
+              <a routerLink="/catalog" class="btn btn-ghost text-lamour-stone hover:bg-lamour-blush/10 rounded-none mt-6 btn-sm border border-lamour-blush uppercase tracking-widest text-[10px]">Ver boutique</a>
             </div>
           }
 
@@ -102,41 +113,44 @@
               <div class="flex justify-between items-center border-t border-lamour-blush/20 pt-3">
                 <div class="flex flex-col">
                   <span class="font-serif tracking-widest uppercase text-lamour-stone text-xs font-bold">Anticipo</span>
-                  <span class="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">50% por transferencia</span>
+                  <span class="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">{{ isMultipleItems() ? '50% del total por transferencia' : '50% por transferencia' }}</span>
                 </div>
                 <span class="font-sans font-black text-2xl text-lamour-gold">L. {{ depositAmount() }}</span>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-gray-400 uppercase tracking-widest">Restante al retirar</span>
+                <span class="text-gray-400 uppercase tracking-widest">Monto pendiente antes de entrega</span>
                 <span class="font-sans font-bold text-gray-500">L. {{ remainingAmount() }}</span>
               </div>
             </div>
 
             <div class="mt-3 p-4 bg-lamour-blush/5 border border-lamour-blush/30 rounded-lg">
-              <p class="text-[10px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-2">Para confirmar tu apartado</p>
+              <p class="text-[10px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-2">{{ isMultipleItems() ? 'Antes de enviar a apartados' : 'Antes de enviar a apartado' }}</p>
               <p class="text-[11px] text-gray-600 leading-relaxed">
-                Debes transferir el anticipo <span class="font-bold text-lamour-gold">(L. {{ depositAmount() }})</span> por transferencia.
-                Al registrar el apartado te mostraremos los datos bancarios y el contacto de WhatsApp para enviar el comprobante.
+                Debes registrar el anticipo <span class="font-bold text-lamour-gold">(L. {{ depositAmount() }})</span> por transferencia.
+                @if (isMultipleItems()) {
+                  Al enviar, el sistema creara un ticket por cada articulo y luego deberas validar el pago total de cada uno.
+                } @else {
+                  Al enviar, el sistema creara un ticket para el apartado y luego deberas validar el pago total antes de entregarlo.
+                }
               </p>
             </div>
           }
         </div>
 
-        <!-- Reservation Form -->
         <div class="bg-white shadow-xl p-6 lg:p-8 border border-lamour-blush/10 sticky top-24 rounded-lg">
-          <h2 class="text-2xl font-serif text-lamour-stone uppercase tracking-widest mb-6">Información Personal</h2>
-          
+          <h2 class="text-2xl font-serif text-lamour-stone uppercase tracking-widest mb-6">Datos del cliente</h2>
+
           <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 font-sans text-xs">
             <div class="form-control">
               <label class="label flex flex-col items-start gap-1">
-                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Nombre Completo</span>
+                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Nombre completo</span>
               </label>
-              <input type="text" formControlName="customer_name" 
-                class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3 
+              <input type="text" formControlName="customer_name"
+                class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                        focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
-                       placeholder:text-gray-300 placeholder:text-xs" 
+                       placeholder:text-gray-300 placeholder:text-xs"
                 placeholder="Ingrese su nombre completo"/>
-              @if(checkoutForm.get('customer_name')?.invalid && checkoutForm.get('customer_name')?.touched) {
+              @if (checkoutForm.get('customer_name')?.invalid && checkoutForm.get('customer_name')?.touched) {
                 <span class="text-red-400 text-[10px] mt-1">Este campo es requerido</span>
               }
             </div>
@@ -151,44 +165,50 @@
                          focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
                          placeholder:text-gray-300 placeholder:text-xs"
                   placeholder="correo@ejemplo.com"/>
-                @if(checkoutForm.get('customer_email')?.invalid && checkoutForm.get('customer_email')?.touched) {
-                  <span class="text-red-400 text-[10px] mt-1">Formato de email inválido</span>
+                @if (checkoutForm.get('customer_email')?.invalid && checkoutForm.get('customer_email')?.touched) {
+                  <span class="text-red-400 text-[10px] mt-1">Formato de email invalido</span>
                 }
               </div>
               <div class="form-control">
                 <label class="label flex flex-col items-start gap-1">
-                  <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Teléfono</span>
+                  <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Telefono</span>
                 </label>
                 <input type="tel" formControlName="customer_phone"
                   class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                          focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
                          placeholder:text-gray-300 placeholder:text-xs"
                   placeholder="+504 0000-0000"/>
-                @if(checkoutForm.get('customer_phone')?.invalid && checkoutForm.get('customer_phone')?.touched) {
-                  <span class="text-red-400 text-[10px] mt-1">Teléfono requerido</span>
+                @if (checkoutForm.get('customer_phone')?.invalid && checkoutForm.get('customer_phone')?.touched) {
+                  <span class="text-red-400 text-[10px] mt-1">Telefono requerido</span>
                 }
               </div>
             </div>
 
             <div class="form-control">
               <label class="label flex flex-col items-start gap-1">
-                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Fecha para Entrega</span>
+                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Fecha estimada de entrega</span>
               </label>
               <input type="date" formControlName="reservation_date"
                 class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                        focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300"/>
-              @if(checkoutForm.get('reservation_date')?.invalid && checkoutForm.get('reservation_date')?.touched) {
+              @if (checkoutForm.get('reservation_date')?.invalid && checkoutForm.get('reservation_date')?.touched) {
                 <span class="text-red-400 text-[10px] mt-1">Seleccione una fecha</span>
               }
               <p class="text-[10px] text-gray-500 mt-2 leading-relaxed">
-                La entrega se realizará una vez se complete el pago total.
+                La entrega solo se agenda cuando el pago total ya este validado.
               </p>
             </div>
 
             <div class="border border-lamour-blush/30 rounded-sm bg-lamour-blush/5 p-4 space-y-4">
               <div>
-                <h3 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold">Datos de la Transferencia</h3>
-                <p class="text-[10px] text-gray-500 mt-1">Transfiere el anticipo (50%) a la cuenta indicada y registra los datos aquí. Un asesor validará el movimiento.</p>
+                <h3 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold">Datos del anticipo</h3>
+                <p class="text-[10px] text-gray-500 mt-1">
+                  @if (isMultipleItems()) {
+                    Registra el anticipo total transferido. El sistema lo repartira entre los apartados y luego validaras el pago completo de cada uno.
+                  } @else {
+                    Registra el anticipo transferido. Luego validaras el pago completo antes de la entrega.
+                  }
+                </p>
               </div>
 
               <div class="bg-white border border-lamour-blush/20 rounded-sm p-3">
@@ -221,19 +241,19 @@
                 </div>
                 <div class="form-control">
                   <label class="label flex flex-col items-start gap-1">
-                    <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Referencia / Autorización</span>
+                    <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Referencia de transferencia</span>
                   </label>
                   <input type="text" formControlName="deposit_reference"
                     class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                            focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
                            placeholder:text-gray-300 placeholder:text-xs"
-                    placeholder="N° de referencia o autorización"/>
+                    placeholder="N° de referencia"/>
                 </div>
               </div>
 
               <div class="form-control">
                 <label class="label flex flex-col items-start gap-1">
-                  <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">A nombre de quién se transfirió</span>
+                  <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">A nombre de quien se transfirio</span>
                 </label>
                 <input type="text" formControlName="deposit_transferred_by"
                   class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
@@ -245,13 +265,13 @@
 
             <div class="form-control">
               <label class="label flex flex-col items-start gap-1">
-                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Notas Especiales</span>
+                <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Notas especiales</span>
               </label>
               <textarea formControlName="notes"
                 class="textarea w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                        focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300
                        placeholder:text-gray-300 placeholder:text-xs h-24 resize-none"
-                placeholder="¿Alguna solicitud especial? Talla, color, preferencias..."></textarea>
+                placeholder="Alguna solicitud especial, talla, color o preferencia"></textarea>
             </div>
 
             <button type="submit"
@@ -259,13 +279,19 @@
                      transition-all duration-300 uppercase tracking-[0.25em] font-bold rounded-sm
                      shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               [disabled]="checkoutForm.invalid || cartProducts().length === 0 || isSaving()">
-              @if(isSaving()) {
+              @if (isSaving()) {
                 <span class="loading loading-spinner loading-md"></span>
               } @else {
-                 <span class="text-[12px]">Confirmar Apartado</span>
+                <span class="text-[12px]">{{ getSubmitLabel() }}</span>
               }
             </button>
-            <p class="text-[9px] text-center mt-3 text-gray-400 uppercase tracking-[0.15em] opacity-50">Su apartado será validado por un asesor. La entrega se realizará al completar el pago total.</p>
+            <p class="text-[9px] text-center mt-3 text-gray-400 uppercase tracking-[0.15em] opacity-50">
+              @if (isMultipleItems()) {
+                Los apartados enviados seran validados por un asesor. Cada ticket debe quedar pagado por completo antes de entrega o envio.
+              } @else {
+                El apartado enviado sera validado por un asesor. Debe quedar pagado por completo antes de entrega o envio.
+              }
+            </p>
           </form>
         </div>
       </div>

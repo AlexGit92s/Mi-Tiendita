@@ -51,6 +51,22 @@ export class ShoppingCartComponent implements OnInit {
 
   remainingAmount = computed(() => Math.round((this.totalPrice() - this.depositAmount()) * 100) / 100);
 
+  itemCount = computed(() => this.cartProducts().length);
+
+  isMultipleItems = computed(() => this.itemCount() > 1);
+
+  getSubmitLabel() {
+    return this.isMultipleItems() ? 'Enviar a apartados' : 'Enviar a apartado';
+  }
+
+  getSuccessTitle() {
+    return this.isMultipleItems() ? 'Apartados registrados' : 'Apartado registrado';
+  }
+
+  getSelectionTitle() {
+    return this.isMultipleItems() ? 'Mi carrito' : 'Mi carrito';
+  }
+
   getTicketNumber(id?: string) {
     return `APT-${(id ?? '').slice(0, 8).toUpperCase() || 'MANUAL'}`;
   }
@@ -69,31 +85,22 @@ export class ShoppingCartComponent implements OnInit {
 
     try {
       const parsed = JSON.parse(saved) as any[];
-      const seen = new Set<string>();
-      const unique = parsed.filter((product) => {
-        if (!product?.id || seen.has(product.id)) return false;
-        seen.add(product.id);
-        return true;
-      });
-
-      this.cartProducts.set(unique);
-      if (unique.length !== parsed.length) this.persistCart();
+      const valid = parsed.filter((product) => !!product?.id);
+      this.cartProducts.set(valid);
+      if (valid.length !== parsed.length) this.persistCart();
     } catch {
       localStorage.removeItem('mi_tiendita_cart');
     }
   }
 
   async addProductById(productId: string) {
-    if (this.cartProducts().some((product) => product.id === productId)) {
-      this.clearProductIdFromUrl();
-      return;
-    }
-
     this.isLoadingProduct.set(true);
     try {
       const product: any = await this.supabase.getById('products', productId);
       if (!product) return;
-      if (this.cartProducts().some((item) => item.id === product.id)) return;
+
+      const currentCount = this.cartProducts().filter((item) => item.id === product.id).length;
+      if (currentCount >= Number(product.stock ?? 0)) return;
 
       const updated = [...this.cartProducts(), product];
       this.cartProducts.set(updated);
@@ -119,6 +126,7 @@ export class ShoppingCartComponent implements OnInit {
 
   private persistCart() {
     localStorage.setItem('mi_tiendita_cart', JSON.stringify(this.cartProducts()));
+    window.dispatchEvent(new Event('mi_tiendita_cart_updated'));
   }
 
   removeFromCart(index: number) {
@@ -190,6 +198,7 @@ export class ShoppingCartComponent implements OnInit {
 
       this.cartProducts.set([]);
       localStorage.removeItem('mi_tiendita_cart');
+      window.dispatchEvent(new Event('mi_tiendita_cart_updated'));
       this.createdTicketNumbers.set(createdTickets);
       this.success.set(true);
     } catch (error: any) {
