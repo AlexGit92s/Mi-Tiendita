@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet, RouterModule, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, RouterModule, Router, NavigationEnd, NavigationError } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './core/auth.service';
@@ -35,8 +35,32 @@ export class AppComponent implements OnInit {
       this.syncCartCount();
     });
 
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationError)
+    ).subscribe((event: any) => this.handleChunkLoadError(event));
+
     window.addEventListener('storage', this.handleCartSync);
     window.addEventListener('mi_tiendita_cart_updated', this.handleCartSync);
+  }
+
+  private handleChunkLoadError(event: NavigationError): void {
+    const message = String(event.error?.message ?? event.error ?? '');
+    const isChunkError =
+      /Failed to fetch dynamically imported module/i.test(message) ||
+      /Loading chunk [^\s]+ failed/i.test(message) ||
+      /error loading dynamically imported module/i.test(message) ||
+      /ChunkLoadError/i.test(message);
+    if (!isChunkError) return;
+
+    const targetUrl = event.url || window.location.pathname + window.location.search;
+    const guardKey = 'mi_tiendita_chunk_reload';
+    try {
+      if (sessionStorage.getItem(guardKey) === targetUrl) return;
+      sessionStorage.setItem(guardKey, targetUrl);
+    } catch {
+      // sessionStorage puede estar bloqueado en modo privado; seguimos igualmente
+    }
+    window.location.assign(targetUrl);
   }
 
   private handleCartSync = () => {

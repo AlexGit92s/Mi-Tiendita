@@ -13,6 +13,9 @@
 ---
 
 ## [Unreleased]
+### Fixed
+- **"Failed to fetch dynamically imported module" en móvil tras deploy** — tras cada build de Angular cambian los hashes de los chunks (lazy routes), pero los navegadores móviles suelen conservar el `index.html` viejo en caché y la próxima navegación lazy intenta traer un chunk que ya no existe en Railway. [app.component.ts](./src/app/app.component.ts) ahora escucha `NavigationError`, detecta el patrón de chunk-load (`Failed to fetch dynamically imported module`, `Loading chunk ... failed`, `ChunkLoadError`) y hace `window.location.assign(url)` para obtener un `index.html` fresco. Guarda contra loops infinitos vía `sessionStorage` (solo recarga una vez por target URL). _(Claude/Alex)_
+
 ### Changed
 - **Fluctuación Semanal con datos reales** — el bar chart del dashboard dejó de usar mock. Ahora agrupa las reservas de la semana actual (lun→dom) por día: serie "Apartados creados" bucketea por `created_at`, serie "Pagos confirmados" por `deposit_confirmed_at`. Labels y colores preservados. _(Claude/Alex)_
 - **Checkout del carrito** — email opcional (antes obligatorio), teléfono sigue obligatorio, `Fecha para Cita/Fitting` → `Fecha para Entrega`, y nuevo bloque "Datos de la Transferencia" con `monto transferido`, `referencia/autorización` y `a nombre de quién` (se guardan en `reservations.deposit_amount|deposit_reference|deposit_transferred_by`, prorrateados por precio cuando hay varios ítems). Se añade botón WhatsApp directo a `+504 9624-2967` con `wa.me` y leyenda "entrega al completar el pago total". _(Claude/Alex)_
