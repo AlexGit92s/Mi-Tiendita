@@ -13,6 +13,9 @@
 ---
 
 ## [Unreleased]
+### Changed
+- **Design tokens L'Atelier aplicados de forma aditiva** — paleta y fuentes ya coincidían (`#F5D1D1` / `#735858` / `#775a19` / Noto Serif + Manrope). Se añade en [tailwind.config.js](./tailwind.config.js): color `lamour-bg` (`#FAF9F6` off-white lujo), `rounded-lamour` (8px), `shadow-luxe` (`0 40px 60px -10px rgba(26,28,28,0.05)`) y se eleva el `base-100` de DaisyUI a `#FAF9F6`. Body en [styles.css](./src/styles.css) usa el nuevo background. Sin renombrar tokens `lamour-*` ni tocar lógica/markup existente. _(Claude/Alex)_
+
 ### Security
 - **Cierre de sesión por inactividad (30 min)** — [auth.service.ts](./src/app/core/auth.service.ts) ahora arma un watcher cuando hay sesión activa: escucha `click/keydown/mousemove/scroll/touchstart` sobre `window` y reinicia un timer de 30 min con cada evento. Al vencer, ejecuta `signOut()` + redirect a `/login`. Los listeners se adjuntan solo si hay sesión y se sueltan en `SIGNED_OUT` para no filtrar memoria. Cross-tab funciona implícitamente vía el `localStorage` sync de Supabase (un tab que cierra sesión propaga `SIGNED_OUT` a los demás). _(Claude/Alex)_
 

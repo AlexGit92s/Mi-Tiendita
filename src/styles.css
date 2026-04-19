@@ -6,9 +6,8 @@
 
 html, body {
   @apply font-sans selection:bg-lamour-blush selection:text-white;
-  /* Reemplazando @apply por CSS nativo para evitar errores de DaisyUI no cargado */
-  background-color: #fcfcfc;
-  color: #333333; 
+  background-color: #FAF9F6;
+  color: #333333;
 }
 
 h1, h2, h3, h4, h5, h6 {
