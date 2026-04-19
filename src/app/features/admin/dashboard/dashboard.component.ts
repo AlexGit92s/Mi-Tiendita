@@ -39,8 +39,8 @@ export class DashboardComponent implements OnInit {
   public barChartData: ChartConfiguration['data'] = {
     labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
     datasets: [
-      { data: [12, 19, 3, 5, 2, 3, 9], label: 'Citas fitting', backgroundColor: '#F5D1D1' }, // Blush
-      { data: [1, 2, 8, 4, 5, 6, 2], label: 'Apartados confirmados', backgroundColor: '#775a19' } // Gold
+      { data: [0, 0, 0, 0, 0, 0, 0], label: 'Apartados creados', backgroundColor: '#F5D1D1' },
+      { data: [0, 0, 0, 0, 0, 0, 0], label: 'Pagos confirmados', backgroundColor: '#775a19' }
     ]
   };
 
@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit {
 
   async loadMetrics() {
     try {
-      const { data: resData, error: resError } = await this.supabase.client
+      const { data: resData } = await this.supabase.client
         .from('reservations')
         .select('*, products(price)')
         .order('created_at', { ascending: false });
@@ -61,18 +61,59 @@ export class DashboardComponent implements OnInit {
         const total = resData
           .filter(r => r.status === 'pagado' || r.status === 'entregado' || r.status === 'finalizado')
           .reduce((acc, curr) => acc + (curr.products?.price || 0), 0);
-        
+
         this.totalConfirmedValue.set(total);
-        
-        // Feed format
+
         this.recentFeed.set(resData.slice(0, 5).map(r => ({
           title: `Solicitud: ${r.customer_name}`,
           time: new Date(r.created_at).toLocaleDateString(),
           desc: `Pieza: ${r.products?.name || 'Varios'} | Estado: ${r.status}`
         })));
+
+        this.buildWeeklyChart(resData);
       }
     } catch (err) {
       console.error('Error fetching dashboard metrics', err);
     }
+  }
+
+  private buildWeeklyChart(reservations: any[]) {
+    const mondayStart = this.getMondayStart(new Date());
+    const dayMs = 86_400_000;
+    const weekEndExcl = mondayStart + 7 * dayMs;
+
+    const created = [0, 0, 0, 0, 0, 0, 0];
+    const confirmed = [0, 0, 0, 0, 0, 0, 0];
+
+    for (const r of reservations) {
+      const createdTs = r.created_at ? new Date(r.created_at).getTime() : NaN;
+      if (!isNaN(createdTs) && createdTs >= mondayStart && createdTs < weekEndExcl) {
+        const idx = Math.floor((createdTs - mondayStart) / dayMs);
+        created[idx]++;
+      }
+
+      const confirmedTs = r.deposit_confirmed_at ? new Date(r.deposit_confirmed_at).getTime() : NaN;
+      if (!isNaN(confirmedTs) && confirmedTs >= mondayStart && confirmedTs < weekEndExcl) {
+        const idx = Math.floor((confirmedTs - mondayStart) / dayMs);
+        confirmed[idx]++;
+      }
+    }
+
+    this.barChartData = {
+      labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+      datasets: [
+        { data: created, label: 'Apartados creados', backgroundColor: '#F5D1D1' },
+        { data: confirmed, label: 'Pagos confirmados', backgroundColor: '#775a19' }
+      ]
+    };
+  }
+
+  private getMondayStart(reference: Date): number {
+    const d = new Date(reference);
+    d.setHours(0, 0, 0, 0);
+    const dow = d.getDay();
+    const offset = dow === 0 ? 6 : dow - 1;
+    d.setDate(d.getDate() - offset);
+    return d.getTime();
   }
 }

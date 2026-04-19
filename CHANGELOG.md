@@ -14,6 +14,7 @@
 
 ## [Unreleased]
 ### Changed
+- **Fluctuación Semanal con datos reales** — el bar chart del dashboard dejó de usar mock. Ahora agrupa las reservas de la semana actual (lun→dom) por día: serie "Apartados creados" bucketea por `created_at`, serie "Pagos confirmados" por `deposit_confirmed_at`. Labels y colores preservados. _(Claude/Alex)_
 - **Checkout del carrito** — email opcional (antes obligatorio), teléfono sigue obligatorio, `Fecha para Cita/Fitting` → `Fecha para Entrega`, y nuevo bloque "Datos de la Transferencia" con `monto transferido`, `referencia/autorización` y `a nombre de quién` (se guardan en `reservations.deposit_amount|deposit_reference|deposit_transferred_by`, prorrateados por precio cuando hay varios ítems). Se añade botón WhatsApp directo a `+504 9624-2967` con `wa.me` y leyenda "entrega al completar el pago total". _(Claude/Alex)_
 
 ### Fixed
