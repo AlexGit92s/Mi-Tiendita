@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { SupabaseService } from '../../../core/supabase.service';
 
 @Component({
@@ -36,12 +36,30 @@ export class ShoppingCartComponent implements OnInit {
     customer_name: ['', [Validators.required, Validators.minLength(3)]],
     customer_email: ['', [Validators.email]],
     customer_phone: ['', [Validators.required]],
-    reservation_date: ['', [Validators.required]],
+    reservation_date: ['', [Validators.required, ShoppingCartComponent.futureDateValidator]],
     deposit_amount: [null],
     deposit_reference: [''],
     deposit_transferred_by: [''],
     notes: ['']
   });
+
+  get todayIso(): string {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private static futureDateValidator(control: AbstractControl): ValidationErrors | null {
+    const value: string | null = control.value;
+    if (!value) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const picked = new Date(`${value}T00:00:00`);
+    if (isNaN(picked.getTime())) return { pastDate: true };
+    return picked.getTime() < today.getTime() ? { pastDate: true } : null;
+  }
 
   totalPrice = computed(() => {
     return this.cartProducts().reduce((sum, item) => sum + Number(item.price), 0);

@@ -196,11 +196,15 @@
               <label class="label flex flex-col items-start gap-1">
                 <span class="label-text uppercase tracking-[0.2em] text-gray-500 font-semibold text-[11px]">Fecha estimada de entrega</span>
               </label>
-              <input type="date" formControlName="reservation_date"
+              <input type="date" formControlName="reservation_date" [min]="todayIso"
                 class="input w-full rounded-sm bg-white border border-gray-200 text-gray-800 px-4 py-3
                        focus:border-lamour-blush focus:ring-1 focus:ring-lamour-blush/30 focus:outline-none transition-all duration-300"/>
-              @if (checkoutForm.get('reservation_date')?.invalid && checkoutForm.get('reservation_date')?.touched) {
-                <span class="text-red-400 text-[10px] mt-1">Seleccione una fecha</span>
+              @if (checkoutForm.get('reservation_date')?.touched && checkoutForm.get('reservation_date')?.invalid) {
+                @if (checkoutForm.get('reservation_date')?.hasError('pastDate')) {
+                  <span class="text-red-400 text-[10px] mt-1">La fecha debe ser hoy o posterior</span>
+                } @else {
+                  <span class="text-red-400 text-[10px] mt-1">Seleccione una fecha</span>
+                }
               }
               <p class="text-[10px] text-gray-500 mt-2 leading-relaxed">
                 La entrega solo se agenda cuando el pago total ya este validado.

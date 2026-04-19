@@ -13,6 +13,9 @@
 ---
 
 ## [Unreleased]
+### Changed
+- **Fecha de entrega del carrito no acepta pasado** — el input `reservation_date` ahora lleva `[min]="todayIso"` para bloquear selección nativa de días previos y un validador custom `futureDateValidator` (rechaza la fecha incluso si el usuario la edita manualmente). Mensaje específico "La fecha debe ser hoy o posterior" cuando aplica. _(Claude/Alex)_
+
 ### Fixed
 - **Apartado público bloqueado por `RETURNING` + RLS** — incluso con la policy `INSERT` abierta para `anon`, el INSERT seguía fallando porque `supabase-js` (`.insert().select().single()`) agrega un `RETURNING` implícito, y PostgreSQL aplica la policy `SELECT` a la fila devuelta; `anon` no tenía SELECT sobre `reservations`/`product_tracking_events` → mismo mensaje "new row violates row-level security policy". Fix: se añadió `SupabaseService.insertOnly(table, payload)` ([supabase.service.ts](./src/app/core/supabase.service.ts)) que hace `.insert()` sin `.select()`, y el carrito ahora genera el `id` de la reserva en cliente con `crypto.randomUUID()` e inserta reserva + evento de tracking sin esperar fila de vuelta ([shopping-cart.component.ts](./src/app/features/cart/shopping-cart/shopping-cart.component.ts)). _(Claude/Alex)_
 - **Apartado público seguía bloqueado tras migración 006** (`new row violates row-level security policy for table reservations`) — el diagnóstico en `pg_policies` mostró que `reservations` y `product_tracking_events` quedaron sin policies (RLS habilitado + cero policies = deny-by-default). Nueva migración [008_reservation_policies_recreate.sql](./scripts/migrations/008_reservation_policies_recreate.sql) recrea idempotentemente el set completo documentado en CLAUDE.md §4 (INSERT anon + SELECT/UPDATE/DELETE authenticated para ambas tablas), con rollback y smoke test `SET LOCAL ROLE anon` al final. _(Claude/Alex)_
