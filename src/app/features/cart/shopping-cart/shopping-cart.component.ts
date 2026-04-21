@@ -31,6 +31,7 @@ export class ShoppingCartComponent implements OnInit {
   isLoadingProduct = signal(false);
   success = signal(false);
   createdTicketNumbers = signal<string[]>([]);
+  createdReservationIds = signal<string[]>([]);
   createdProductDetails = signal<{name: string, price: number, size?: string, color?: string}[]>([]);
   createdTotals = signal<{deposit: number, remaining: number, total: number}>({deposit: 0, remaining: 0, total: 0});
   reservationDate = signal<string>('');
@@ -90,6 +91,25 @@ export class ShoppingCartComponent implements OnInit {
 
   getTicketNumber(id?: string) {
     return `APT-${(id ?? '').slice(0, 8).toUpperCase() || 'MANUAL'}`;
+  }
+
+  trackUrl(reservationId: string): string {
+    return `${window.location.origin}/track/${reservationId}`;
+  }
+
+  async copyTrackUrl(reservationId: string) {
+    const url = this.trackUrl(reservationId);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Fallback: seleccionar un textarea temporal
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
   }
 
   printTicket() {
@@ -169,6 +189,17 @@ export class ShoppingCartComponent implements OnInit {
     const resDate = this.reservationDate();
     if (resDate) lines.push(`Fecha de entrega: ${this.formatDate(resDate)}`);
     lines.push('');
+
+    const ids = this.createdReservationIds();
+    if (ids.length > 0) {
+      lines.push(ids.length === 1 ? '*Seguimiento:*' : '*Seguimiento:*');
+      ids.forEach((id, i) => {
+        const label = ids.length === 1 ? '' : `  ${i + 1}. `;
+        lines.push(`${label}${this.trackUrl(id)}`);
+      });
+      lines.push('');
+    }
+
     lines.push('Adjunto el comprobante de la transferencia.');
 
     const phone = this.bankDetails.whatsapp.replace(/\D/g, '');
@@ -261,6 +292,7 @@ export class ShoppingCartComponent implements OnInit {
 
     try {
       const createdTickets: string[] = [];
+      const createdIds: string[] = [];
       let assignedDeposit = 0;
 
       for (let i = 0; i < items.length; i++) {
@@ -310,6 +342,7 @@ export class ShoppingCartComponent implements OnInit {
         });
 
         createdTickets.push(this.getTicketNumber(reservationId));
+        createdIds.push(reservationId);
       }
 
       const productDetails = items.map(item => ({
@@ -323,6 +356,7 @@ export class ShoppingCartComponent implements OnInit {
       localStorage.removeItem('mi_tiendita_cart');
       window.dispatchEvent(new Event('mi_tiendita_cart_updated'));
       this.createdTicketNumbers.set(createdTickets);
+      this.createdReservationIds.set(createdIds);
       this.createdProductDetails.set(productDetails);
       this.createdTotals.set({
         deposit: this.depositAmount(),

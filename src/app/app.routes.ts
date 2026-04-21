@@ -58,6 +58,14 @@ export const routes: Routes = [
     path: 'product/:id',
     loadComponent: () => import('./features/catalog/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
   },
+  {
+    path: 'track',
+    loadComponent: () => import('./features/tracking/reservation-tracking/reservation-tracking.component').then(m => m.ReservationTrackingComponent)
+  },
+  {
+    path: 'track/:uuid',
+    loadComponent: () => import('./features/tracking/reservation-tracking/reservation-tracking.component').then(m => m.ReservationTrackingComponent)
+  },
 
   // --- DEFAULTS ---
   { path: '', redirectTo: 'catalog', pathMatch: 'full' },

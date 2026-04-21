@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(gh repo *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npm run *)"
     ]
   }
 }

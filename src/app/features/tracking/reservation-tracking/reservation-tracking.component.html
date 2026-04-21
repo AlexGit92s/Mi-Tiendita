@@ -1,0 +1,127 @@
+<section class="track-page" role="main">
+
+  <!-- ── HERO / HEADER ────────────────────────────────────────────────────── -->
+  <header class="track-hero">
+    <div class="track-hero__inner">
+      <a routerLink="/catalog" class="track-back" aria-label="Volver al catálogo">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        Catálogo
+      </a>
+      <div class="track-hero__logo">
+        <span class="track-hero__brand">Mi Tiendita <em>L'Amour</em></span>
+      </div>
+      <h1 class="track-hero__title">Seguimiento de tu reserva</h1>
+      <p class="track-hero__sub">Escribe el código de tu ticket (empieza con <strong>APT-</strong>) para ver el estado de tu pedido.</p>
+    </div>
+  </header>
+
+  <!-- ── BUSCADOR ─────────────────────────────────────────────────────────── -->
+  <div class="track-search-wrap">
+    <div class="track-search-card">
+      <label class="track-search-label" for="track-code-input">Código de tu apartado</label>
+      <div class="track-search-row">
+        <input
+          id="track-code-input"
+          class="track-input"
+          type="text"
+          placeholder="APT-XXXXXXXX"
+          [ngModel]="inputCode()"
+          (ngModelChange)="inputCode.set($event)"
+          (keydown)="onKeydown($event)"
+          [disabled]="loading()"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Código de apartado"
+        />
+        <button
+          class="track-btn"
+          (click)="search()"
+          [disabled]="loading() || !inputCode().trim()"
+          aria-label="Buscar reserva"
+        >
+          <span *ngIf="!loading()">Buscar</span>
+          <span *ngIf="loading()" class="track-spinner" aria-label="Cargando…"></span>
+        </button>
+      </div>
+
+      <!-- Error de formato / red -->
+      <p class="track-msg track-msg--error" *ngIf="errorMsg()" role="alert">
+        {{ errorMsg() }}
+      </p>
+
+      <!-- No encontrado -->
+      <p class="track-msg track-msg--warn" *ngIf="notFound()" role="alert">
+        No encontramos ninguna reserva con ese código. Revisa tu ticket y vuelve a intentarlo.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── RESULTADO ─────────────────────────────────────────────────────────── -->
+  <div class="track-result" *ngIf="result() as res">
+
+    <!-- Encabezado de reserva -->
+    <div class="track-result__header">
+      <div class="track-result__img-wrap" *ngIf="productImage()">
+        <img [src]="productImage()!" [alt]="res.product_name" class="track-result__img" loading="lazy" />
+      </div>
+      <div class="track-result__meta">
+        <span class="track-ticket">{{ ticketLabel() }}</span>
+        <h2 class="track-product-name">{{ res.product_name }}</h2>
+        <span class="track-status-badge" [attr.data-status]="res.status">
+          {{ statusLabel() }}
+        </span>
+        <p class="track-date" *ngIf="res.reservation_date">
+          Fecha de entrega estimada: <strong>{{ formatDateShort(res.reservation_date) }}</strong>
+        </p>
+        <p class="track-date">
+          Reserva registrada: <strong>{{ formatDate(res.created_at) }}</strong>
+        </p>
+        <p class="track-date" *ngIf="res.deposit_confirmed_at">
+          Depósito confirmado: <strong>{{ formatDate(res.deposit_confirmed_at) }}</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="track-timeline" role="list" aria-label="Estado de tu pedido">
+      <ng-container *ngFor="let step of timelineSteps; let last = last">
+        <div
+          class="track-step"
+          [attr.data-status]="stepStatus(step.key)"
+          [attr.data-key]="step.key"
+          role="listitem"
+        >
+          <div class="track-step__connector" *ngIf="!last"></div>
+          <div class="track-step__dot" aria-hidden="true">
+            <span class="track-step__icon">{{ step.icon }}</span>
+          </div>
+          <div class="track-step__body">
+            <span class="track-step__label">{{ step.label }}</span>
+            <span class="track-step__desc">{{ step.description }}</span>
+            <!-- Fecha del evento si ya ocurrió -->
+            <ng-container *ngFor="let ev of res.events">
+              <span class="track-step__date" *ngIf="ev.event_key === step.key">
+                {{ formatDate(ev.created_at) }}
+              </span>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Botón limpiar -->
+    <div class="track-result__actions">
+      <button class="track-btn track-btn--ghost" (click)="clear()">Buscar otra reserva</button>
+      <a routerLink="/catalog" class="track-btn track-btn--outline">Ver catálogo</a>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ────────────────────────────────────────────────────────────── -->
+  <footer class="track-footer">
+    <p>¿Tienes dudas? Contáctanos por
+      <a href="https://wa.me/50496242967" target="_blank" rel="noopener noreferrer" class="track-footer__link">WhatsApp</a>
+    </p>
+  </footer>
+
+</section>
