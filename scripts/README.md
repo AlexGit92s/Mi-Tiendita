@@ -39,3 +39,4 @@ Ejecutar el archivo `*.rollback.sql` correspondiente en el SQL Editor.
 | 003 | [migrations/003_reservation_deposits_and_tracking.sql](./migrations/003_reservation_deposits_and_tracking.sql) | Añade confirmación de depósito, estado `finalizado` e historial `product_tracking_events` | ⏳ pendiente |
 | 004 | [migrations/004_tracking_corrections.sql](./migrations/004_tracking_corrections.sql) | Añade metadata para correcciones administrativas en el historial | ⏳ pendiente |
 | 005 | [migrations/005_reservation_stock_commit.sql](./migrations/005_reservation_stock_commit.sql) | Añade estado de stock comprometido por reserva para reglas por evento | ⏳ pendiente |
+| 011 | [migrations/011_products_policies_recreate.sql](./migrations/011_products_policies_recreate.sql) | Recrea policies RLS de `products`: lectura publica y escritura/borrado authenticated | pendiente |

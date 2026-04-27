@@ -56,8 +56,9 @@ export class SupabaseService {
   }
 
   async delete(table: string, id: string | number) {
-    const { error } = await this.supabase.from(table).delete().eq('id', id);
+    const { data, error } = await this.supabase.from(table).delete().eq('id', id).select('id').maybeSingle();
     if (error) throw error;
+    if (!data) throw new Error('No se eliminó ningún registro. Verifique permisos o que el registro exista.');
     return true;
   }
 

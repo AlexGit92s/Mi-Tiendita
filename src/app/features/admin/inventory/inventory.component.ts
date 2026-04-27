@@ -20,12 +20,13 @@ export class InventoryComponent implements OnInit {
 
   products = signal<ProductWithCategory[]>([]);
   filter = signal<string>('all');
+  deletingProductId = signal<string | null>(null);
 
   filteredProducts = computed(() => {
     const f = this.filter();
     const prods = this.products();
     if (f === 'all') return prods;
-    
+
     return prods.filter(p => {
       const level = p.stock ?? 0;
       if (f === 'low') return level > 0 && level < 5;
@@ -45,6 +46,7 @@ export class InventoryComponent implements OnInit {
         .from('products')
         .select('*, categories(name)')
         .order('created_at', { ascending: false });
+      if (error) throw error;
       if (data) {
         this.products.set(data as ProductWithCategory[]);
       }
@@ -74,13 +76,32 @@ export class InventoryComponent implements OnInit {
   }
 
   async deleteProduct(id: string) {
-    if (confirm('¿Desea eliminar esta pieza permanentemente?')) {
-      try {
-        await this.supabase.delete('products', id);
-        await this.loadProducts();
-      } catch (e) {
-        console.error(e);
+    if (!confirm('¿Desea eliminar esta pieza permanentemente?')) return;
+
+    this.deletingProductId.set(id);
+    try {
+      const { count, error: reservationError } = await this.supabase.client
+        .from('reservations')
+        .select('id', { count: 'exact', head: true })
+        .eq('product_id', id);
+
+      if (reservationError) throw reservationError;
+
+      if ((count ?? 0) > 0) {
+        alert('No se puede eliminar esta pieza porque tiene apartados registrados. Cancele o cierre esos apartados antes de eliminarla.');
+        return;
       }
+
+      await this.supabase.delete('products', id);
+      await this.loadProducts();
+    } catch (e: any) {
+      console.error(e);
+      const message = e?.code === '23503'
+        ? 'No se puede eliminar esta pieza porque tiene registros relacionados.'
+        : e?.message ?? 'No se pudo eliminar el producto.';
+      alert(`Error eliminando producto: ${message}`);
+    } finally {
+      this.deletingProductId.set(null);
     }
   }
 }
