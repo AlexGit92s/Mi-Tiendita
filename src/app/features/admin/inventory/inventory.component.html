@@ -1,4 +1,44 @@
 <div class="px-6 py-10 mx-auto max-w-7xl min-h-screen bg-[#fcfcfc] text-[#333333]">
+  @if (notice(); as currentNotice) {
+    <div class="fixed top-5 right-5 z-50 w-[calc(100vw-2.5rem)] max-w-md bg-white border shadow-xl rounded-sm overflow-hidden"
+      [ngClass]="{
+        'border-emerald-200': currentNotice.type === 'success',
+        'border-red-200': currentNotice.type === 'error',
+        'border-amber-200': currentNotice.type === 'warning'
+      }">
+      <div class="flex items-start gap-4 p-4">
+        <div class="mt-0.5 h-9 w-9 rounded-sm flex items-center justify-center"
+          [ngClass]="{
+            'bg-emerald-50 text-emerald-600': currentNotice.type === 'success',
+            'bg-red-50 text-red-500': currentNotice.type === 'error',
+            'bg-amber-50 text-amber-600': currentNotice.type === 'warning'
+          }">
+          @if (currentNotice.type === 'success') {
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          } @else if (currentNotice.type === 'warning') {
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM10.29 3.86L1.82 18a1.5 1.5 0 001.29 2.25h17.78A1.5 1.5 0 0022.18 18L13.71 3.86a1.5 1.5 0 00-2.42 0z" />
+            </svg>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          }
+        </div>
+        <div class="flex-1">
+          <p class="text-[11px] uppercase tracking-[0.2em] font-bold text-lamour-stone">{{ currentNotice.title }}</p>
+          <p class="mt-1 text-sm text-gray-500 leading-relaxed">{{ currentNotice.message }}</p>
+        </div>
+        <button (click)="dismissNotice()" class="p-1 text-gray-300 hover:text-gray-600 transition-colors" title="Cerrar notificación">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  }
   
   <!-- Quick Access Links -->
   <div class="flex flex-wrap gap-4 mb-10">
@@ -117,7 +157,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
           </button>
-          <button (click)="product.id && deleteProduct(product.id)" [disabled]="deletingProductId() === product.id" class="p-2 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="Eliminar">
+          <button (click)="requestDeleteProduct(product)" [disabled]="deletingProductId() === product.id" class="p-2 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="Eliminar">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
             </svg>
@@ -137,4 +177,37 @@
       </div>
     }
   </div>
+
+  @if (productPendingDelete(); as productToDelete) {
+    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/35 px-4">
+      <div class="w-full max-w-lg bg-white border border-lamour-blush/30 shadow-2xl rounded-sm">
+        <div class="p-6 border-b border-lamour-blush/20">
+          <div class="flex items-start gap-4">
+            <div class="h-11 w-11 bg-red-50 text-red-500 rounded-sm flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.25em] font-bold text-red-400 mb-2">Eliminar pieza</p>
+              <h2 class="text-2xl font-serif uppercase tracking-widest text-lamour-stone">{{ productToDelete.name }}</h2>
+              <p class="mt-3 text-sm text-gray-500 leading-relaxed">Esta acción eliminará la pieza del inventario. Si tiene apartados registrados, el sistema bloqueará la eliminación.</p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 bg-[#fcfcfc] flex flex-col sm:flex-row justify-end gap-3">
+          <button (click)="cancelDeleteProduct()" [disabled]="deletingProductId() === productToDelete.id" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-500 hover:border-lamour-stone hover:text-lamour-stone disabled:opacity-40 transition-all uppercase tracking-widest text-[10px] font-bold rounded-sm">
+            Cancelar
+          </button>
+          <button (click)="confirmDeleteProduct()" [disabled]="deletingProductId() === productToDelete.id" class="px-5 py-2.5 bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-wait transition-all uppercase tracking-widest text-[10px] font-bold rounded-sm flex items-center justify-center gap-2">
+            @if (deletingProductId() === productToDelete.id) {
+              Eliminando...
+            } @else {
+              Eliminar definitivamente
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

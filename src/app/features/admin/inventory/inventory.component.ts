@@ -8,6 +8,14 @@ interface ProductWithCategory extends Product {
   categories?: { name: string };
 }
 
+type NoticeType = 'success' | 'error' | 'warning';
+
+interface InventoryNotice {
+  type: NoticeType;
+  title: string;
+  message: string;
+}
+
 @Component({
   selector: 'app-inventory',
   standalone: true,
@@ -21,6 +29,9 @@ export class InventoryComponent implements OnInit {
   products = signal<ProductWithCategory[]>([]);
   filter = signal<string>('all');
   deletingProductId = signal<string | null>(null);
+  productPendingDelete = signal<ProductWithCategory | null>(null);
+  notice = signal<InventoryNotice | null>(null);
+  private noticeTimerId: ReturnType<typeof setTimeout> | null = null;
 
   filteredProducts = computed(() => {
     const f = this.filter();
@@ -75,9 +86,37 @@ export class InventoryComponent implements OnInit {
     this.router.navigate(['/admin/products/edit', id]);
   }
 
-  async deleteProduct(id: string) {
-    if (!confirm('¿Desea eliminar esta pieza permanentemente?')) return;
+  requestDeleteProduct(product: ProductWithCategory) {
+    this.productPendingDelete.set(product);
+  }
 
+  cancelDeleteProduct() {
+    if (this.deletingProductId()) return;
+    this.productPendingDelete.set(null);
+  }
+
+  async confirmDeleteProduct() {
+    const product = this.productPendingDelete();
+    if (!product?.id) return;
+
+    await this.deleteProduct(product.id);
+  }
+
+  dismissNotice() {
+    this.notice.set(null);
+    if (this.noticeTimerId !== null) {
+      clearTimeout(this.noticeTimerId);
+      this.noticeTimerId = null;
+    }
+  }
+
+  private showNotice(type: NoticeType, title: string, message: string) {
+    this.dismissNotice();
+    this.notice.set({ type, title, message });
+    this.noticeTimerId = setTimeout(() => this.notice.set(null), 5200);
+  }
+
+  private async deleteProduct(id: string) {
     this.deletingProductId.set(id);
     try {
       const { count, error: reservationError } = await this.supabase.client
@@ -88,18 +127,24 @@ export class InventoryComponent implements OnInit {
       if (reservationError) throw reservationError;
 
       if ((count ?? 0) > 0) {
-        alert('No se puede eliminar esta pieza porque tiene apartados registrados. Cancele o cierre esos apartados antes de eliminarla.');
+        this.showNotice(
+          'warning',
+          'Producto con apartados',
+          'No se puede eliminar esta pieza porque tiene apartados registrados. Cancele o cierre esos apartados antes de eliminarla.'
+        );
         return;
       }
 
       await this.supabase.delete('products', id);
       await this.loadProducts();
+      this.productPendingDelete.set(null);
+      this.showNotice('success', 'Producto eliminado', 'La pieza fue eliminada del inventario.');
     } catch (e: any) {
       console.error(e);
       const message = e?.code === '23503'
         ? 'No se puede eliminar esta pieza porque tiene registros relacionados.'
         : e?.message ?? 'No se pudo eliminar el producto.';
-      alert(`Error eliminando producto: ${message}`);
+      this.showNotice('error', 'Error eliminando producto', message);
     } finally {
       this.deletingProductId.set(null);
     }
