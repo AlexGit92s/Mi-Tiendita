@@ -1,6 +1,6 @@
-<div class="px-6 py-10 mx-auto max-w-7xl min-h-screen bg-[#fcfcfc] text-[#333333]">
+<div class="px-4 sm:px-6 py-6 sm:py-10 mx-auto max-w-7xl min-h-screen bg-[#fcfcfc] text-[#333333]">
   @if (notice(); as currentNotice) {
-    <div class="fixed top-5 right-5 z-50 w-[calc(100vw-2.5rem)] max-w-md bg-white border shadow-xl rounded-sm overflow-hidden"
+    <div class="fixed top-4 left-4 right-4 sm:left-auto sm:top-5 sm:right-5 z-50 sm:w-[calc(100vw-2.5rem)] sm:max-w-md bg-white border shadow-xl rounded-sm overflow-hidden"
       [ngClass]="{
         'border-emerald-200': currentNotice.type === 'success',
         'border-red-200': currentNotice.type === 'error',
@@ -41,20 +41,20 @@
   }
   
   <!-- Quick Access Links -->
-  <div class="flex flex-wrap gap-4 mb-10">
-    <a routerLink="/admin/dashboard" class="group px-5 py-2.5 bg-white border border-lamour-stone/10 text-gray-500 hover:border-lamour-stone hover:bg-lamour-stone/5 hover:text-lamour-stone transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+  <div class="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-3 sm:gap-4 mb-8 sm:mb-10 overflow-x-auto pb-2">
+    <a routerLink="/admin/dashboard" class="group shrink-0 px-4 sm:px-5 py-2.5 bg-white border border-lamour-stone/10 text-gray-500 hover:border-lamour-stone hover:bg-lamour-stone/5 hover:text-lamour-stone transition-all duration-300 text-[10px] sm:text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
       <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-stone group-hover:text-white transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
       </div>
       Dashboard
     </a>
-    <a routerLink="/admin/reservations" class="group px-5 py-2.5 bg-white border border-lamour-blush/10 text-gray-500 hover:border-lamour-blush hover:bg-lamour-blush/5 hover:text-lamour-blush transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+    <a routerLink="/admin/reservations" class="group shrink-0 px-4 sm:px-5 py-2.5 bg-white border border-lamour-blush/10 text-gray-500 hover:border-lamour-blush hover:bg-lamour-blush/5 hover:text-lamour-blush transition-all duration-300 text-[10px] sm:text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
       <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-blush group-hover:text-white transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0020.25 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
       </div>
       Apartados
     </a>
-    <a routerLink="/admin/categories" class="group px-5 py-2.5 bg-white border border-lamour-gold/10 text-gray-500 hover:border-lamour-gold hover:bg-lamour-gold/5 hover:text-lamour-gold transition-all duration-300 text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
+    <a routerLink="/admin/categories" class="group shrink-0 px-4 sm:px-5 py-2.5 bg-white border border-lamour-gold/10 text-gray-500 hover:border-lamour-gold hover:bg-lamour-gold/5 hover:text-lamour-gold transition-all duration-300 text-[10px] sm:text-[11px] uppercase tracking-widest font-bold rounded-sm flex items-center gap-3 shadow-sm active:scale-95">
       <div class="p-1.5 bg-gray-50 rounded-sm group-hover:bg-lamour-gold group-hover:text-white transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.154.545-2.003 1.838-2.53.942-.382 1.98-.52 2.841-.52 1.329 0 2.47.63 3.065 1.764.584.378 1.146.653 1.828 1.08.676.427 1.46 1.04 1.925 1.655l.592.621c.406.41.627.94.627 1.533v6.036c0 1.154-.545 2.003-1.838 2.53-.942.382-1.98.52-2.841.52-1.329 0-2.47-.63-3.065-1.764-.584-.378-1.146-.653-1.828-1.08-.676-.427-1.46-1.04-1.925-1.655l-.592-.621c-.406-.41-.627-.94-.627-1.533V12.75" /></svg>
       </div>
@@ -63,17 +63,17 @@
   </div>
 
   <!-- Header Section -->
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-lamour-blush/30 pb-8">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-5 sm:gap-6 mb-8 sm:mb-12 border-b border-lamour-blush/30 pb-6 sm:pb-8">
     <div>
-      <h1 class="text-4xl font-serif text-lamour-stone uppercase tracking-[0.2em]">Gabinete de Piezas</h1>
+      <h1 class="text-3xl sm:text-4xl font-serif text-lamour-stone uppercase tracking-[0.12em] sm:tracking-[0.2em]">Gabinete de Piezas</h1>
       <p class="mt-2 text-sm text-gray-400 font-sans tracking-widest uppercase font-light">Gestión editorial de inventario Mi Tiendita Lamour</p>
     </div>
-    <div class="flex flex-wrap gap-4">
-      <a routerLink="/admin/categories" class="px-6 py-3 bg-white border border-lamour-gold text-lamour-gold hover:bg-lamour-gold hover:text-white transition-all uppercase tracking-widest text-xs font-bold rounded-sm shadow-sm flex items-center gap-2">
+    <div class="grid grid-cols-1 sm:flex w-full md:w-auto gap-3 sm:gap-4">
+      <a routerLink="/admin/categories" class="justify-center px-5 sm:px-6 py-3 bg-white border border-lamour-gold text-lamour-gold hover:bg-lamour-gold hover:text-white transition-all uppercase tracking-widest text-[11px] sm:text-xs font-bold rounded-sm shadow-sm flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v13.5A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V9.568M13.5 3h.568a2.25 2.25 0 011.591.659l3.182 3.182a2.25 2.25 0 01.659 1.591V10.5M13.5 3v2.25a2.25 2.25 0 002.25 2.25H18M9.75 14.25l1.5 1.5 3-3" /></svg>
         Gestionar Categorías
       </a>
-      <button (click)="newProduct()" class="px-8 py-3 bg-lamour-stone text-white hover:bg-black transition-colors uppercase tracking-widest text-xs font-bold rounded-sm shadow-md flex items-center gap-2">
+      <button (click)="newProduct()" class="justify-center px-5 sm:px-8 py-3 bg-lamour-stone text-white hover:bg-black transition-colors uppercase tracking-widest text-[11px] sm:text-xs font-bold rounded-sm shadow-md flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -83,35 +83,35 @@
   </div>
 
   <!-- Filtration Tab System -->
-  <div class="flex flex-wrap gap-4 mb-8">
+  <div class="-mx-4 px-4 sm:mx-0 sm:px-0 flex sm:flex-wrap gap-3 sm:gap-4 mb-6 sm:mb-8 overflow-x-auto pb-2">
     <button (click)="setFilter('all')" 
       [ngClass]="filter() === 'all' ? 'bg-lamour-blush text-white shadow-sm' : 'bg-white text-gray-400 border border-gray-100 hover:border-lamour-blush'"
-      class="px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
+      class="shrink-0 px-5 sm:px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
       Todas las Piezas
     </button>
     <button (click)="setFilter('low')" 
       [ngClass]="filter() === 'low' ? 'bg-amber-100 text-amber-600' : 'bg-white text-gray-400 border border-gray-100 hover:border-amber-200'"
-      class="px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
+      class="shrink-0 px-5 sm:px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
       Stock Bajo
     </button>
     <button (click)="setFilter('out')" 
       [ngClass]="filter() === 'out' ? 'bg-red-50 text-red-500' : 'bg-white text-gray-400 border border-gray-100 hover:border-red-200'"
-      class="px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
+      class="shrink-0 px-5 sm:px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
       Sin Existencias
     </button>
     <button (click)="setFilter('limited')" 
       [ngClass]="filter() === 'limited' ? 'bg-lamour-gold/10 text-lamour-gold' : 'bg-white text-gray-400 border border-gray-100 hover:border-lamour-gold'"
-      class="px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
+      class="shrink-0 px-5 sm:px-6 py-2 text-[10px] uppercase tracking-widest font-bold rounded-sm transition-all">
       Edición Limitada
     </button>
   </div>
 
   <!-- Inventory List Grid / Table -->
-  <div class="grid grid-cols-1 gap-6">
+  <div class="grid grid-cols-1 gap-4 sm:gap-6">
     @for (product of filteredProducts(); track product.id) {
-      <div class="bg-white border border-lamour-blush/10 rounded-sm shadow-sm hover:shadow-md transition-shadow p-4 flex items-center gap-6 group">
+      <div class="bg-white border border-lamour-blush/10 rounded-sm shadow-sm hover:shadow-md transition-shadow p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 group">
         <!-- Preview -->
-        <div class="w-20 h-24 bg-gray-50 rounded-sm overflow-hidden flex-shrink-0 border border-gray-100 relative">
+        <div class="w-full h-48 sm:w-20 sm:h-24 bg-gray-50 rounded-sm overflow-hidden flex-shrink-0 border border-gray-100 relative">
           @if (product.images && product.images[0]) {
             <img [src]="product.images[0]" class="w-full h-full object-cover filter grayscale-[10%] group-hover:grayscale-0 transition-all duration-700" alt="Preview">
           } @else {
@@ -124,9 +124,9 @@
         </div>
 
         <!-- Info -->
-        <div class="flex-grow">
-          <div class="flex items-center gap-3 mb-1">
-            <h3 class="font-serif text-lg text-lamour-stone uppercase tracking-widest">{{ product.name }}</h3>
+        <div class="w-full flex-grow min-w-0">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-1">
+            <h3 class="w-full sm:w-auto font-serif text-lg text-lamour-stone uppercase tracking-[0.12em] sm:tracking-widest leading-snug break-words">{{ product.name }}</h3>
             @if(product.categories?.name) {
               <span class="text-[9px] uppercase tracking-widest bg-lamour-blush/10 text-lamour-stone px-2 py-0.5 border border-lamour-blush/20 rounded-full font-medium">{{ product.categories?.name }}</span>
             }
@@ -134,16 +134,16 @@
               <span class="text-[8px] uppercase tracking-widest bg-lamour-gold/20 text-lamour-gold px-2 py-0.5 rounded-full font-bold">Limitada</span>
             }
           </div>
-          <p class="text-[10px] text-gray-400 font-sans uppercase tracking-[0.2em] mb-2">ID: {{ product.id?.slice(0,8) }}... | SKU: LMA-{{ product.id?.slice(-4) }}</p>
+          <p class="text-[9px] sm:text-[10px] text-gray-400 font-sans uppercase tracking-[0.18em] sm:tracking-[0.2em] mb-3 sm:mb-2 break-all">ID: {{ product.id?.slice(0,8) }}... | SKU: LMA-{{ product.id?.slice(-4) }}</p>
           
-          <div class="flex gap-4 items-center">
-            <div class="flex items-center gap-2">
+          <div class="grid grid-cols-1 min-[420px]:grid-cols-2 sm:flex gap-3 sm:gap-4 sm:items-center">
+            <div class="flex items-center justify-between sm:justify-start gap-2 bg-gray-50 sm:bg-transparent px-3 py-2 sm:p-0 border border-gray-100 sm:border-0 rounded-sm">
               <span class="text-xs text-gray-500 uppercase tracking-widest font-medium">Stock:</span>
               <span [ngClass]="getStockStatus(product.stock).color" class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-black/5">
                 {{ product.stock }} UN. ({{ getStockStatus(product.stock).label }})
               </span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center justify-between sm:justify-start gap-2 bg-gray-50 sm:bg-transparent px-3 py-2 sm:p-0 border border-gray-100 sm:border-0 rounded-sm">
               <span class="text-xs text-gray-500 uppercase tracking-widest font-medium">Precio:</span>
               <span class="text-sm font-sans font-bold text-gray-700">L. {{ product.price }}</span>
             </div>
@@ -151,16 +151,18 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity pr-4">
-          <button (click)="product.id && editProduct(product.id)" class="p-2 text-gray-400 hover:text-lamour-gold transition-colors" title="Editar">
+        <div class="w-full sm:w-auto flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity sm:pr-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+          <button (click)="product.id && editProduct(product.id)" class="flex-1 sm:flex-none h-11 sm:h-auto px-3 sm:px-0 sm:p-2 text-gray-500 sm:text-gray-400 hover:text-lamour-gold bg-gray-50 sm:bg-transparent border sm:border-0 border-gray-100 transition-colors rounded-sm flex items-center justify-center gap-2" title="Editar">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
+            <span class="sm:hidden text-[10px] uppercase tracking-widest font-bold">Editar</span>
           </button>
-          <button (click)="requestDeleteProduct(product)" [disabled]="deletingProductId() === product.id" class="p-2 text-gray-400 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" title="Eliminar">
+          <button (click)="requestDeleteProduct(product)" [disabled]="deletingProductId() === product.id" class="flex-1 sm:flex-none h-11 sm:h-auto px-3 sm:px-0 sm:p-2 text-red-500 sm:text-gray-400 hover:text-red-400 bg-red-50 sm:bg-transparent border sm:border-0 border-red-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-sm flex items-center justify-center gap-2" title="Eliminar">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
             </svg>
+            <span class="sm:hidden text-[10px] uppercase tracking-widest font-bold">Eliminar</span>
           </button>
         </div>
       </div>
@@ -179,27 +181,27 @@
   </div>
 
   @if (productPendingDelete(); as productToDelete) {
-    <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/35 px-4">
-      <div class="w-full max-w-lg bg-white border border-lamour-blush/30 shadow-2xl rounded-sm">
-        <div class="p-6 border-b border-lamour-blush/20">
-          <div class="flex items-start gap-4">
-            <div class="h-11 w-11 bg-red-50 text-red-500 rounded-sm flex items-center justify-center shrink-0">
+    <div class="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/35 px-3 sm:px-4">
+      <div class="w-full max-w-lg bg-white border border-lamour-blush/30 shadow-2xl rounded-t-sm sm:rounded-sm mb-0 sm:mb-0">
+        <div class="p-5 sm:p-6 border-b border-lamour-blush/20">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <div class="h-10 w-10 sm:h-11 sm:w-11 bg-red-50 text-red-500 rounded-sm flex items-center justify-center shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
               </svg>
             </div>
             <div>
               <p class="text-[10px] uppercase tracking-[0.25em] font-bold text-red-400 mb-2">Eliminar pieza</p>
-              <h2 class="text-2xl font-serif uppercase tracking-widest text-lamour-stone">{{ productToDelete.name }}</h2>
+              <h2 class="text-xl sm:text-2xl font-serif uppercase tracking-[0.12em] sm:tracking-widest text-lamour-stone break-words">{{ productToDelete.name }}</h2>
               <p class="mt-3 text-sm text-gray-500 leading-relaxed">Esta acción eliminará la pieza del inventario. Si tiene apartados registrados, el sistema bloqueará la eliminación.</p>
             </div>
           </div>
         </div>
-        <div class="px-6 py-4 bg-[#fcfcfc] flex flex-col sm:flex-row justify-end gap-3">
-          <button (click)="cancelDeleteProduct()" [disabled]="deletingProductId() === productToDelete.id" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-500 hover:border-lamour-stone hover:text-lamour-stone disabled:opacity-40 transition-all uppercase tracking-widest text-[10px] font-bold rounded-sm">
+        <div class="px-5 sm:px-6 py-4 bg-[#fcfcfc] grid grid-cols-1 sm:flex sm:justify-end gap-3">
+          <button (click)="cancelDeleteProduct()" [disabled]="deletingProductId() === productToDelete.id" class="px-5 py-3 sm:py-2.5 bg-white border border-gray-200 text-gray-500 hover:border-lamour-stone hover:text-lamour-stone disabled:opacity-40 transition-all uppercase tracking-widest text-[10px] font-bold rounded-sm">
             Cancelar
           </button>
-          <button (click)="confirmDeleteProduct()" [disabled]="deletingProductId() === productToDelete.id" class="px-5 py-2.5 bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-wait transition-all uppercase tracking-widest text-[10px] font-bold rounded-sm flex items-center justify-center gap-2">
+          <button (click)="confirmDeleteProduct()" [disabled]="deletingProductId() === productToDelete.id" class="px-5 py-3 sm:py-2.5 bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-wait transition-all uppercase tracking-widest text-[10px] font-bold rounded-sm flex items-center justify-center gap-2">
             @if (deletingProductId() === productToDelete.id) {
               Eliminando...
             } @else {

@@ -143,7 +143,7 @@ export class InventoryComponent implements OnInit {
     } catch (e: any) {
       console.error(e);
       const message = e?.code === '23503'
-        ? 'No se puede eliminar esta pieza porque tiene registros relacionados.'
+        ? 'No se puede eliminar esta pieza porque la base de datos aun tiene registros relacionados, como apartados historicos o historial de seguimiento.'
         : e?.message ?? 'No se pudo eliminar el producto.';
       this.showNotice('error', 'Error eliminando producto', message);
     } finally {
