@@ -31,7 +31,10 @@ interface TrackingEventEffect {
   nextStatus?: ReservationStatus;
   message: string;
   stockAction?: 'commit' | 'release';
+  detachesProduct?: boolean;
 }
+
+type TrackingEventGroup = 'Operación' | 'Cierre' | 'Administración';
 
 @Component({
   selector: 'app-reservations',
@@ -47,29 +50,30 @@ export class ReservationsComponent implements OnInit {
   reservations = signal<ReservationWithProduct[]>([]);
   statusFilter = signal<string>('all');
   searchQuery = signal<string>('');
+  readonly trackingEventGroups: TrackingEventGroup[] = ['Operación', 'Cierre', 'Administración'];
   readonly trackingEventOptions = [
-    { value: 'reserva_creada', label: 'Reserva creada' },
-    { value: 'vendido', label: 'Ya vendido' },
-    { value: 'empaquetado', label: 'Empaquetado' },
-    { value: 'en_camino', label: 'En camino' },
-    { value: 'recibido', label: 'Recibido' },
-    { value: 'cerrado_pagado', label: 'Cerrado y pagado' },
-    { value: 'cerrado_devuelto', label: 'Cerrado devuelto' },
-    { value: 'otro', label: 'Otro caso' },
-    { value: 'correccion_administrativa', label: 'Correccion administrativa' }
+    { value: 'deposito_confirmado', label: 'Pago registrado', group: 'Operación' },
+    { value: 'empaquetado', label: 'Empaquetado', group: 'Operación' },
+    { value: 'en_camino', label: 'En camino', group: 'Operación' },
+    { value: 'recibido', label: 'Recibido por cliente', group: 'Operación' },
+    { value: 'cerrado_pagado', label: 'Finalizar venta', group: 'Cierre' },
+    { value: 'cerrado_devuelto', label: 'Cancelar / anular apartado', group: 'Cierre' },
+    { value: 'vendido', label: 'Venta directa finalizada', group: 'Cierre' },
+    { value: 'otro', label: 'Nota interna', group: 'Administración' },
+    { value: 'correccion_administrativa', label: 'Corrección administrativa', group: 'Administración' }
   ] as const;
   readonly eventEffects: Record<string, TrackingEventEffect> = {
     reserva_creada: { nextStatus: 'pendiente', message: 'Reserva creada y pendiente de deposito.' },
-    deposito_confirmado: { message: 'Pago registrado.', stockAction: 'commit' },
+    deposito_confirmado: { message: 'Registra pago y compromete stock si aun no estaba comprometido.', stockAction: 'commit' },
     deposito_revertido: { nextStatus: 'pendiente', message: 'Deposito revertido.', stockAction: 'release' },
-    empaquetado: { message: 'Producto empaquetado.' },
-    en_camino: { message: 'Producto en camino.' },
-    recibido: { nextStatus: 'entregado', message: 'Producto recibido por cliente.', stockAction: 'commit' },
-    cerrado_pagado: { nextStatus: 'finalizado', message: 'Caso cerrado y pagado.', stockAction: 'commit' },
-    cerrado_devuelto: { nextStatus: 'cancelado', message: 'Caso cerrado como devuelto.', stockAction: 'release' },
-    vendido: { nextStatus: 'finalizado', message: 'Producto vendido.', stockAction: 'commit' },
-    otro: { message: 'Evento administrativo agregado.' },
-    correccion_administrativa: { message: 'Correccion administrativa registrada.' }
+    empaquetado: { message: 'Marca el apartado como preparado para entrega o envio.' },
+    en_camino: { message: 'Marca el producto como enviado o en ruta.' },
+    recibido: { nextStatus: 'entregado', message: 'Marca recibido por cliente y compromete stock.', stockAction: 'commit' },
+    cerrado_pagado: { nextStatus: 'finalizado', message: 'Cierra el caso como venta finalizada.', stockAction: 'commit' },
+    cerrado_devuelto: { nextStatus: 'cancelado', message: 'Cancela/anula el apartado, libera stock y desliga el producto.', stockAction: 'release', detachesProduct: true },
+    vendido: { nextStatus: 'finalizado', message: 'Cierra como venta directa finalizada.', stockAction: 'commit' },
+    otro: { message: 'Agrega una nota interna sin cambiar estado ni stock.' },
+    correccion_administrativa: { message: 'Registra una correccion trazable sin cambiar estado automaticamente.' }
   };
 
   activeDepositReservationId = signal<string | null>(null);
@@ -359,6 +363,9 @@ export class ReservationsComponent implements OnInit {
 
       if (effect.nextStatus && effect.nextStatus !== reservation.status) {
         await this.recordDerivedStatusChange(reservation, effect.nextStatus, draft.eventKey, correctionReason);
+        if (this.shouldDetachProduct(effect.nextStatus)) {
+          await this.detachReservationProduct(reservation);
+        }
       }
 
       this.eventDrafts.update((current) => ({
@@ -495,6 +502,24 @@ export class ReservationsComponent implements OnInit {
     );
   }
 
+  private shouldDetachProduct(status: ReservationStatus) {
+    return status === 'cancelado';
+  }
+
+  private async detachReservationProduct(reservation: ReservationWithProduct) {
+    if (!reservation.id || !reservation.product_id) return;
+
+    await this.supabase.update('reservations', reservation.id, { product_id: null });
+
+    this.reservations.update((list) =>
+      list.map((item) =>
+        item.id === reservation.id
+          ? { ...item, product_id: null, products: undefined }
+          : item
+      )
+    );
+  }
+
   isLockedReservation(reservation: ReservationWithProduct) {
     return reservation.status === 'finalizado' || reservation.status === 'cancelado';
   }
@@ -579,7 +604,26 @@ export class ReservationsComponent implements OnInit {
     return this.eventEffects[eventKey] ?? { message: 'Evento agregado.' };
   }
 
+  getEventsByGroup(group: TrackingEventGroup) {
+    return this.trackingEventOptions.filter((event) => event.group === group);
+  }
+
+  getEventImpactTags(eventKey: string) {
+    const effect = this.getEventEffect(eventKey);
+    const tags: string[] = [];
+    if (effect.nextStatus) tags.push(`Estado: ${this.getStatusConfig(effect.nextStatus).label}`);
+    if (effect.stockAction === 'commit') tags.push('Compromete stock');
+    if (effect.stockAction === 'release') tags.push('Libera stock');
+    if (effect.detachesProduct) tags.push('Desliga producto');
+    if (tags.length === 0) tags.push('Solo historial');
+    return tags;
+  }
+
   getReservationSummary(reservation: ReservationWithProduct) {
+    if (!reservation.product_id && (reservation.status === 'cancelado' || reservation.status === 'finalizado')) {
+      return 'Caso cerrado; producto desligado del apartado';
+    }
+
     const history = reservation.id ? this.getHistory(reservation.id) : [];
     const latestEffect = history.find((item) => item.metadata?.['effect_message'])?.metadata?.['effect_message'];
 
@@ -622,6 +666,10 @@ export class ReservationsComponent implements OnInit {
     return `APT-${(reservation.id ?? '').slice(0, 8).toUpperCase() || 'MANUAL'}`;
   }
 
+  getProductName(reservation: ReservationWithProduct) {
+    return reservation.products?.name ?? (reservation.product_id ? 'Producto sin datos' : 'Producto desligado');
+  }
+
   generateClientTicket(reservation: ReservationWithProduct) {
     const ticketWindow = window.open('', '_blank', 'width=900,height=700');
     if (!ticketWindow) {
@@ -630,7 +678,7 @@ export class ReservationsComponent implements OnInit {
     }
 
     const history = reservation.id ? this.getHistory(reservation.id).slice(0, 5) : [];
-    const productName = reservation.products?.name ?? 'Producto';
+    const productName = this.getProductName(reservation);
     const total = reservation.products?.price ?? 0;
     const transferred = this.getTransferredAmount(reservation);
     const remaining = this.getPendingAmount(reservation);

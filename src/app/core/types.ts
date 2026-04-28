@@ -22,7 +22,7 @@ export interface Product {
 
 export interface Reservation {
   id?: string;
-  product_id: string;
+  product_id: string | null;
   customer_name: string;
   customer_phone: string;
   customer_email?: string | null;
@@ -41,7 +41,7 @@ export interface Reservation {
 
 export interface ProductTrackingEvent {
   id?: string;
-  product_id: string;
+  product_id: string | null;
   reservation_id?: string | null;
   source?: 'reservation' | 'sale' | 'manual';
   event_key: string;
