@@ -27,6 +27,23 @@ export class ProductFormComponent implements OnInit {
     is_limited_edition: [false]
   });
 
+  readonly descriptionExample = [
+    'Sets de fragancias disponibles',
+    '',
+    'Precio: L. 750.00 cada set',
+    'Incluye envio.',
+    '',
+    'Elige tu set favorito:',
+    '',
+    'Cozy Vanilla Cashmere',
+    'Set con aroma calido, dulce y acogedor.',
+    '',
+    'Cashmere Fleur',
+    'Set con aroma delicado, femenino y floral.',
+    '',
+    'Cada set se vende por separado.'
+  ].join('\n');
+
   images = signal<string[]>([]);
   isSaving = signal(false);
   isUploading = signal(false);
@@ -147,5 +164,9 @@ export class ProductFormComponent implements OnInit {
     } finally {
       this.isSaving.set(false);
     }
+  }
+
+  useDescriptionExample() {
+    this.productForm.patchValue({ description: this.descriptionExample });
   }
 }
