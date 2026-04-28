@@ -122,15 +122,16 @@ export class InventoryComponent implements OnInit {
       const { count, error: reservationError } = await this.supabase.client
         .from('reservations')
         .select('id', { count: 'exact', head: true })
-        .eq('product_id', id);
+        .eq('product_id', id)
+        .in('status', ['pendiente', 'pagado', 'entregado']);
 
       if (reservationError) throw reservationError;
 
       if ((count ?? 0) > 0) {
         this.showNotice(
           'warning',
-          'Producto con apartados',
-          'No se puede eliminar esta pieza porque tiene apartados registrados. Cancele o cierre esos apartados antes de eliminarla.'
+          'Producto con apartados activos',
+          'No se puede eliminar esta pieza porque tiene apartados pendientes, pagados o entregados. Cierre esos apartados como finalizados o cancelados antes de eliminarla.'
         );
         return;
       }
