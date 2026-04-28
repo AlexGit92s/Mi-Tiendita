@@ -27,7 +27,7 @@
 
     <!-- Product Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-      @for (product of filteredProducts(); track product.id) {
+      @for (product of paginatedProducts(); track product.id) {
         <div class="group flex flex-col h-full items-center text-center">
           
           <!-- Image Container -->
@@ -67,7 +67,7 @@
               (click)="product.id && viewDetail(product.id)">{{ product.name }}</h2>
           <p class="text-lamour-gold font-sans font-medium text-sm tracking-wide">L. {{ product.price }}</p>
           @if (product.description) {
-            <p class="text-xs text-gray-500 mt-3 font-light leading-relaxed whitespace-pre-line line-clamp-6 max-w-xs text-left">
+            <p class="text-[13px] text-gray-700 mt-3 font-normal leading-relaxed whitespace-pre-line line-clamp-6 max-w-xs text-left">
               {{ product.description }}
             </p>
           }
@@ -83,5 +83,39 @@
         </div>
       }
     </div>
+
+    @if (filteredProducts().length > pageSize) {
+      <div class="mt-14 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-lamour-blush/20 pt-6">
+        <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500">{{ paginationLabel() }}</p>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            (click)="previousPage()"
+            [disabled]="currentPage() === 1"
+            class="px-4 py-2 border border-gray-200 text-gray-500 hover:border-lamour-stone hover:text-lamour-stone disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-sm text-[10px] uppercase tracking-widest font-bold">
+            Anterior
+          </button>
+
+          @for (page of [].constructor(totalPages()); track $index) {
+            <button
+              type="button"
+              (click)="goToPage($index + 1)"
+              [ngClass]="currentPage() === $index + 1 ? 'bg-lamour-stone text-white border-lamour-stone' : 'bg-white text-gray-500 border-gray-200 hover:border-lamour-stone hover:text-lamour-stone'"
+              class="w-9 h-9 border transition-colors rounded-sm text-[10px] uppercase tracking-widest font-bold">
+              {{ $index + 1 }}
+            </button>
+          }
+
+          <button
+            type="button"
+            (click)="nextPage()"
+            [disabled]="currentPage() === totalPages()"
+            class="px-4 py-2 border border-gray-200 text-gray-500 hover:border-lamour-stone hover:text-lamour-stone disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-sm text-[10px] uppercase tracking-widest font-bold">
+            Siguiente
+          </button>
+        </div>
+      </div>
+    }
   </div>
 </div>

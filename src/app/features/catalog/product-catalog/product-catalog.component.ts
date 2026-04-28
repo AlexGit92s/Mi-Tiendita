@@ -23,12 +23,31 @@ export class ProductCatalogComponent implements OnInit {
   categories = signal<string[]>([]);
   addedProductId = signal<string | null>(null);
   limitProductId = signal<string | null>(null);
+  currentPage = signal(1);
+  readonly pageSize = 6;
 
   filteredProducts = computed(() => {
     const cat = this.activeCategory();
     const available = this.products().filter(p => (p.stock ?? 0) > 0);
     if (cat === 'Todas') return available;
     return available.filter(p => p.categories?.name === cat);
+  });
+
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredProducts().length / this.pageSize)));
+
+  paginatedProducts = computed(() => {
+    const page = Math.min(this.currentPage(), this.totalPages());
+    const start = (page - 1) * this.pageSize;
+    return this.filteredProducts().slice(start, start + this.pageSize);
+  });
+
+  paginationLabel = computed(() => {
+    const total = this.filteredProducts().length;
+    if (total === 0) return '0 productos';
+    const page = Math.min(this.currentPage(), this.totalPages());
+    const start = (page - 1) * this.pageSize + 1;
+    const end = Math.min(start + this.pageSize - 1, total);
+    return `${start}-${end} de ${total} productos`;
   });
 
   async ngOnInit() {
@@ -52,6 +71,19 @@ export class ProductCatalogComponent implements OnInit {
 
   filterByCategory(cat: string) {
     this.activeCategory.set(cat);
+    this.currentPage.set(1);
+  }
+
+  nextPage() {
+    this.currentPage.set(Math.min(this.currentPage() + 1, this.totalPages()));
+  }
+
+  previousPage() {
+    this.currentPage.set(Math.max(this.currentPage() - 1, 1));
+  }
+
+  goToPage(page: number) {
+    this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages()));
   }
 
   reserveProduct(productId: string) {
