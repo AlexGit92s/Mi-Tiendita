@@ -1,0 +1,108 @@
+<section class="print-settings-page">
+  <div class="settings-hero">
+    <div>
+      <p class="eyebrow">Motor de impresion</p>
+      <h1>Ajustes profesionales de documentos</h1>
+      <p class="hero-copy">
+        Configura formatos, margenes y elementos visibles para tickets, apartados, facturas, recibos y futuros documentos.
+      </p>
+    </div>
+    <div class="paper-card">
+      <span>Formato activo</span>
+      <strong>{{ currentPaper()?.label }}</strong>
+      <small>{{ currentPaper()?.size }}</small>
+    </div>
+  </div>
+
+  <div class="settings-grid">
+    <article class="settings-panel">
+      <div class="panel-heading">
+        <h2>Papel y dispositivo</h2>
+        <p>Selecciona el formato predeterminado por usuario o estacion.</p>
+      </div>
+
+      <div class="paper-list">
+        @for (paper of paperOptions; track paper.value) {
+          <button
+            type="button"
+            class="paper-option"
+            [class.active]="settings().defaultPaper === paper.value"
+            (click)="updatePaper(paper.value)"
+          >
+            <span>{{ paper.label }}</span>
+            <small>{{ paper.size }}</small>
+          </button>
+        }
+      </div>
+    </article>
+
+    <article class="settings-panel">
+      <div class="panel-heading">
+        <h2>Margenes</h2>
+        <p>Valores en milimetros para &#64;page.</p>
+      </div>
+
+      <div class="margin-grid">
+        <label>
+          Superior
+          <input type="number" min="0" max="30" [ngModel]="settings().margins.top" (ngModelChange)="updateMargin('top', $event)" />
+        </label>
+        <label>
+          Derecho
+          <input type="number" min="0" max="30" [ngModel]="settings().margins.right" (ngModelChange)="updateMargin('right', $event)" />
+        </label>
+        <label>
+          Inferior
+          <input type="number" min="0" max="30" [ngModel]="settings().margins.bottom" (ngModelChange)="updateMargin('bottom', $event)" />
+        </label>
+        <label>
+          Izquierdo
+          <input type="number" min="0" max="30" [ngModel]="settings().margins.left" (ngModelChange)="updateMargin('left', $event)" />
+        </label>
+      </div>
+    </article>
+
+    <article class="settings-panel">
+      <div class="panel-heading">
+        <h2>Contenido</h2>
+        <p>Controla los bloques reutilizables de la plantilla.</p>
+      </div>
+
+      <div class="toggle-list">
+        <label>
+          <input type="checkbox" [ngModel]="settings().showLogo" (ngModelChange)="updateBoolean('showLogo', $event)" />
+          Mostrar logo
+        </label>
+        <label>
+          <input type="checkbox" [ngModel]="settings().showQr" (ngModelChange)="updateBoolean('showQr', $event)" />
+          Mostrar QR / codigo
+        </label>
+        <label>
+          <input type="checkbox" [ngModel]="settings().showSignature" (ngModelChange)="updateBoolean('showSignature', $event)" />
+          Mostrar firma
+        </label>
+        <label>
+          <input type="checkbox" [ngModel]="settings().autoPrint" (ngModelChange)="updateBoolean('autoPrint', $event)" />
+          Abrir dialogo al generar
+        </label>
+      </div>
+    </article>
+
+    <article class="settings-panel">
+      <div class="panel-heading">
+        <h2>Tipografia</h2>
+        <p>Tamano base para documentos impresos.</p>
+      </div>
+
+      <label class="range-control">
+        <span>{{ settings().fontSize }} px</span>
+        <input type="range" min="9" max="14" step="1" [ngModel]="settings().fontSize" (ngModelChange)="updateFontSize($event)" />
+      </label>
+
+      <div class="actions">
+        <button type="button" class="primary" (click)="previewSample()">Vista previa</button>
+        <button type="button" class="secondary" (click)="reset()">Restaurar</button>
+      </div>
+    </article>
+  </div>
+</section>

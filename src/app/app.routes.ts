@@ -33,6 +33,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/categories/categories.component').then(m => m.CategoriesComponent)
       },
       // Retro compatibility — antes /admin/products servía el listado
+      {
+        path: 'print-settings',
+        loadComponent: () => import('./print/settings/print-settings.component').then(m => m.PrintSettingsComponent)
+      },
       { path: 'products', redirectTo: 'inventory', pathMatch: 'full' },
       {
         path: 'products/new',

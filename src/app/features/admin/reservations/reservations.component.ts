@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
 import { ProductTrackingEvent, Reservation } from '../../../core/types';
 import { SupabaseService } from '../../../core/supabase.service';
+import { PrintDocumentData } from '../../../print/models/print.types';
+import { PrintDocumentService } from '../../../print/services/print-document.service';
 
 type ReservationStatus = Reservation['status'];
 
@@ -46,6 +48,7 @@ type TrackingEventGroup = 'Operación' | 'Cierre' | 'Administración';
 export class ReservationsComponent implements OnInit {
   private supabase = inject(SupabaseService);
   private auth = inject(AuthService);
+  private printDocument = inject(PrintDocumentService);
 
   reservations = signal<ReservationWithProduct[]>([]);
   statusFilter = signal<string>('all');
@@ -694,255 +697,59 @@ export class ReservationsComponent implements OnInit {
   }
 
   generateClientTicket(reservation: ReservationWithProduct) {
-    const ticketWindow = window.open('', '_blank', 'width=900,height=700');
-    if (!ticketWindow) {
-      alert('No se pudo abrir la ventana del ticket.');
-      return;
-    }
-
     const history = reservation.id ? this.getHistory(reservation.id).slice(0, 5) : [];
     const productName = this.getProductName(reservation);
     const total = reservation.products?.price ?? 0;
     const transferred = this.getTransferredAmount(reservation);
     const remaining = this.getPendingAmount(reservation);
-    const reference = reservation.deposit_reference || '-';
-    const transferredBy = reservation.deposit_transferred_by || '-';
-    const issueDate = new Date().toLocaleString();
     const ticketNumber = this.getTicketNumber(reservation);
-    const depositLabel = transferred > 0 ? 'Monto transferido' : 'Anticipo requerido';
-    const remainingLabel = transferred > 0 ? 'Monto pendiente' : 'Saldo total pendiente';
-    const paymentSectionTitle = transferred > 0 ? 'Confirmacion de pago' : 'Pago pendiente';
-    const timelineHtml = history.length
-      ? history.map((item) => `
-          <tr>
-            <td>${item.event_label}</td>
-            <td>${item.created_at ? new Date(item.created_at).toLocaleString() : '-'}</td>
-            <td>${item.notes ?? item.metadata?.['effect_message'] ?? '-'}</td>
-          </tr>
-        `).join('')
-      : `
-        <tr>
-          <td colspan="3">Sin eventos registrados</td>
-        </tr>
-      `;
 
-    ticketWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Ticket de Apartado</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            color: #2f2b2b;
-            margin: 0;
-            background: #f6f3f1;
-          }
-          .sheet {
-            width: 820px;
-            margin: 24px auto;
-            background: #ffffff;
-            border: 1px solid #eadfda;
-            padding: 32px;
-            box-sizing: border-box;
-          }
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            border-bottom: 2px solid #efe2dc;
-            padding-bottom: 18px;
-            margin-bottom: 24px;
-          }
-          .brand {
-            font-size: 28px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #6d5853;
-            margin: 0;
-          }
-          .subtitle {
-            margin: 8px 0 0;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            font-size: 11px;
-            color: #8b7d78;
-          }
-          .ticket-meta {
-            text-align: right;
-            font-size: 12px;
-            color: #7f7571;
-          }
-          .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 22px;
-          }
-          .card {
-            border: 1px solid #efe2dc;
-            padding: 16px;
-            background: #fcfaf8;
-          }
-          .label {
-            font-size: 10px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #8b7d78;
-            margin-bottom: 6px;
-          }
-          .value {
-            font-size: 16px;
-            color: #312d2d;
-            margin-bottom: 10px;
-          }
-          .totals {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 22px;
-          }
-          .total-box {
-            border: 1px solid #efe2dc;
-            padding: 14px;
-            text-align: center;
-            background: #ffffff;
-          }
-          .total-box strong {
-            display: block;
-            font-size: 22px;
-            margin-top: 6px;
-            color: #6d5853;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-            font-size: 12px;
-          }
-          th, td {
-            border: 1px solid #efe2dc;
-            padding: 10px;
-            text-align: left;
-            vertical-align: top;
-          }
-          th {
-            background: #fcfaf8;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            font-size: 10px;
-            color: #8b7d78;
-          }
-          .footer {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #efe2dc;
-            font-size: 11px;
-            color: #7f7571;
-          }
-          @media print {
-            body {
-              background: #ffffff;
-            }
-            .sheet {
-              width: 100%;
-              margin: 0;
-              border: 0;
-              padding: 0;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="sheet">
-          <div class="header">
-            <div>
-              <h1 class="brand">Mi Tiendita L'Amour</h1>
-              <p class="subtitle">Ticket de Apartado para Cliente</p>
-            </div>
-            <div class="ticket-meta">
-              <div><strong>${ticketNumber}</strong></div>
-              <div>Emitido: ${issueDate}</div>
-              <div>Estado: ${this.getStatusConfig(reservation.status).label}</div>
-            </div>
-          </div>
+    const data: PrintDocumentData = {
+      documentType: 'apartado',
+      title: 'Ticket de Apartado',
+      documentNumber: ticketNumber,
+      issueDate: new Date().toISOString(),
+      statusLabel: this.getStatusConfig(reservation.status).label,
+      brand: {
+        name: 'Mi Tiendita L\'Amour',
+        subtitle: 'Comprobante de apartado'
+      },
+      customer: {
+        name: reservation.customer_name,
+        phone: reservation.customer_phone,
+        email: reservation.customer_email
+      },
+      summary: `${productName}. ${this.getReservationSummary(reservation)}`,
+      qrValue: `${window.location.origin}/track/${reservation.id ?? ticketNumber}`,
+      notes: 'Gracias por su preferencia. Conserve este documento para seguimiento y validacion de entrega.',
+      payment: {
+        reference: reservation.deposit_reference,
+        transferredBy: reservation.deposit_transferred_by,
+        confirmedAt: reservation.deposit_confirmed_at
+      },
+      items: [
+        {
+          sku: ticketNumber,
+          description: productName,
+          quantity: 1,
+          unitPrice: total,
+          total
+        }
+      ],
+      totals: [
+        { label: 'Total', amount: total },
+        { label: transferred > 0 ? 'Monto transferido' : 'Anticipo requerido', amount: transferred > 0 ? transferred : this.getDepositAmount(reservation) },
+        { label: transferred > 0 ? 'Monto pendiente' : 'Saldo total pendiente', amount: remaining, strong: true }
+      ],
+      timeline: history.map((item) => ({
+        label: item.event_label,
+        date: item.created_at,
+        detail: item.notes ?? item.metadata?.['effect_message'] ?? '-'
+      })),
+      signatureLabel: 'Firma / recibido por cliente'
+    };
 
-          <div class="grid">
-            <div class="card">
-              <div class="label">Cliente</div>
-              <div class="value">${reservation.customer_name}</div>
-              <div>${reservation.customer_phone}</div>
-              <div>${reservation.customer_email ?? '-'}</div>
-            </div>
-            <div class="card">
-              <div class="label">Apartado</div>
-              <div class="value">${productName}</div>
-              <div>Fecha cita: ${reservation.reservation_date ? new Date(reservation.reservation_date).toLocaleDateString() : '-'}</div>
-              <div>Seguimiento: ${this.getReservationSummary(reservation)}</div>
-            </div>
-          </div>
-
-          <div class="totals">
-            <div class="total-box">
-              Total
-              <strong>L. ${total}</strong>
-            </div>
-            <div class="total-box">
-              ${depositLabel}
-              <strong>L. ${transferred > 0 ? transferred : this.getDepositAmount(reservation)}</strong>
-            </div>
-            <div class="total-box">
-              ${remainingLabel}
-              <strong>L. ${remaining}</strong>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="label">${paymentSectionTitle}</div>
-            <table>
-              <tr>
-                <th>Referencia</th>
-                <th>Transfiere</th>
-                <th>Monto</th>
-                <th>Confirmado</th>
-              </tr>
-              <tr>
-                <td>${reference}</td>
-                <td>${transferredBy}</td>
-                <td>L. ${transferred}</td>
-                <td>${reservation.deposit_confirmed_at ? new Date(reservation.deposit_confirmed_at).toLocaleString() : '-'}</td>
-              </tr>
-            </table>
-          </div>
-
-          <div class="card" style="margin-top: 18px;">
-            <div class="label">Seguimiento reciente</div>
-            <table>
-              <tr>
-                <th>Evento</th>
-                <th>Fecha</th>
-                <th>Detalle</th>
-              </tr>
-              ${timelineHtml}
-            </table>
-          </div>
-
-          <div class="footer">
-            Gracias por su preferencia. Este ticket resume su apartado y puede guardarse como PDF desde la opcion de impresion del navegador.
-          </div>
-        </div>
-        <script>
-          window.onload = function() {
-            window.print();
-          };
-        </script>
-      </body>
-      </html>
-    `);
-
-    ticketWindow.document.close();
+    this.printDocument.printDocument(data);
   }
 
   getDepositDraft(id: string, reservation?: ReservationWithProduct): DepositDraft {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { SupabaseService } from '../../../core/supabase.service';
+import { PrintDocumentData } from '../../../print/models/print.types';
+import { PrintDocumentService } from '../../../print/services/print-document.service';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -15,6 +17,7 @@ export class ShoppingCartComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private printDocument = inject(PrintDocumentService);
 
   readonly bankDetails = {
     bank: 'Banco BacCredomatic',
@@ -113,46 +116,62 @@ export class ShoppingCartComponent implements OnInit {
   }
 
   printTicket() {
-    const ticket = document.getElementById('ticket-print');
-    if (!ticket) {
-      window.print();
-      return;
-    }
+    const totals = this.createdTotals();
+    const products = this.createdProductDetails();
+    const tickets = this.createdTicketNumbers();
+    const ids = this.createdReservationIds();
+    const customer = this.checkoutForm.value;
+    const documentNumber = tickets.length === 1 ? tickets[0] : `APT-LOTE-${tickets.length}`;
+    const items = products.map((product, index) => {
+      const variant = [product.size, product.color].filter(Boolean).join(' - ');
+      return {
+        sku: tickets[index] ?? documentNumber,
+        description: `${product.name}${variant ? ` (${variant})` : ''}`,
+        quantity: 1,
+        unitPrice: Number(product.price),
+        total: Number(product.price)
+      };
+    });
 
-    const w = window.open('', '_blank', 'width=820,height=900');
-    if (!w) {
-      // Popup bloqueado → fallback: imprime la pagina actual con titulo limpio
-      const original = document.title;
-      document.title = 'Ticket de apartado';
-      window.print();
-      document.title = original;
-      return;
-    }
-
-    const doc = w.document;
-    doc.title = 'Ticket de apartado';
-
-    // Copiamos hojas de estilo y <style> globales a la ventana aislada
-    for (const node of Array.from(document.head.querySelectorAll('link[rel="stylesheet"], style'))) {
-      doc.head.appendChild(node.cloneNode(true));
-    }
-
-    const pageStyle = doc.createElement('style');
-    pageStyle.textContent = `@page { margin: 10mm; } html, body { background:#fff !important; margin:0; padding:16px; }`;
-    doc.head.appendChild(pageStyle);
-
-    doc.body.appendChild(ticket.cloneNode(true));
-    w.focus();
-
-    const doPrint = () => {
-      w.print();
-      w.close();
+    const data: PrintDocumentData = {
+      documentType: 'apartado',
+      title: this.isMultipleItems() ? 'Tickets de Apartado' : 'Ticket de Apartado',
+      documentNumber,
+      issueDate: new Date().toISOString(),
+      statusLabel: 'Pendiente',
+      brand: {
+        name: 'Mi Tiendita L\'Amour',
+        subtitle: 'Comprobante de solicitud'
+      },
+      customer: {
+        name: customer.customer_name || 'Cliente',
+        phone: customer.customer_phone || null,
+        email: customer.customer_email || null
+      },
+      summary: this.isMultipleItems()
+        ? `${tickets.length} apartados registrados para entrega ${this.formatDate(this.reservationDate())}`
+        : `Apartado registrado para entrega ${this.formatDate(this.reservationDate())}`,
+      qrValue: ids.length === 1 ? this.trackUrl(ids[0]) : window.location.origin + '/track',
+      notes: 'Solicitud enviada. El apartado debe validarse por un asesor antes de entrega o envio.',
+      payment: {
+        reference: customer.deposit_reference || null,
+        transferredBy: customer.deposit_transferred_by || null
+      },
+      items,
+      totals: [
+        { label: 'Total', amount: totals.total },
+        { label: 'Sena / anticipo', amount: totals.deposit },
+        { label: 'Restante', amount: totals.remaining, strong: true }
+      ],
+      timeline: ids.map((id, index) => ({
+        label: tickets[index] ?? this.getTicketNumber(id),
+        date: new Date().toISOString(),
+        detail: 'Seguimiento en linea disponible con este ticket'
+      })),
+      signatureLabel: 'Firma de recibido'
     };
-    if (doc.readyState === 'complete') {
-      setTimeout(doPrint, 300);
-    } else {
-      w.addEventListener('load', () => setTimeout(doPrint, 150));
-    }
+
+    this.printDocument.printDocument(data);
   }
 
   shareViaWhatsApp() {
@@ -288,6 +307,8 @@ export class ShoppingCartComponent implements OnInit {
 
     const declaredDeposit = Number(formData.deposit_amount) || 0;
     const total = this.totalPrice();
+    const depositTotal = this.depositAmount();
+    const remainingTotal = this.remainingAmount();
     const items = this.cartProducts();
 
     try {
@@ -333,8 +354,8 @@ export class ShoppingCartComponent implements OnInit {
           notes: `Apartado registrado para ${formData.customer_name}`,
           metadata: {
             reservation_date: formData.reservation_date,
-            deposit_amount: this.depositAmount(),
-            remaining_amount: this.remainingAmount(),
+            deposit_amount: depositTotal,
+            remaining_amount: remainingTotal,
             declared_transfer_amount: declaredDeposit,
             declared_transfer_reference: formData.deposit_reference?.trim() || null,
             declared_transferred_by: formData.deposit_transferred_by?.trim() || null
@@ -359,9 +380,9 @@ export class ShoppingCartComponent implements OnInit {
       this.createdReservationIds.set(createdIds);
       this.createdProductDetails.set(productDetails);
       this.createdTotals.set({
-        deposit: this.depositAmount(),
-        remaining: this.remainingAmount(),
-        total: this.totalPrice()
+        deposit: depositTotal,
+        remaining: remainingTotal,
+        total
       });
       this.reservationDate.set(formData.reservation_date || new Date().toISOString().split('T')[0]);
       this.success.set(true);
