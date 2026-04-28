@@ -434,11 +434,105 @@
 
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 480px) {
+  .track-hero {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .track-back {
+    margin-bottom: 1rem;
+  }
+
+  .track-hero__brand {
+    font-size: .76rem;
+    letter-spacing: .08em;
+  }
+
+  .track-hero__title {
+    font-size: 1.75rem;
+    line-height: 1.12;
+  }
+
+  .track-hero__sub {
+    font-size: .92rem;
+    line-height: 1.55;
+  }
+
+  .track-search-wrap {
+    padding: 0 .9rem;
+  }
+
+  .track-search-card {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
   .track-search-row { flex-direction: column; }
-  .track-btn { width: 100%; }
-  .track-result__header { flex-direction: column; }
-  .track-result__img-wrap { width: 100%; height: 180px; }
-  .track-timeline { padding: 1.25rem 1rem .75rem; }
+  .track-input {
+    min-height: 46px;
+    font-size: 1rem;
+  }
+  .track-btn {
+    width: 100%;
+    min-height: 46px;
+  }
+  .track-result {
+    padding: 1rem .9rem 1.5rem;
+  }
+  .track-result__header {
+    flex-direction: column;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  .track-result__img-wrap {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .track-product-name {
+    font-size: 1.12rem;
+    overflow-wrap: anywhere;
+  }
+  .track-ticket {
+    font-size: .72rem;
+  }
+  .track-status-badge {
+    font-size: .74rem;
+  }
+  .track-date {
+    font-size: .78rem;
+    line-height: 1.45;
+  }
+  .track-timeline {
+    padding: 1.15rem .9rem .75rem;
+    border-radius: 8px;
+  }
+  .track-step {
+    gap: .75rem;
+    padding-bottom: 1.25rem;
+  }
+  .track-step__dot {
+    width: 36px;
+    height: 36px;
+  }
+  .track-step__connector {
+    left: 17px;
+    top: 36px;
+  }
+  .track-step__body {
+    padding-top: .35rem;
+  }
+  .track-step__label {
+    font-size: .88rem;
+  }
+  .track-step__desc,
+  .track-step__date {
+    font-size: .76rem;
+    line-height: 1.4;
+  }
   .track-result__actions { flex-direction: column; }
   .track-result__actions .track-btn { width: 100%; text-align: center; }
+  .track-footer {
+    padding: 1.5rem 1rem;
+    font-size: .8rem;
+  }
 }
