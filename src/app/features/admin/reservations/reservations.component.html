@@ -101,7 +101,7 @@
           </tr>
         </thead>
         <tbody class="block md:table-row-group">
-          @for (res of filteredReservations(); track res.id) {
+          @for (res of paginatedReservations(); track res.id) {
             <tr class="hover:bg-gray-50/60 transition-colors border-l-4 {{ getStatusConfig(res.status).rowAccent }} flex flex-col md:table-row p-3 sm:p-4 md:p-0 bg-white md:bg-transparent mb-4 md:mb-0 rounded-lg md:rounded-none shadow-sm md:shadow-none border border-gray-100 md:border-0 relative z-10">
               <td class="py-3 md:py-4 md:pl-4 flex flex-col md:table-cell gap-2 md:gap-0 border-b border-gray-50 md:border-0">
                 <span class="md:hidden text-[9px] font-bold uppercase tracking-widest text-gray-400 absolute top-4 right-4">Ref #{{ res.id?.slice(-4) }}</span>
@@ -408,4 +408,38 @@
       </table>
     </div>
   </div>
+
+  @if (filteredReservations().length > pageSize) {
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-lamour-blush/20 pt-6">
+      <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500">{{ paginationLabel() }}</p>
+
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <button
+          type="button"
+          (click)="previousPage()"
+          [disabled]="currentPage() === 1"
+          class="px-4 py-2 border border-gray-200 text-gray-500 hover:border-lamour-stone hover:text-lamour-stone disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-sm text-[10px] uppercase tracking-widest font-bold">
+          Anterior
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+          <button
+            type="button"
+            (click)="goToPage(page)"
+            [ngClass]="currentPage() === page ? 'bg-lamour-stone text-white border-lamour-stone' : 'bg-white text-gray-500 border-gray-200 hover:border-lamour-stone hover:text-lamour-stone'"
+            class="w-9 h-9 border transition-colors rounded-sm text-[10px] uppercase tracking-widest font-bold">
+            {{ page }}
+          </button>
+        }
+
+        <button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage() === totalPages()"
+          class="px-4 py-2 border border-gray-200 text-gray-500 hover:border-lamour-stone hover:text-lamour-stone disabled:opacity-40 disabled:cursor-not-allowed transition-colors rounded-sm text-[10px] uppercase tracking-widest font-bold">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  }
 </div>

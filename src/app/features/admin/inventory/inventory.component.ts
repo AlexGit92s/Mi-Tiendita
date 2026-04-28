@@ -31,6 +31,8 @@ export class InventoryComponent implements OnInit {
   deletingProductId = signal<string | null>(null);
   productPendingDelete = signal<ProductWithCategory | null>(null);
   notice = signal<InventoryNotice | null>(null);
+  currentPage = signal(1);
+  readonly pageSize = 8;
   private noticeTimerId: ReturnType<typeof setTimeout> | null = null;
 
   filteredProducts = computed(() => {
@@ -45,6 +47,25 @@ export class InventoryComponent implements OnInit {
       if (f === 'limited') return p.is_limited_edition;
       return true;
     });
+  });
+
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredProducts().length / this.pageSize)));
+
+  paginatedProducts = computed(() => {
+    const page = Math.min(this.currentPage(), this.totalPages());
+    const start = (page - 1) * this.pageSize;
+    return this.filteredProducts().slice(start, start + this.pageSize);
+  });
+
+  pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, index) => index + 1));
+
+  paginationLabel = computed(() => {
+    const total = this.filteredProducts().length;
+    if (total === 0) return '0 piezas';
+    const page = Math.min(this.currentPage(), this.totalPages());
+    const start = (page - 1) * this.pageSize + 1;
+    const end = Math.min(start + this.pageSize - 1, total);
+    return `${start}-${end} de ${total} piezas`;
   });
 
   async ngOnInit() {
@@ -68,6 +89,19 @@ export class InventoryComponent implements OnInit {
 
   setFilter(f: string) {
     this.filter.set(f);
+    this.currentPage.set(1);
+  }
+
+  previousPage() {
+    this.currentPage.set(Math.max(this.currentPage() - 1, 1));
+  }
+
+  nextPage() {
+    this.currentPage.set(Math.min(this.currentPage() + 1, this.totalPages()));
+  }
+
+  goToPage(page: number) {
+    this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages()));
   }
 
   getStockStatus(level: number | undefined): { label: string, color: string } {

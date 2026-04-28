@@ -50,6 +50,8 @@ export class ReservationsComponent implements OnInit {
   reservations = signal<ReservationWithProduct[]>([]);
   statusFilter = signal<string>('all');
   searchQuery = signal<string>('');
+  currentPage = signal(1);
+  readonly pageSize = 10;
   readonly trackingEventGroups: TrackingEventGroup[] = ['Operación', 'Cierre', 'Administración'];
   readonly trackingEventOptions = [
     { value: 'deposito_confirmado', label: 'Pago registrado', group: 'Operación' },
@@ -94,6 +96,25 @@ export class ReservationsComponent implements OnInit {
     return list;
   });
 
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredReservations().length / this.pageSize)));
+
+  paginatedReservations = computed(() => {
+    const page = Math.min(this.currentPage(), this.totalPages());
+    const start = (page - 1) * this.pageSize;
+    return this.filteredReservations().slice(start, start + this.pageSize);
+  });
+
+  pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, index) => index + 1));
+
+  paginationLabel = computed(() => {
+    const total = this.filteredReservations().length;
+    if (total === 0) return '0 apartados';
+    const page = Math.min(this.currentPage(), this.totalPages());
+    const start = (page - 1) * this.pageSize + 1;
+    const end = Math.min(start + this.pageSize - 1, total);
+    return `${start}-${end} de ${total} apartados`;
+  });
+
   private matchesSearch(r: ReservationWithProduct, q: string): boolean {
     const haystacks = [
       this.getTicketNumber(r),
@@ -110,10 +131,12 @@ export class ReservationsComponent implements OnInit {
 
   setSearchQuery(value: string) {
     this.searchQuery.set(value);
+    this.currentPage.set(1);
   }
 
   clearSearch() {
     this.searchQuery.set('');
+    this.currentPage.set(1);
   }
 
   counts = computed(() => {
@@ -993,6 +1016,19 @@ export class ReservationsComponent implements OnInit {
 
   setFilter(status: string) {
     this.statusFilter.set(status);
+    this.currentPage.set(1);
+  }
+
+  previousPage() {
+    this.currentPage.set(Math.max(this.currentPage() - 1, 1));
+  }
+
+  nextPage() {
+    this.currentPage.set(Math.min(this.currentPage() + 1, this.totalPages()));
+  }
+
+  goToPage(page: number) {
+    this.currentPage.set(Math.min(Math.max(page, 1), this.totalPages()));
   }
 
   setFeedback(id: string, message: string) {
