@@ -24,7 +24,7 @@ export class ProductCatalogComponent implements OnInit {
   addedProductId = signal<string | null>(null);
   limitProductId = signal<string | null>(null);
   currentPage = signal(1);
-  readonly pageSize = 6;
+  readonly pageSize = 20;
 
   filteredProducts = computed(() => {
     const cat = this.activeCategory();
