@@ -22,7 +22,7 @@ export class ShoppingCartComponent implements OnInit {
   readonly bankDetails = {
     bank: 'Banco BacCredomatic',
     accountNumber: '749370871',
-    accountHolder: 'Mi Tiendita L\'Amour',
+    accountHolder: 'Kellyn Nieto Carrasco',
     accountType: 'Cuenta de Ahorros',
     whatsapp: '+504 9624-2967'
   };
@@ -35,8 +35,8 @@ export class ShoppingCartComponent implements OnInit {
   success = signal(false);
   createdTicketNumbers = signal<string[]>([]);
   createdReservationIds = signal<string[]>([]);
-  createdProductDetails = signal<{name: string, price: number, size?: string, color?: string}[]>([]);
-  createdTotals = signal<{deposit: number, remaining: number, total: number}>({deposit: 0, remaining: 0, total: 0});
+  createdProductDetails = signal<{ name: string, price: number, size?: string, color?: string }[]>([]);
+  createdTotals = signal<{ deposit: number, remaining: number, total: number }>({ deposit: 0, remaining: 0, total: 0 });
   reservationDate = signal<string>('');
 
   checkoutForm: FormGroup = this.fb.group({
