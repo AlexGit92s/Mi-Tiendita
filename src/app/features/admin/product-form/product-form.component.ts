@@ -111,7 +111,8 @@ export class ProductFormComponent implements OnInit {
       this.images.update((arr) => [...arr, ...urls]);
     } catch (error) {
       console.error('Upload failed', error);
-      alert('Error subiendo una o más imágenes.');
+      const message = error instanceof Error ? error.message : 'Intente luego.';
+      alert(`Error subiendo una o mas imagenes: ${message}`);
     } finally {
       this.isUploading.set(false);
       input.value = '';

@@ -41,3 +41,4 @@ Ejecutar el archivo `*.rollback.sql` correspondiente en el SQL Editor.
 | 005 | [migrations/005_reservation_stock_commit.sql](./migrations/005_reservation_stock_commit.sql) | Añade estado de stock comprometido por reserva para reglas por evento | ⏳ pendiente |
 | 011 | [migrations/011_products_policies_recreate.sql](./migrations/011_products_policies_recreate.sql) | Recrea policies RLS de `products`: lectura publica y escritura/borrado authenticated | pendiente |
 | 012 | [migrations/012_detach_closed_reservations_from_products.sql](./migrations/012_detach_closed_reservations_from_products.sql) | Permite desligar apartados cerrados/cancelados de productos y evitar FK bloqueante al borrar productos | pendiente |
+| 013 | [migrations/013_product_images_storage_policies.sql](./migrations/013_product_images_storage_policies.sql) | Crea/normaliza bucket `product-images` y policies de Storage para subir imagenes autenticadas | pendiente |
