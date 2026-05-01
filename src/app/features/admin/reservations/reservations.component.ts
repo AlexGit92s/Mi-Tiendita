@@ -86,6 +86,7 @@ export class ReservationsComponent implements OnInit {
   activeDepositReservationId = signal<string | null>(null);
   activeTimelineReservationId = signal<string | null>(null);
   activeCorrectionReservationId = signal<string | null>(null);
+  advancedEventReservationId = signal<string | null>(null);
   depositDrafts = signal<Record<string, DepositDraft>>({});
   eventDrafts = signal<Record<string, EventDraft>>({});
   correctionDrafts = signal<Record<string, CorrectionDraft>>({});
@@ -851,6 +852,7 @@ export class ReservationsComponent implements OnInit {
 
   toggleTimeline(id: string) {
     this.activeTimelineReservationId.set(this.activeTimelineReservationId() === id ? null : id);
+    this.advancedEventReservationId.set(null);
     this.setFeedback(id, '');
   }
 
@@ -858,6 +860,17 @@ export class ReservationsComponent implements OnInit {
     this.activeDepositReservationId.set(null);
     this.activeTimelineReservationId.set(null);
     this.activeCorrectionReservationId.set(null);
+    this.advancedEventReservationId.set(null);
+  }
+
+  openAdvancedEvents(id: string) {
+    this.activeTimelineReservationId.set(id);
+    this.advancedEventReservationId.set(id);
+    this.setFeedback(id, '');
+  }
+
+  closeAdvancedEvents() {
+    this.advancedEventReservationId.set(null);
   }
 
   getHistory(id?: string) {
