@@ -1,3 +1,4 @@
+@import '@angular/cdk/overlay-prebuilt.css';
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif:ital,wght@0,300;0,400;0,700;1,400&display=swap');
 
 @tailwind base;
@@ -19,6 +20,19 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 767px) {
   app-root main {
     padding-bottom: 5.5rem;
+  }
+
+  .reservation-mobile-dialog {
+    align-self: flex-end;
+    width: 100vw;
+    max-width: 100vw;
+    margin: auto 0 0;
+    outline: none;
+  }
+
+  .reservation-mobile-backdrop {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
   }
 }
 

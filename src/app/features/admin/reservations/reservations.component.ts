@@ -1,7 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, TemplateRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Dialog, DialogModule, DialogRef } from '@angular/cdk/dialog';
 import { AuthService } from '../../../core/auth.service';
 import { ProductTrackingEvent, Reservation } from '../../../core/types';
 import { SupabaseService } from '../../../core/supabase.service';
@@ -41,7 +42,7 @@ type TrackingEventGroup = 'Operación' | 'Cierre' | 'Administración';
 @Component({
   selector: 'app-reservations',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, DialogModule],
   templateUrl: './reservations.component.html',
   styleUrl: './reservations.component.css'
 })
@@ -49,6 +50,8 @@ export class ReservationsComponent implements OnInit {
   private supabase = inject(SupabaseService);
   private auth = inject(AuthService);
   private printDocument = inject(PrintDocumentService);
+  private dialog = inject(Dialog);
+  private mobileDialogRef?: DialogRef<void>;
 
   reservations = signal<ReservationWithProduct[]>([]);
   statusFilter = signal<string>('all');
@@ -126,6 +129,10 @@ export class ReservationsComponent implements OnInit {
     if (!id) return null;
     return this.reservations().find((reservation) => reservation.id === id) ?? null;
   });
+
+  isMobileViewport() {
+    return window.matchMedia('(max-width: 767px)').matches;
+  }
 
   paginationLabel = computed(() => {
     const total = this.filteredReservations().length;
@@ -869,6 +876,20 @@ export class ReservationsComponent implements OnInit {
     this.setFeedback(id, '');
   }
 
+  openDepositAction(id: string, reservation: ReservationWithProduct, template: TemplateRef<unknown>) {
+    this.openDepositForm(id, reservation);
+    this.openMobileDialog(template);
+  }
+
+  openPaymentAction(id: string, reservation: ReservationWithProduct, template: TemplateRef<unknown>) {
+    if (this.requiresCorrectionMode(reservation) && !this.isCorrectionActive(id)) {
+      this.beginPaymentCorrection(id, reservation);
+    } else {
+      this.openDepositForm(id, reservation);
+    }
+    this.openMobileDialog(template);
+  }
+
   closeDepositForm() {
     this.activeDepositReservationId.set(null);
   }
@@ -879,11 +900,18 @@ export class ReservationsComponent implements OnInit {
     this.setFeedback(id, '');
   }
 
+  openTimelineAction(id: string, template: TemplateRef<unknown>) {
+    this.toggleTimeline(id);
+    this.openMobileDialog(template);
+  }
+
   closeMobilePanel() {
     this.activeDepositReservationId.set(null);
     this.activeTimelineReservationId.set(null);
     this.activeCorrectionReservationId.set(null);
     this.advancedEventReservationId.set(null);
+    this.mobileDialogRef?.close();
+    this.mobileDialogRef = undefined;
   }
 
   openAdvancedEvents(id: string) {
@@ -892,8 +920,36 @@ export class ReservationsComponent implements OnInit {
     this.setFeedback(id, '');
   }
 
+  openAdvancedEventsAction(id: string, template: TemplateRef<unknown>) {
+    this.openAdvancedEvents(id);
+    this.openMobileDialog(template);
+  }
+
   closeAdvancedEvents() {
     this.advancedEventReservationId.set(null);
+  }
+
+  private openMobileDialog(template: TemplateRef<unknown>) {
+    if (!this.isMobileViewport()) return;
+    if (this.mobileDialogRef) return;
+
+    this.mobileDialogRef = this.dialog.open(template, {
+      ariaLabel: 'Acciones del apartado',
+      autoFocus: 'dialog',
+      restoreFocus: true,
+      hasBackdrop: true,
+      closeOnOverlayDetachments: true,
+      panelClass: 'reservation-mobile-dialog',
+      backdropClass: 'reservation-mobile-backdrop',
+    });
+
+    this.mobileDialogRef.closed.subscribe(() => {
+      this.activeDepositReservationId.set(null);
+      this.activeTimelineReservationId.set(null);
+      this.activeCorrectionReservationId.set(null);
+      this.advancedEventReservationId.set(null);
+      this.mobileDialogRef = undefined;
+    });
   }
 
   getHistory(id?: string) {
