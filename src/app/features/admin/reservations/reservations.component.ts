@@ -57,12 +57,11 @@ export class ReservationsComponent implements OnInit {
   readonly pageSize = 10;
   readonly trackingEventGroups: TrackingEventGroup[] = ['Operación', 'Cierre', 'Administración'];
   readonly trackingEventOptions = [
-    { value: 'deposito_confirmado', label: 'Pago registrado', group: 'Operación' },
-    { value: 'empaquetado', label: 'Empaquetado', group: 'Operación' },
-    { value: 'en_camino', label: 'En camino', group: 'Operación' },
-    { value: 'recibido', label: 'Recibido por cliente', group: 'Operación' },
-    { value: 'cerrado_pagado', label: 'Finalizar venta', group: 'Cierre' },
-    { value: 'cerrado_devuelto', label: 'Cancelar / anular apartado', group: 'Cierre' },
+    { value: 'empaquetado', label: 'Preparar pedido', group: 'Operación' },
+    { value: 'en_camino', label: 'Enviar / en ruta', group: 'Operación' },
+    { value: 'entregado', label: 'Entregar al cliente', group: 'Operación' },
+    { value: 'finalizado', label: 'Cerrar venta completada', group: 'Cierre' },
+    { value: 'cancelado', label: 'Cancelar / anular apartado', group: 'Cierre' },
     { value: 'vendido', label: 'Venta directa finalizada', group: 'Cierre' },
     { value: 'otro', label: 'Nota interna', group: 'Administración' },
     { value: 'correccion_administrativa', label: 'Corrección administrativa', group: 'Administración' }
@@ -71,11 +70,14 @@ export class ReservationsComponent implements OnInit {
     reserva_creada: { nextStatus: 'pendiente', message: 'Reserva creada y pendiente de deposito.' },
     deposito_confirmado: { message: 'Registra pago y compromete stock si aun no estaba comprometido.', stockAction: 'commit' },
     deposito_revertido: { nextStatus: 'pendiente', message: 'Deposito revertido.', stockAction: 'release' },
-    empaquetado: { message: 'Marca el apartado como preparado para entrega o envio.' },
-    en_camino: { message: 'Marca el producto como enviado o en ruta.' },
-    recibido: { nextStatus: 'entregado', message: 'Marca recibido por cliente y compromete stock.', stockAction: 'commit' },
-    cerrado_pagado: { nextStatus: 'finalizado', message: 'Cierra el caso como venta finalizada.', stockAction: 'commit' },
-    cerrado_devuelto: { nextStatus: 'cancelado', message: 'Cancela/anula el apartado, libera stock y desliga el producto.', stockAction: 'release', detachesProduct: true },
+    empaquetado: { message: 'Cliente vera el pedido en preparacion.' },
+    en_camino: { message: 'Cliente vera el pedido en camino.' },
+    entregado: { nextStatus: 'entregado', message: 'Marca entregado al cliente y mantiene stock comprometido.', stockAction: 'commit' },
+    finalizado: { nextStatus: 'finalizado', message: 'Cierra la venta como completada. Ya no queda operacion pendiente.', stockAction: 'commit' },
+    cancelado: { nextStatus: 'cancelado', message: 'Cancela/anula el apartado, libera stock y desliga el producto.', stockAction: 'release', detachesProduct: true },
+    recibido: { nextStatus: 'entregado', message: 'Alias legado: marca entregado al cliente.', stockAction: 'commit' },
+    cerrado_pagado: { nextStatus: 'finalizado', message: 'Alias legado: cierra venta finalizada.', stockAction: 'commit' },
+    cerrado_devuelto: { nextStatus: 'cancelado', message: 'Alias legado: cancela/anula el apartado.', stockAction: 'release', detachesProduct: true },
     vendido: { nextStatus: 'finalizado', message: 'Cierra como venta directa finalizada.', stockAction: 'commit' },
     otro: { message: 'Agrega una nota interna sin cambiar estado ni stock.' },
     correccion_administrativa: { message: 'Registra una correccion trazable sin cambiar estado automaticamente.' }
@@ -213,7 +215,7 @@ export class ReservationsComponent implements OnInit {
       return;
     }
 
-    const needsCorrection = this.isLockedReservation(reservation) || !!reservation.fee_paid;
+    const needsCorrection = this.isLockedReservation(reservation) || this.hasPaymentRecord(reservation);
     const correctionReason = this.requireCorrectionReason(
       id,
       reservation,
@@ -410,6 +412,18 @@ export class ReservationsComponent implements OnInit {
     }
   }
 
+  async addRecommendedTrackingEvent(id: string, reservation: ReservationWithProduct) {
+    const eventKey = this.getRecommendedEventKey(reservation);
+    if (!eventKey) return;
+
+    this.eventDrafts.update((current) => ({
+      ...current,
+      [id]: { eventKey, notes: '' }
+    }));
+
+    await this.addTrackingEvent(id);
+  }
+
   async logTrackingEvent(
     reservation: ReservationWithProduct,
     eventKey: string,
@@ -499,14 +513,6 @@ export class ReservationsComponent implements OnInit {
   ) {
     await this.supabase.update('reservations', reservation.id!, { status: nextStatus });
 
-    if (reservation.fee_paid && reservation.product_id) {
-      if (nextStatus === 'cancelado' && reservation.status !== 'cancelado') {
-        await this.adjustStock(reservation.product_id, 1);
-      } else if (reservation.status === 'cancelado' && nextStatus !== 'cancelado') {
-        await this.adjustStock(reservation.product_id, -1);
-      }
-    }
-
     this.reservations.update((list) =>
       list.map((item) => item.id === reservation.id ? { ...item, status: nextStatus } : item)
     );
@@ -563,12 +569,18 @@ export class ReservationsComponent implements OnInit {
     this.setFeedback(id, 'Modo correccion activo. Todo cambio quedara marcado como correccion administrativa.');
   }
 
+  beginPaymentCorrection(id: string, reservation: ReservationWithProduct) {
+    this.beginCorrection(id);
+    this.openDepositForm(id, reservation);
+    this.setFeedback(id, 'Edita el pago y escribe el motivo de la correccion antes de guardar.');
+  }
+
   cancelCorrection() {
     this.activeCorrectionReservationId.set(null);
   }
 
   requireCorrectionReason(id: string, reservation: ReservationWithProduct, lockedMessage: string) {
-    const requiresCorrection = this.isLockedReservation(reservation) || this.isCorrectionActive(id);
+    const requiresCorrection = this.isLockedReservation(reservation) || this.hasPaymentRecord(reservation) || this.isCorrectionActive(id);
     if (!requiresCorrection) return false;
 
     const reason = this.getCorrectionDraft(id).reason.trim();
@@ -643,6 +655,23 @@ export class ReservationsComponent implements OnInit {
     if (effect.detachesProduct) tags.push('Desliga producto');
     if (tags.length === 0) tags.push('Solo historial');
     return tags;
+  }
+
+  getRecommendedEventKey(reservation: ReservationWithProduct) {
+    if (reservation.status === 'finalizado' || reservation.status === 'cancelado') return null;
+    if (!this.hasPaymentRecord(reservation)) return null;
+
+    const keys = new Set(this.getHistory(reservation.id).map((event) => event.event_key));
+    if (!keys.has('empaquetado')) return 'empaquetado';
+    if (!keys.has('en_camino') && reservation.status !== 'entregado') return 'en_camino';
+    if (reservation.status !== 'entregado' && !keys.has('entregado') && !keys.has('recibido')) return 'entregado';
+    if (reservation.status === 'entregado') return 'finalizado';
+    return null;
+  }
+
+  getRecommendedEventLabel(reservation: ReservationWithProduct) {
+    const eventKey = this.getRecommendedEventKey(reservation);
+    return this.trackingEventOptions.find((event) => event.value === eventKey)?.label ?? '';
   }
 
   getReservationSummary(reservation: ReservationWithProduct) {

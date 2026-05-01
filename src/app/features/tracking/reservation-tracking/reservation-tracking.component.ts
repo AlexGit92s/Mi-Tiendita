@@ -32,6 +32,12 @@ const TIMELINE_STEPS = [
   { key: 'cancelado',           label: 'Reserva cancelada',           icon: '❌', description: 'Esta reserva ha sido cancelada.' },
 ];
 
+const PUBLIC_EVENT_ALIASES: Record<string, string> = {
+  recibido: 'entregado',
+  cerrado_devuelto: 'cancelado',
+  cerrado_pagado: 'finalizado',
+};
+
 // El cliente puede escribir:
 //   - Código corto:   "APT-3F5E0B4C"  o  "3f5e0b4c"
 //   - UUID completo:  "3f5e0b4c-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -74,7 +80,11 @@ export class ReservationTrackingComponent implements OnInit {
   readonly completedKeys = computed(() => {
     const r = this.result();
     if (!r) return new Set<string>();
-    return new Set(r.events.map(e => e.event_key));
+    const keys = new Set(r.events.map(e => PUBLIC_EVENT_ALIASES[e.event_key] ?? e.event_key));
+    if (r.status === 'pagado' && r.deposit_confirmed_at) keys.add('deposito_confirmado');
+    if (r.status === 'entregado' || r.status === 'finalizado') keys.add('entregado');
+    if (r.status === 'cancelado') keys.add('cancelado');
+    return keys;
   });
 
   readonly isCancelled = computed(() => this.completedKeys().has('cancelado'));
@@ -168,6 +178,15 @@ export class ReservationTrackingComponent implements OnInit {
       return this.isCancelled() ? 'cancelled' : 'pending';
     }
     return this.completedKeys().has(key) ? 'done' : 'pending';
+  }
+
+  stepDate(res: TrackingResult, key: string): string | null {
+    if (key === 'deposito_confirmado' && res.deposit_confirmed_at) {
+      return res.deposit_confirmed_at;
+    }
+
+    const event = res.events.find((ev) => (PUBLIC_EVENT_ALIASES[ev.event_key] ?? ev.event_key) === key);
+    return event?.created_at ?? null;
   }
 
   onKeydown(e: KeyboardEvent) {

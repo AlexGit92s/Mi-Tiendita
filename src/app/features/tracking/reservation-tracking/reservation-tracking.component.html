@@ -99,11 +99,9 @@
             <span class="track-step__label">{{ step.label }}</span>
             <span class="track-step__desc">{{ step.description }}</span>
             <!-- Fecha del evento si ya ocurrió -->
-            <ng-container *ngFor="let ev of res.events">
-              <span class="track-step__date" *ngIf="ev.event_key === step.key">
-                {{ formatDate(ev.created_at) }}
-              </span>
-            </ng-container>
+            <span class="track-step__date" *ngIf="stepDate(res, step.key) as date">
+              {{ formatDate(date) }}
+            </span>
           </div>
         </div>
       </ng-container>
