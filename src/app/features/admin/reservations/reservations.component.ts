@@ -111,6 +111,15 @@ export class ReservationsComponent implements OnInit {
 
   pageNumbers = computed(() => Array.from({ length: this.totalPages() }, (_, index) => index + 1));
 
+  activeMobileReservation = computed(() => {
+    const id =
+      this.activeDepositReservationId() ||
+      this.activeTimelineReservationId() ||
+      this.activeCorrectionReservationId();
+    if (!id) return null;
+    return this.reservations().find((reservation) => reservation.id === id) ?? null;
+  });
+
   paginationLabel = computed(() => {
     const total = this.filteredReservations().length;
     if (total === 0) return '0 apartados';
@@ -845,6 +854,12 @@ export class ReservationsComponent implements OnInit {
     this.setFeedback(id, '');
   }
 
+  closeMobilePanel() {
+    this.activeDepositReservationId.set(null);
+    this.activeTimelineReservationId.set(null);
+    this.activeCorrectionReservationId.set(null);
+  }
+
   getHistory(id?: string) {
     if (!id) return [];
     return this.trackingHistory()[id] ?? [];
@@ -881,7 +896,7 @@ export class ReservationsComponent implements OnInit {
     return this.getTransferredAmount(reservation) >= this.getTotalAmount(reservation) && this.getTotalAmount(reservation) > 0;
   }
 
-  private hasPaymentRecord(reservation: ReservationWithProduct) {
+  hasPaymentRecord(reservation: ReservationWithProduct) {
     return this.getTransferredAmount(reservation) > 0 || !!reservation.deposit_confirmed_at;
   }
 }
