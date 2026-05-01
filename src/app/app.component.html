@@ -161,7 +161,7 @@
   @if (!isAdminRoute && !isAuthRoute && !isCartRoute) {
     <a
       routerLink="/cart"
-      class="no-print group fixed bottom-5 right-4 z-40 flex items-center gap-3 rounded-full border border-lamour-blush/60 bg-white/95 px-4 py-3 text-lamour-stone shadow-[0_18px_45px_rgba(115,88,88,0.22)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-lamour-stone/35 hover:bg-lamour-stone hover:text-white focus:outline-none focus:ring-4 focus:ring-lamour-blush/40 sm:bottom-7 sm:right-7 sm:px-5"
+      class="no-print group fixed bottom-7 right-7 z-40 hidden items-center gap-3 rounded-full border border-lamour-blush/60 bg-white/95 px-5 py-3 text-lamour-stone shadow-[0_18px_45px_rgba(115,88,88,0.22)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-lamour-stone/35 hover:bg-lamour-stone hover:text-white focus:outline-none focus:ring-4 focus:ring-lamour-blush/40 sm:flex"
       aria-label="Abrir carrito"
     >
       <span class="relative grid h-11 w-11 place-items-center rounded-full bg-lamour-blush/30 text-lamour-stone transition-colors group-hover:bg-white/15 group-hover:text-white">
@@ -183,6 +183,53 @@
         </span>
       </span>
     </a>
+  }
+
+  @if (!isAdminRoute && !isAuthRoute) {
+    <nav class="no-print fixed inset-x-0 bottom-0 z-50 border-t border-lamour-blush/40 bg-white/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-16px_40px_rgba(115,88,88,0.12)] backdrop-blur-xl md:hidden" aria-label="Navegacion publica movil">
+      <div class="mx-auto grid max-w-md grid-cols-3 gap-2">
+        <a
+          routerLink="/catalog"
+          routerLinkActive="bg-lamour-stone text-white shadow-sm"
+          class="flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lamour px-2 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-500 transition-colors hover:bg-lamour-stone/5 hover:text-lamour-stone"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          Catalogo
+        </a>
+
+        <a
+          routerLink="/cart"
+          routerLinkActive="bg-lamour-stone text-white shadow-sm"
+          class="relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lamour px-2 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-500 transition-colors hover:bg-lamour-stone/5 hover:text-lamour-stone"
+        >
+          <span class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.085.837l.383 1.45m0 0L6.75 12h10.878a1.125 1.125 0 001.09-.848l1.558-6.231H5.104zm1.271 14.25a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25zm10.5 0a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z" />
+            </svg>
+            @if (cartCount() > 0) {
+              <span class="absolute -right-3 -top-2 min-w-5 rounded-full bg-lamour-gold px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white shadow-sm">
+                {{ cartCount() }}
+              </span>
+            }
+          </span>
+          Apartado
+        </a>
+
+        <a
+          routerLink="/track"
+          routerLinkActive="bg-lamour-stone text-white shadow-sm"
+          class="flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lamour px-2 text-[10px] font-bold uppercase tracking-[0.12em] text-gray-500 transition-colors hover:bg-lamour-stone/5 hover:text-lamour-stone"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Pedido
+        </a>
+      </div>
+    </nav>
   }
   
   <footer class="bg-white py-12 border-t border-lamour-blush/20 text-center mt-auto">

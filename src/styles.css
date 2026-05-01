@@ -16,6 +16,12 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0.025em;
 }
 
+@media (max-width: 767px) {
+  app-root main {
+    padding-bottom: 5.5rem;
+  }
+}
+
 /* Custom Scrollbar for Ethereal Feel */
 ::-webkit-scrollbar {
   width: 6px;
