@@ -238,6 +238,13 @@
                       Mas opciones
                     </button>
                   }
+
+                  @if (res.id && res.status !== 'cancelado') {
+                    <button (click)="openCancelDialog(res.id)" class="col-span-2 md:col-span-1 inline-flex items-center justify-center gap-2 rounded-sm border border-red-200 bg-red-50 px-3 py-2 md:py-1.5 text-[9px] font-bold uppercase tracking-widest text-red-600 transition hover:bg-red-600 hover:text-white shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75 14.25 14.25M14.25 9.75 9.75 14.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                      Anular apartado
+                    </button>
+                  }
                 </div>
               </td>
             </tr>
@@ -245,6 +252,42 @@
             @if (res.id && (activeDepositReservationId() === res.id || activeTimelineReservationId() === res.id || feedback()[res.id] || isCorrectionActive(res.id))) {
               <tr class="bg-[#fcfaf8] hidden md:table-row border-l-4 {{ getStatusConfig(res.status).rowAccent }} !border-t-0 rounded-b-lg md:rounded-none relative -top-3 md:top-0 z-0">
                 <td colspan="6" class="px-4 py-8 md:px-5 md:py-5 block md:table-cell border border-gray-100 md:border-0 border-t-0 rounded-b-lg md:rounded-none">
+                  @if (res.status === 'cancelado') {
+                    <div class="mb-5 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+                      <span class="grid h-7 w-7 place-items-center rounded-full bg-red-100 text-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75 14.25 14.25M14.25 9.75 9.75 14.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                      </span>
+                      <div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-red-700">Apartado anulado</p>
+                        <p class="text-[10px] text-red-600/80">Producto desligado y stock devuelto al inventario.</p>
+                      </div>
+                    </div>
+                  } @else {
+                    <ol class="mb-6 hidden md:flex items-stretch gap-1 rounded-lg border border-gray-100 bg-white p-2">
+                      @for (step of getProgressSteps(res); track step.key; let last = $last) {
+                        <li class="flex flex-1 items-center gap-2">
+                          <div class="flex flex-1 flex-col items-start gap-1.5 rounded-md px-3 py-2"
+                               [ngClass]="step.active ? 'bg-lamour-stone text-white shadow-sm' : (step.done ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-50 text-gray-400')">
+                            <span class="flex items-center gap-1.5 text-[8px] font-black uppercase tracking-[0.18em]">
+                              <span class="grid h-4 w-4 place-items-center rounded-full text-[8px] font-bold"
+                                    [ngClass]="step.active ? 'bg-white/20' : (step.done ? 'bg-emerald-200/60' : 'bg-gray-200')">
+                                @if (step.done && !step.active) {
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                } @else {
+                                  {{ $index + 1 }}
+                                }
+                              </span>
+                              {{ step.label }}
+                            </span>
+                          </div>
+                          @if (!last) {
+                            <span class="hidden lg:block h-px w-3 bg-gray-200"></span>
+                          }
+                        </li>
+                      }
+                    </ol>
+                  }
+
                   <div class="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
                     <div class="rounded-sm border border-lamour-blush/20 bg-white p-4 shadow-sm">
                       <div class="mb-4 flex items-center justify-between gap-4">
@@ -320,15 +363,9 @@
                             [ngModel]="getCorrectionDraft(res.id!).reason"
                             (ngModelChange)="updateCorrectionDraft(res.id!, $event)"
                             class="min-h-[88px] w-full rounded-xl border border-red-200 bg-red-50/40 px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-red-300"
-                            placeholder="Ej. Se marco como entregado por error y necesito anularlo para liberar/eliminar producto"
+                            placeholder="Describe la correccion o nota administrativa"
                           ></textarea>
                         </label>
-                        <button
-                          type="button"
-                          (click)="voidClosedReservation(res.id!, res)"
-                          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-700 transition hover:bg-red-100">
-                          Anular y liberar producto
-                        </button>
                       }
                       <div class="mb-4 grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)_auto]">
                         @if (isLockedReservation(res)) {
@@ -590,12 +627,9 @@
                       [ngModel]="getCorrectionDraft(res.id!).reason"
                       (ngModelChange)="updateCorrectionDraft(res.id!, $event)"
                       class="min-h-[82px] w-full rounded-lamour border border-red-200 bg-red-50/40 px-3 py-2 text-sm text-gray-700 outline-none focus:border-red-300"
-                      placeholder="Ej. Se marco como entregado por error"
+                      placeholder="Describe la correccion o nota administrativa"
                     ></textarea>
                   </label>
-                  <button type="button" (click)="voidClosedReservation(res.id!, res)" class="rounded-lamour border border-red-200 bg-red-50 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-red-700">
-                    Anular y liberar producto
-                  </button>
                 }
                 @if (isLockedReservation(res)) {
                   <input value="Nota de correccion" readonly class="rounded-lamour border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-500 outline-none">
@@ -624,6 +658,13 @@
             Mas opciones
           </button>
 
+          @if (res.id && res.status !== 'cancelado') {
+            <button type="button" (click)="closeMobilePanel(); openCancelDialog(res.id)" class="w-full rounded-lamour border border-red-200 bg-red-50 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-red-700 inline-flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75 14.25 14.25M14.25 9.75 9.75 14.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+              Anular apartado
+            </button>
+          }
+
           <div class="space-y-2 pb-4">
             <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Ultimos movimientos</p>
             @for (item of getHistory(res.id).slice(0, 5); track item.id) {
@@ -651,4 +692,72 @@
       </section>
   }
   </ng-template>
+
+  @if (cancelTargetReservation(); as target) {
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm px-3 sm:px-6 py-4 animation-slide-in" role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title">
+      <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl border border-red-100">
+        <div class="flex items-start gap-3 border-b border-red-100 bg-red-50 px-5 py-4">
+          <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-red-100 text-red-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+          </span>
+          <div class="min-w-0">
+            <p id="cancel-dialog-title" class="text-[11px] font-black uppercase tracking-[0.2em] text-red-700">Anular apartado</p>
+            <p class="mt-1 truncate font-serif text-base text-lamour-stone">{{ getProductName(target) }}</p>
+            <p class="text-[11px] text-gray-500">{{ target.customer_name }} · {{ getTicketNumber(target) }}</p>
+          </div>
+        </div>
+
+        <div class="space-y-4 px-5 py-4">
+          <div class="rounded-lg border border-amber-100 bg-amber-50 px-3 py-3 text-[11px] leading-relaxed text-amber-700">
+            <p class="font-bold uppercase tracking-widest text-[10px] mb-1">Esta accion</p>
+            <ul class="space-y-1 list-disc pl-4">
+              <li>Marca el apartado como <strong>Cancelado</strong>.</li>
+              @if (target.stock_committed) {
+                <li>Devuelve <strong>1 unidad</strong> al stock del producto.</li>
+              } @else {
+                <li>No hay stock comprometido por liberar.</li>
+              }
+              <li>Desliga el producto del registro (queda solo el historial).</li>
+            </ul>
+          </div>
+
+          <label class="block">
+            <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-gray-600">Motivo de la anulacion <span class="text-red-600">*</span></span>
+            <textarea
+              [ngModel]="cancelDraft().reason"
+              (ngModelChange)="updateCancelReason($event)"
+              [disabled]="cancelInFlight()"
+              class="min-h-[96px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-red-300 focus:ring-1 focus:ring-red-200 disabled:opacity-50"
+              placeholder="Ej. Cliente desistio del apartado / pago no completado / error administrativo">
+            </textarea>
+            @if (cancelDraft().error) {
+              <p class="mt-1 text-[11px] text-red-600">{{ cancelDraft().error }}</p>
+            }
+          </label>
+
+          <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end pt-1">
+            <button
+              type="button"
+              (click)="closeCancelDialog()"
+              [disabled]="cancelInFlight()"
+              class="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50">
+              Volver
+            </button>
+            <button
+              type="button"
+              (click)="confirmCancelReservation()"
+              [disabled]="cancelInFlight()"
+              class="rounded-lg bg-red-600 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white transition hover:bg-red-700 disabled:opacity-60 inline-flex items-center justify-center gap-2">
+              @if (cancelInFlight()) {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25" /><path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" /></svg>
+                Anulando...
+              } @else {
+                Anular y devolver al inventario
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>

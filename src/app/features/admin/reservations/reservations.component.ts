@@ -30,6 +30,11 @@ interface CorrectionDraft {
   reason: string;
 }
 
+interface CancelDraft {
+  reason: string;
+  error: string;
+}
+
 interface TrackingEventEffect {
   nextStatus?: ReservationStatus;
   message: string;
@@ -73,6 +78,7 @@ export class ReservationsComponent implements OnInit {
     'entregado',
     'finalizado',
     'vendido',
+    'cancelado',
     'correccion_administrativa'
   ]);
   readonly eventEffects: Record<string, TrackingEventEffect> = {
@@ -96,11 +102,20 @@ export class ReservationsComponent implements OnInit {
   activeTimelineReservationId = signal<string | null>(null);
   activeCorrectionReservationId = signal<string | null>(null);
   advancedEventReservationId = signal<string | null>(null);
+  cancelTargetId = signal<string | null>(null);
+  cancelDraft = signal<CancelDraft>({ reason: '', error: '' });
+  cancelInFlight = signal(false);
   depositDrafts = signal<Record<string, DepositDraft>>({});
   eventDrafts = signal<Record<string, EventDraft>>({});
   correctionDrafts = signal<Record<string, CorrectionDraft>>({});
   trackingHistory = signal<Record<string, ProductTrackingEvent[]>>({});
   feedback = signal<Record<string, string>>({});
+
+  cancelTargetReservation = computed(() => {
+    const id = this.cancelTargetId();
+    if (!id) return null;
+    return this.reservations().find((r) => r.id === id) ?? null;
+  });
 
   filteredReservations = computed(() => {
     const status = this.statusFilter();
@@ -456,14 +471,75 @@ export class ReservationsComponent implements OnInit {
     await this.addTrackingEvent(id);
   }
 
-  async voidClosedReservation(id: string, reservation: ReservationWithProduct) {
-    this.beginCorrection(id);
-    this.eventDrafts.update((current) => ({
-      ...current,
-      [id]: { eventKey: 'cancelado', notes: 'Anulado administrativamente para liberar producto' }
-    }));
+  openCancelDialog(id: string) {
+    this.cancelTargetId.set(id);
+    this.cancelDraft.set({ reason: '', error: '' });
+  }
 
-    await this.addTrackingEvent(id);
+  closeCancelDialog() {
+    if (this.cancelInFlight()) return;
+    this.cancelTargetId.set(null);
+    this.cancelDraft.set({ reason: '', error: '' });
+  }
+
+  updateCancelReason(value: string) {
+    this.cancelDraft.update((current) => ({ ...current, reason: value, error: '' }));
+  }
+
+  async confirmCancelReservation() {
+    const id = this.cancelTargetId();
+    if (!id) return;
+
+    const reservation = this.reservations().find((r) => r.id === id);
+    if (!reservation) {
+      this.closeCancelDialog();
+      return;
+    }
+
+    const reason = this.cancelDraft().reason.trim();
+    if (reason.length < 4) {
+      this.cancelDraft.update((current) => ({ ...current, error: 'Escribe un motivo claro (min. 4 caracteres).' }));
+      return;
+    }
+
+    this.cancelInFlight.set(true);
+
+    try {
+      const wasCommitted = !!reservation.stock_committed;
+      await this.applyStockAction(reservation, 'release');
+
+      await this.applyDerivedStatus(reservation, 'cancelado', 'cancelado');
+
+      await this.logTrackingEvent(
+        reservation,
+        'cancelado',
+        'Apartado anulado',
+        {
+          previous_status: reservation.status,
+          stock_returned: wasCommitted,
+          effect_message: 'Apartado anulado, stock devuelto y producto desligado.'
+        },
+        reason,
+        reason
+      );
+
+      await this.recordDerivedStatusChange(reservation, 'cancelado', 'cancelado', reason);
+      await this.detachReservationProduct(reservation);
+
+      this.cancelTargetId.set(null);
+      this.cancelDraft.set({ reason: '', error: '' });
+      this.setFeedback(
+        id,
+        wasCommitted
+          ? 'Apartado anulado. 1 unidad devuelta al inventario y producto desligado.'
+          : 'Apartado anulado y producto desligado (no habia stock comprometido por liberar).'
+      );
+    } catch (error) {
+      console.error(error);
+      this.cancelDraft.update((current) => ({ ...current, error: 'No se pudo anular el apartado. Intentalo de nuevo.' }));
+    } finally {
+      this.cancelInFlight.set(false);
+    }
   }
 
   async logTrackingEvent(
@@ -1021,6 +1097,41 @@ export class ReservationsComponent implements OnInit {
 
   hasPaymentRecord(reservation: ReservationWithProduct) {
     return this.getTransferredAmount(reservation) > 0 || !!reservation.deposit_confirmed_at;
+  }
+
+  getProgressSteps(reservation: ReservationWithProduct) {
+    const stages: { key: ReservationStatus | 'preparando' | 'enviando'; label: string }[] = [
+      { key: 'pendiente', label: 'Pendiente' },
+      { key: 'pagado', label: 'Pagado' },
+      { key: 'preparando', label: 'Preparando' },
+      { key: 'enviando', label: 'En camino' },
+      { key: 'entregado', label: 'Entregado' },
+      { key: 'finalizado', label: 'Finalizado' }
+    ];
+
+    const history = reservation.id ? this.getHistory(reservation.id) : [];
+    const keys = new Set(history.map((event) => event.event_key));
+    const status = reservation.status;
+
+    const reached: Record<string, boolean> = {
+      pendiente: true,
+      pagado: status !== 'pendiente' || this.hasValidatedPaymentRecord(reservation),
+      preparando: keys.has('empaquetado') || keys.has('en_camino') || keys.has('entregado') || keys.has('recibido') || status === 'entregado' || status === 'finalizado',
+      enviando: keys.has('en_camino') || keys.has('entregado') || keys.has('recibido') || status === 'entregado' || status === 'finalizado',
+      entregado: status === 'entregado' || status === 'finalizado',
+      finalizado: status === 'finalizado'
+    };
+
+    let activeIndex = -1;
+    for (let i = stages.length - 1; i >= 0; i--) {
+      if (reached[stages[i].key]) { activeIndex = i; break; }
+    }
+
+    return stages.map((stage, index) => ({
+      ...stage,
+      done: reached[stage.key] === true,
+      active: index === activeIndex
+    }));
   }
 
   hasValidatedPaymentRecord(reservation: ReservationWithProduct) {
