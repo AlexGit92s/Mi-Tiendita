@@ -42,7 +42,8 @@ h1, h2, h3, h4, h5, h6 {
   }
   app-root nav,
   app-root header,
-  app-root footer {
+  app-root footer,
+  .no-print {
     display: none !important;
   }
   .min-h-screen {

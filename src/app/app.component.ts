@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   title = 'Mi Tiendita L\'Amour';
   isAdminRoute = false;
   isAuthRoute = false;
+  isCartRoute = false;
   isMobileMenuOpen = false;
   cartCount = signal(0);
 
@@ -31,6 +32,7 @@ export class AppComponent implements OnInit {
       const url: string = event.urlAfterRedirects;
       this.isAdminRoute = url.includes('/admin');
       this.isAuthRoute = url.startsWith('/login');
+      this.isCartRoute = url.startsWith('/cart');
       this.isMobileMenuOpen = false;
       this.syncCartCount();
     });

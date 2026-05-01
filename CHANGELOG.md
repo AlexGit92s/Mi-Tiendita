@@ -14,6 +14,7 @@
 
 ## [Unreleased]
 ### Added
+- **Boton flotante del carrito** — acceso fijo en la esquina inferior derecha para entrar al carrito desde las paginas publicas, con contador sincronizado y estado "Listo para apartar" cuando hay productos. Se oculta en admin, login, el propio carrito e impresion. _(Codex)_
 - **Búsqueda rápida de apartados en `/admin/reservations`** — nuevo input arriba de los chips de estado que matchea (case-insensitive) contra número de ticket (`APT-XXXXXXXX`), UUID, nombre, teléfono, email del cliente, nombre del producto, referencia y "transfiere" del depósito. Se combina con el filtro de estado (AND) y muestra contador `N resultado(s) de M`. Botón ✕ para limpiar. _(Claude/Alex)_
 
 ### Changed
