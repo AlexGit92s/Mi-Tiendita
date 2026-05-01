@@ -440,6 +440,15 @@ export class ReservationsComponent implements OnInit {
     await this.addTrackingEvent(id);
   }
 
+  async markAsDelivered(id: string, reservation: ReservationWithProduct) {
+    this.eventDrafts.update((current) => ({
+      ...current,
+      [id]: { eventKey: 'entregado', notes: '' }
+    }));
+
+    await this.addTrackingEvent(id);
+  }
+
   async logTrackingEvent(
     reservation: ReservationWithProduct,
     eventKey: string,
@@ -683,6 +692,14 @@ export class ReservationsComponent implements OnInit {
     if (reservation.status !== 'entregado' && !keys.has('entregado') && !keys.has('recibido')) return 'entregado';
     if (reservation.status === 'entregado') return 'finalizado';
     return null;
+  }
+
+  canMarkDelivered(reservation: ReservationWithProduct) {
+    if (reservation.status === 'entregado' || reservation.status === 'finalizado' || reservation.status === 'cancelado') return false;
+    if (!this.hasPaymentRecord(reservation)) return false;
+
+    const keys = new Set(this.getHistory(reservation.id).map((event) => event.event_key));
+    return !keys.has('entregado') && !keys.has('recibido');
   }
 
   getRecommendedEventLabel(reservation: ReservationWithProduct) {
