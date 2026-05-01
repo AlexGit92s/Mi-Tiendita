@@ -313,6 +313,23 @@
                       </div>
 
                       @if (advancedEventReservationId() === res.id) {
+                      @if (isLockedReservation(res)) {
+                        <label class="mb-4 block">
+                          <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-red-600">Motivo obligatorio</span>
+                          <textarea
+                            [ngModel]="getCorrectionDraft(res.id!).reason"
+                            (ngModelChange)="updateCorrectionDraft(res.id!, $event)"
+                            class="min-h-[88px] w-full rounded-xl border border-red-200 bg-red-50/40 px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-red-300"
+                            placeholder="Ej. Se marco como entregado por error y necesito anularlo para liberar/eliminar producto"
+                          ></textarea>
+                        </label>
+                        <button
+                          type="button"
+                          (click)="voidClosedReservation(res.id!, res)"
+                          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-700 transition hover:bg-red-100">
+                          Anular y liberar producto
+                        </button>
+                      }
                       <div class="mb-4 grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)_auto]">
                         @if (isLockedReservation(res)) {
                           <input value="Nota de correccion" readonly class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 outline-none">
@@ -566,6 +583,20 @@
               </div>
 
               <div class="grid gap-2">
+                @if (isLockedReservation(res)) {
+                  <label class="block">
+                    <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-red-600">Motivo obligatorio</span>
+                    <textarea
+                      [ngModel]="getCorrectionDraft(res.id!).reason"
+                      (ngModelChange)="updateCorrectionDraft(res.id!, $event)"
+                      class="min-h-[82px] w-full rounded-lamour border border-red-200 bg-red-50/40 px-3 py-2 text-sm text-gray-700 outline-none focus:border-red-300"
+                      placeholder="Ej. Se marco como entregado por error"
+                    ></textarea>
+                  </label>
+                  <button type="button" (click)="voidClosedReservation(res.id!, res)" class="rounded-lamour border border-red-200 bg-red-50 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-red-700">
+                    Anular y liberar producto
+                  </button>
+                }
                 @if (isLockedReservation(res)) {
                   <input value="Nota de correccion" readonly class="rounded-lamour border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-500 outline-none">
                 } @else {

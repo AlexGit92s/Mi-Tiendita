@@ -456,6 +456,16 @@ export class ReservationsComponent implements OnInit {
     await this.addTrackingEvent(id);
   }
 
+  async voidClosedReservation(id: string, reservation: ReservationWithProduct) {
+    this.beginCorrection(id);
+    this.eventDrafts.update((current) => ({
+      ...current,
+      [id]: { eventKey: 'cancelado', notes: 'Anulado administrativamente para liberar producto' }
+    }));
+
+    await this.addTrackingEvent(id);
+  }
+
   async logTrackingEvent(
     reservation: ReservationWithProduct,
     eventKey: string,
