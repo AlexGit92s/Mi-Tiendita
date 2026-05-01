@@ -930,6 +930,14 @@ export class ReservationsComponent implements OnInit {
   openAdvancedEvents(id: string) {
     this.activeTimelineReservationId.set(id);
     this.advancedEventReservationId.set(id);
+    const reservation = this.reservations().find((item) => item.id === id);
+    if (reservation && this.isLockedReservation(reservation)) {
+      this.beginCorrection(id);
+      this.eventDrafts.update((current) => ({
+        ...current,
+        [id]: { eventKey: 'otro', notes: '' }
+      }));
+    }
     this.setFeedback(id, '');
   }
 

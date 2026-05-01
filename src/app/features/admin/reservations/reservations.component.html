@@ -301,8 +301,10 @@
                     <div class="rounded-sm border border-lamour-blush/20 bg-white p-4 shadow-sm">
                       <div class="mb-4 flex items-center justify-between gap-4">
                         <div>
-                          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Eventos y estado</p>
-                          <p class="mt-1 text-[10px] text-gray-400">Usa Siguiente para el flujo normal. Mas opciones queda para notas o cancelaciones.</p>
+                          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">{{ isLockedReservation(res) ? 'Caso cerrado' : 'Eventos y estado' }}</p>
+                          <p class="mt-1 text-[10px] text-gray-400">
+                            {{ isLockedReservation(res) ? 'Este apartado ya esta cerrado. Solo se permiten notas o correcciones con motivo.' : 'Usa Siguiente para el flujo normal. Mas opciones queda para notas o cancelaciones.' }}
+                          </p>
                           <p class="mt-2 inline-flex rounded-sm bg-gray-50 px-2 py-1 text-[9px] uppercase tracking-widest text-gray-500">Resumen: {{ getReservationSummary(res) }}</p>
                         </div>
                         @if (activeTimelineReservationId() === res.id) {
@@ -312,20 +314,24 @@
 
                       @if (advancedEventReservationId() === res.id) {
                       <div class="mb-4 grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)_auto]">
-                        <select [ngModel]="getEventDraft(res.id!).eventKey" (ngModelChange)="updateEventDraft(res.id!, 'eventKey', $event)" class="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone">
-                          @for (group of trackingEventGroups; track group) {
-                            <optgroup [label]="group">
-                              @for (event of getEventsByGroup(group); track event.value) {
-                                <option [value]="event.value">{{ event.label }}</option>
-                              }
-                            </optgroup>
-                          }
-                        </select>
+                        @if (isLockedReservation(res)) {
+                          <input value="Nota de correccion" readonly class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 outline-none">
+                        } @else {
+                          <select [ngModel]="getEventDraft(res.id!).eventKey" (ngModelChange)="updateEventDraft(res.id!, 'eventKey', $event)" class="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone">
+                            @for (group of trackingEventGroups; track group) {
+                              <optgroup [label]="group">
+                                @for (event of getEventsByGroup(group); track event.value) {
+                                  <option [value]="event.value">{{ event.label }}</option>
+                                }
+                              </optgroup>
+                            }
+                          </select>
+                        }
 
-                        <input [ngModel]="getEventDraft(res.id!).notes" (ngModelChange)="updateEventDraft(res.id!, 'notes', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" placeholder="Detalle opcional del evento">
+                        <input [ngModel]="getEventDraft(res.id!).notes" (ngModelChange)="updateEventDraft(res.id!, 'notes', $event)" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-lamour-stone" [placeholder]="isLockedReservation(res) ? 'Describe la correccion o nota' : 'Detalle opcional del evento'">
 
                         <button (click)="addTrackingEvent(res.id!)" class="rounded-xl border border-lamour-stone/20 bg-lamour-stone/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-lamour-stone transition hover:bg-lamour-stone hover:text-white">
-                          Agregar evento
+                          {{ isLockedReservation(res) ? 'Guardar nota' : 'Agregar evento' }}
                         </button>
                       </div>
 
@@ -553,25 +559,31 @@
           @if (activeTimelineReservationId() === res.id && advancedEventReservationId() === res.id) {
             <div class="rounded-lamour border border-gray-100 bg-white p-3">
               <div class="mb-3">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Mas opciones</p>
-                <p class="mt-1 text-[10px] text-gray-500">Solo para nota interna, cancelar o marcar un paso puntual.</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">{{ isLockedReservation(res) ? 'Caso cerrado' : 'Mas opciones' }}</p>
+                <p class="mt-1 text-[10px] text-gray-500">
+                  {{ isLockedReservation(res) ? 'Solo se permiten notas o correcciones con motivo.' : 'Solo para nota interna, cancelar o marcar un paso puntual.' }}
+                </p>
               </div>
 
               <div class="grid gap-2">
-                <select [ngModel]="getEventDraft(res.id!).eventKey" (ngModelChange)="updateEventDraft(res.id!, 'eventKey', $event)" class="rounded-lamour border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 outline-none focus:border-lamour-stone">
-                  @for (group of trackingEventGroups; track group) {
-                    <optgroup [label]="group">
-                      @for (event of getEventsByGroup(group); track event.value) {
-                        <option [value]="event.value">{{ event.label }}</option>
-                      }
-                    </optgroup>
-                  }
-                </select>
+                @if (isLockedReservation(res)) {
+                  <input value="Nota de correccion" readonly class="rounded-lamour border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-500 outline-none">
+                } @else {
+                  <select [ngModel]="getEventDraft(res.id!).eventKey" (ngModelChange)="updateEventDraft(res.id!, 'eventKey', $event)" class="rounded-lamour border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 outline-none focus:border-lamour-stone">
+                    @for (group of trackingEventGroups; track group) {
+                      <optgroup [label]="group">
+                        @for (event of getEventsByGroup(group); track event.value) {
+                          <option [value]="event.value">{{ event.label }}</option>
+                        }
+                      </optgroup>
+                    }
+                  </select>
+                }
 
-                <input [ngModel]="getEventDraft(res.id!).notes" (ngModelChange)="updateEventDraft(res.id!, 'notes', $event)" class="rounded-lamour border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 outline-none focus:border-lamour-stone" placeholder="Detalle opcional">
+                <input [ngModel]="getEventDraft(res.id!).notes" (ngModelChange)="updateEventDraft(res.id!, 'notes', $event)" class="rounded-lamour border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 outline-none focus:border-lamour-stone" [placeholder]="isLockedReservation(res) ? 'Describe la correccion o nota' : 'Detalle opcional'">
 
                 <button type="button" (click)="addTrackingEvent(res.id!)" class="rounded-lamour border border-lamour-stone/20 bg-lamour-stone/5 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-lamour-stone">
-                  Agregar movimiento
+                  {{ isLockedReservation(res) ? 'Guardar nota' : 'Agregar movimiento' }}
                 </button>
               </div>
             </div>
