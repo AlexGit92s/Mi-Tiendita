@@ -37,6 +37,7 @@
 - **Fecha de entrega del carrito no acepta pasado** — el input `reservation_date` ahora lleva `[min]="todayIso"` para bloquear selección nativa de días previos y un validador custom `futureDateValidator` (rechaza la fecha incluso si el usuario la edita manualmente). Mensaje específico "La fecha debe ser hoy o posterior" cuando aplica. _(Claude/Alex)_
 
 ### Fixed
+- **Movimientos normales ya no piden correccion tras validar pago** — `Marcar entregado`, preparar, enviar o avanzar seguimiento solo requieren motivo si el apartado esta cerrado (`finalizado`/`cancelado`) o si el admin activo modo correccion. Validar/corregir pagos conserva motivo cuando ya habia pago validado. _(Codex)_
 - **Subida de imagenes del inventario** — nueva migracion [013_product_images_storage_policies.sql](./scripts/migrations/013_product_images_storage_policies.sql) crea/normaliza el bucket publico `product-images` y agrega policies de Storage para lectura publica y escritura autenticada. El formulario ahora muestra el detalle del error de subida en vez de un mensaje generico. _(Codex)_
 
 - **Boton eliminar producto sin efecto visible** — el DELETE de Supabase ahora solicita la fila eliminada para detectar cuando RLS/permisos no borran nada; el inventario usa modal/toast propio en lugar de `alert/confirm` y bloquea la eliminacion si la pieza tiene apartados registrados. Nueva migracion [011_products_policies_recreate.sql](./scripts/migrations/011_products_policies_recreate.sql) recrea policies de `products`: SELECT publico e INSERT/UPDATE/DELETE solo `authenticated`. _(Codex)_

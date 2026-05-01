@@ -385,7 +385,7 @@ export class ReservationsComponent implements OnInit {
       return;
     }
 
-    const correctionReason = this.requireCorrectionReason(id, reservation, 'Para registrar cambios sobre un caso cerrado, indica motivo de correccion.');
+    const correctionReason = this.requireTrackingCorrectionReason(id, reservation, 'Para registrar cambios sobre un caso cerrado, indica motivo de correccion.');
     if (correctionReason === null) return;
 
     try {
@@ -613,6 +613,19 @@ export class ReservationsComponent implements OnInit {
 
   requireCorrectionReason(id: string, reservation: ReservationWithProduct, lockedMessage: string) {
     const requiresCorrection = this.isLockedReservation(reservation) || this.hasValidatedPaymentRecord(reservation) || this.isCorrectionActive(id);
+    if (!requiresCorrection) return false;
+
+    const reason = this.getCorrectionDraft(id).reason.trim();
+    if (!reason) {
+      this.setFeedback(id, lockedMessage || 'Registra motivo de correccion antes de editar.');
+      return null;
+    }
+
+    return reason;
+  }
+
+  requireTrackingCorrectionReason(id: string, reservation: ReservationWithProduct, lockedMessage: string) {
+    const requiresCorrection = this.isLockedReservation(reservation) || this.isCorrectionActive(id);
     if (!requiresCorrection) return false;
 
     const reason = this.getCorrectionDraft(id).reason.trim();
