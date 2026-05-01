@@ -21,6 +21,7 @@
 - **Búsqueda rápida de apartados en `/admin/reservations`** — nuevo input arriba de los chips de estado que matchea (case-insensitive) contra número de ticket (`APT-XXXXXXXX`), UUID, nombre, teléfono, email del cliente, nombre del producto, referencia y "transfiere" del depósito. Se combina con el filtro de estado (AND) y muestra contador `N resultado(s) de M`. Botón ✕ para limpiar. _(Claude/Alex)_
 
 ### Changed
+- **Dashboard enlaza la tarjeta de apartados** — la metrica `Apartados Activos` ahora abre [/admin/reservations](./src/app/features/admin/reservations/reservations.component.html) al hacer clic o navegar con teclado. _(Codex)_
 - **`cancelado` removido del selector manual de eventos** — el evento `cancelado` ya no aparece en el dropdown `Mas opciones`; toda anulación pasa por el nuevo botón dedicado y su modal. El selector manual queda solo con `empaquetado`, `en_camino` y `otro` (nota interna) para casos abiertos. _(Claude/Alex)_
 - **Anulacion administrativa de apartados cerrados** — en `Mas opciones`, un caso `finalizado`/`cancelado` permite `Anular y liberar producto` con motivo obligatorio. Registra correccion, cambia a cancelado, libera stock si aplica y desliga el producto para permitir eliminacion posterior. _(Codex)_
 - **Mas opciones distingue casos cerrados** — si el apartado ya esta `finalizado` o `cancelado`, el panel deja de mostrar cancelaciones/acciones operativas y cambia a `Caso cerrado`, permitiendo solo nota/correccion con motivo. _(Codex)_
