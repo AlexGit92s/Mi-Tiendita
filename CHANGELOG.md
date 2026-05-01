@@ -19,6 +19,7 @@
 - **Búsqueda rápida de apartados en `/admin/reservations`** — nuevo input arriba de los chips de estado que matchea (case-insensitive) contra número de ticket (`APT-XXXXXXXX`), UUID, nombre, teléfono, email del cliente, nombre del producto, referencia y "transfiere" del depósito. Se combina con el filtro de estado (AND) y muestra contador `N resultado(s) de M`. Botón ✕ para limpiar. _(Claude/Alex)_
 
 ### Changed
+- **Boton entregado siempre visible en apartados activos** — `Marcar entregado` ya no depende de tener pago registrado para aparecer; se oculta solo si el apartado ya esta entregado, finalizado, cancelado o si el historial ya tiene entrega. _(Codex)_
 - **Panel movil de apartados migrado a CDK Dialog** — el panel inferior usa `@angular/cdk/dialog` para backdrop, foco, cierre y restauracion de foco en mobile; se agregan estilos globales del overlay CDK en [styles.css](./src/styles.css). _(Codex)_
 - **Entrega visible sin llenar el selector** — se agrega boton directo `Entregar` / `Entregar al cliente` cuando el apartado ya tiene pago y aun no esta entregado, manteniendo el dropdown manual reducido. _(Codex)_
 - **Selector manual de eventos reducido** — `Mas opciones` ya no muestra entregar, cerrar venta, venta directa ni correccion administrativa; esas acciones quedan cubiertas por `Siguiente paso`, correccion de pago o flujos internos. El selector manual se limita a preparar, enviar, cancelar y nota interna. _(Codex)_

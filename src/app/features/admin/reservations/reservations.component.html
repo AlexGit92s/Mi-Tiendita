@@ -229,7 +229,7 @@
 
                   @if (canMarkDelivered(res)) {
                     <button (click)="res.id && markAsDelivered(res.id, res)" class="col-span-2 md:col-span-1 inline-flex items-center justify-center gap-2 rounded-sm border border-sky-200 bg-sky-50 px-3 py-2 md:py-1.5 text-[9px] font-bold uppercase tracking-widest text-sky-700 transition hover:bg-sky-600 hover:text-white shadow-sm">
-                      Entregar
+                      Marcar entregado
                     </button>
                   }
 
@@ -489,7 +489,7 @@
 
           @if (canMarkDelivered(res)) {
             <button type="button" (click)="res.id && markAsDelivered(res.id, res)" class="w-full rounded-lamour border border-sky-200 bg-sky-50 px-4 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-sky-700 active:bg-sky-100">
-              Entregar al cliente
+              Marcar entregado
             </button>
           }
 

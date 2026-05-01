@@ -703,7 +703,6 @@ export class ReservationsComponent implements OnInit {
 
   canMarkDelivered(reservation: ReservationWithProduct) {
     if (reservation.status === 'entregado' || reservation.status === 'finalizado' || reservation.status === 'cancelado') return false;
-    if (!this.hasPaymentRecord(reservation)) return false;
 
     const keys = new Set(this.getHistory(reservation.id).map((event) => event.event_key));
     return !keys.has('entregado') && !keys.has('recibido');
