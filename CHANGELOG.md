@@ -19,6 +19,7 @@
 - **Búsqueda rápida de apartados en `/admin/reservations`** — nuevo input arriba de los chips de estado que matchea (case-insensitive) contra número de ticket (`APT-XXXXXXXX`), UUID, nombre, teléfono, email del cliente, nombre del producto, referencia y "transfiere" del depósito. Se combina con el filtro de estado (AND) y muestra contador `N resultado(s) de M`. Botón ✕ para limpiar. _(Claude/Alex)_
 
 ### Changed
+- **Apartado exige transferencia minima 50% sin validarla automaticamente** — el checkout requiere monto transferido, referencia y titular; el monto debe ser al menos 50% y no puede superar el total. Si el cliente declara pago total, el restante queda en L. 0. En admin, los montos enviados por cliente se muestran como `Por validar` y el boton pasa a `Validar pago`; solo al confirmar se marca como pago validado/pagado. _(Codex)_
 - **Boton entregado siempre visible en apartados activos** — `Marcar entregado` ya no depende de tener pago registrado para aparecer; se oculta solo si el apartado ya esta entregado, finalizado, cancelado o si el historial ya tiene entrega. _(Codex)_
 - **Panel movil de apartados migrado a CDK Dialog** — el panel inferior usa `@angular/cdk/dialog` para backdrop, foco, cierre y restauracion de foco en mobile; se agregan estilos globales del overlay CDK en [styles.css](./src/styles.css). _(Codex)_
 - **Entrega visible sin llenar el selector** — se agrega boton directo `Entregar` / `Entregar al cliente` cuando el apartado ya tiene pago y aun no esta entregado, manteniendo el dropdown manual reducido. _(Codex)_

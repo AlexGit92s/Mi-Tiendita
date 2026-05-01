@@ -44,9 +44,9 @@ export class ShoppingCartComponent implements OnInit {
     customer_email: ['', [Validators.email]],
     customer_phone: ['', [Validators.required]],
     reservation_date: ['', [Validators.required, ShoppingCartComponent.futureDateValidator]],
-    deposit_amount: [null],
-    deposit_reference: [''],
-    deposit_transferred_by: [''],
+    deposit_amount: [null, [Validators.required, Validators.min(0.01)]],
+    deposit_reference: ['', [Validators.required]],
+    deposit_transferred_by: ['', [Validators.required]],
     notes: ['']
   });
 
@@ -75,6 +75,28 @@ export class ShoppingCartComponent implements OnInit {
   depositAmount = computed(() => Math.round(this.totalPrice() * 50) / 100);
 
   remainingAmount = computed(() => Math.round((this.totalPrice() - this.depositAmount()) * 100) / 100);
+
+  declaredTransferAmount() {
+    return Math.round((Number(this.checkoutForm.get('deposit_amount')?.value ?? 0) || 0) * 100) / 100;
+  }
+
+  declaredRemainingAmount() {
+    return Math.max(0, Math.round((this.totalPrice() - this.declaredTransferAmount()) * 100) / 100);
+  }
+
+  validateDeclaredPayment(): boolean {
+    const amountControl = this.checkoutForm.get('deposit_amount');
+    const declared = this.declaredTransferAmount();
+    const minimum = this.depositAmount();
+    const total = this.totalPrice();
+    const errors: Record<string, boolean> = {};
+
+    if (declared < minimum) errors['minimumDeposit'] = true;
+    if (total > 0 && declared > total) errors['overTotal'] = true;
+
+    amountControl?.setErrors(Object.keys(errors).length ? { ...(amountControl.errors ?? {}), ...errors } : null);
+    return Object.keys(errors).length === 0;
+  }
 
   itemCount = computed(() => this.cartProducts().length);
 
@@ -298,17 +320,23 @@ export class ShoppingCartComponent implements OnInit {
   }
 
   async onSubmit() {
+    if (!this.validateDeclaredPayment()) {
+      this.checkoutForm.get('deposit_amount')?.markAsTouched();
+      return;
+    }
+
     if (this.checkoutForm.invalid || this.cartProducts().length === 0 || this.isSaving()) return;
 
     this.isSaving.set(true);
     const formData = this.checkoutForm.value;
-    const depositNote = `[Anticipo 50%: L. ${this.depositAmount()} - Restante: L. ${this.remainingAmount()}]`;
+    const declaredDeposit = Number(formData.deposit_amount) || 0;
+    const declaredRemaining = Math.max(0, Math.round((this.totalPrice() - declaredDeposit) * 100) / 100);
+    const depositNote = `[Transferencia declarada: L. ${declaredDeposit} - Minimo 50%: L. ${this.depositAmount()} - Restante declarado: L. ${declaredRemaining}]`;
     const finalNotes = formData.notes ? `${depositNote} ${formData.notes}` : depositNote;
 
-    const declaredDeposit = Number(formData.deposit_amount) || 0;
     const total = this.totalPrice();
     const depositTotal = this.depositAmount();
-    const remainingTotal = this.remainingAmount();
+    const remainingTotal = declaredRemaining;
     const items = this.cartProducts();
 
     try {
@@ -380,7 +408,7 @@ export class ShoppingCartComponent implements OnInit {
       this.createdReservationIds.set(createdIds);
       this.createdProductDetails.set(productDetails);
       this.createdTotals.set({
-        deposit: depositTotal,
+        deposit: declaredDeposit,
         remaining: remainingTotal,
         total
       });

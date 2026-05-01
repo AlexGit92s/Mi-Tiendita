@@ -238,7 +238,7 @@ export class ReservationsComponent implements OnInit {
       return;
     }
 
-    const needsCorrection = this.isLockedReservation(reservation) || this.hasPaymentRecord(reservation);
+    const needsCorrection = this.isLockedReservation(reservation) || this.hasValidatedPaymentRecord(reservation);
     const correctionReason = this.requireCorrectionReason(
       id,
       reservation,
@@ -593,7 +593,7 @@ export class ReservationsComponent implements OnInit {
   }
 
   requiresCorrectionMode(reservation: ReservationWithProduct) {
-    return this.isLockedReservation(reservation) || this.hasPaymentRecord(reservation);
+    return this.isLockedReservation(reservation) || this.hasValidatedPaymentRecord(reservation);
   }
 
   beginCorrection(id: string) {
@@ -612,7 +612,7 @@ export class ReservationsComponent implements OnInit {
   }
 
   requireCorrectionReason(id: string, reservation: ReservationWithProduct, lockedMessage: string) {
-    const requiresCorrection = this.isLockedReservation(reservation) || this.hasPaymentRecord(reservation) || this.isCorrectionActive(id);
+    const requiresCorrection = this.isLockedReservation(reservation) || this.hasValidatedPaymentRecord(reservation) || this.isCorrectionActive(id);
     if (!requiresCorrection) return false;
 
     const reason = this.getCorrectionDraft(id).reason.trim();
@@ -726,7 +726,8 @@ export class ReservationsComponent implements OnInit {
     }
 
     if (this.getTransferredAmount(reservation) > 0) {
-      return `Pago parcial registrado. Pendiente L. ${this.getPendingAmount(reservation).toFixed(2)}`;
+      const prefix = reservation.deposit_confirmed_at ? 'Pago validado' : 'Pago declarado por validar';
+      return `${prefix}. Pendiente L. ${this.getPendingAmount(reservation).toFixed(2)}`;
     }
 
     if (reservation.stock_committed) {
@@ -989,5 +990,9 @@ export class ReservationsComponent implements OnInit {
 
   hasPaymentRecord(reservation: ReservationWithProduct) {
     return this.getTransferredAmount(reservation) > 0 || !!reservation.deposit_confirmed_at;
+  }
+
+  hasValidatedPaymentRecord(reservation: ReservationWithProduct) {
+    return !!reservation.deposit_confirmed_at || !!reservation.fee_paid;
   }
 }
