@@ -1,8 +1,9 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../core/supabase.service';
-import { Product } from '../../../core/types';
+import { Category, Product } from '../../../core/types';
 
 interface ProductWithCategory extends Product {
   categories?: { name: string };
@@ -19,7 +20,7 @@ interface InventoryNotice {
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './inventory.component.html'
 })
 export class InventoryComponent implements OnInit {
@@ -27,7 +28,10 @@ export class InventoryComponent implements OnInit {
   private router = inject(Router);
 
   products = signal<ProductWithCategory[]>([]);
+  categories = signal<Category[]>([]);
   filter = signal<string>('all');
+  searchQuery = signal<string>('');
+  categoryFilter = signal<string>('all');
   deletingProductId = signal<string | null>(null);
   productPendingDelete = signal<ProductWithCategory | null>(null);
   notice = signal<InventoryNotice | null>(null);
@@ -36,18 +40,40 @@ export class InventoryComponent implements OnInit {
   private noticeTimerId: ReturnType<typeof setTimeout> | null = null;
 
   filteredProducts = computed(() => {
-    const f = this.filter();
+    const stockFilter = this.filter();
+    const categoryId = this.categoryFilter();
+    const query = this.searchQuery().trim().toLowerCase();
     const prods = this.products();
-    if (f === 'all') return prods;
 
     return prods.filter(p => {
       const level = p.stock ?? 0;
-      if (f === 'low') return level > 0 && level < 5;
-      if (f === 'out') return level === 0;
-      if (f === 'limited') return p.is_limited_edition;
+
+      if (stockFilter === 'low' && !(level > 0 && level < 5)) return false;
+      if (stockFilter === 'out' && level !== 0) return false;
+      if (stockFilter === 'limited' && !p.is_limited_edition) return false;
+
+      if (categoryId !== 'all' && p.category_id !== categoryId) return false;
+
+      if (query) {
+        const haystack = [
+          p.name,
+          p.category,
+          p.categories?.name,
+          p.id,
+          p.id ? `LMA-${p.id.slice(-4)}` : ''
+        ].filter(Boolean).join(' ').toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
+
       return true;
     });
   });
+
+  hasActiveFilters = computed(() =>
+    this.filter() !== 'all' ||
+    this.categoryFilter() !== 'all' ||
+    this.searchQuery().trim().length > 0
+  );
 
   totalPages = computed(() => Math.max(1, Math.ceil(this.filteredProducts().length / this.pageSize)));
 
@@ -69,7 +95,7 @@ export class InventoryComponent implements OnInit {
   });
 
   async ngOnInit() {
-    await this.loadProducts();
+    await Promise.all([this.loadProducts(), this.loadCategories()]);
   }
 
   async loadProducts() {
@@ -87,8 +113,38 @@ export class InventoryComponent implements OnInit {
     }
   }
 
+  async loadCategories() {
+    try {
+      const { data, error } = await this.supabase.client
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      if (data) this.categories.set(data as Category[]);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   setFilter(f: string) {
     this.filter.set(f);
+    this.currentPage.set(1);
+  }
+
+  setCategoryFilter(value: string) {
+    this.categoryFilter.set(value || 'all');
+    this.currentPage.set(1);
+  }
+
+  setSearchQuery(value: string) {
+    this.searchQuery.set(value);
+    this.currentPage.set(1);
+  }
+
+  clearFilters() {
+    this.filter.set('all');
+    this.categoryFilter.set('all');
+    this.searchQuery.set('');
     this.currentPage.set(1);
   }
 
