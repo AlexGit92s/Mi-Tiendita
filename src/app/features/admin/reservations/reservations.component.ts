@@ -66,6 +66,12 @@ export class ReservationsComponent implements OnInit {
     { value: 'otro', label: 'Nota interna', group: 'Administración' },
     { value: 'correccion_administrativa', label: 'Corrección administrativa', group: 'Administración' }
   ] as const;
+  readonly hiddenManualEventKeys = new Set([
+    'entregado',
+    'finalizado',
+    'vendido',
+    'correccion_administrativa'
+  ]);
   readonly eventEffects: Record<string, TrackingEventEffect> = {
     reserva_creada: { nextStatus: 'pendiente', message: 'Reserva creada y pendiente de deposito.' },
     deposito_confirmado: { message: 'Registra pago y compromete stock si aun no estaba comprometido.', stockAction: 'commit' },
@@ -653,7 +659,7 @@ export class ReservationsComponent implements OnInit {
   }
 
   getEventsByGroup(group: TrackingEventGroup) {
-    return this.trackingEventOptions.filter((event) => event.group === group);
+    return this.trackingEventOptions.filter((event) => event.group === group && !this.hiddenManualEventKeys.has(event.value));
   }
 
   getEventImpactTags(eventKey: string) {

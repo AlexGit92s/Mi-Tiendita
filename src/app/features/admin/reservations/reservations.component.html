@@ -296,7 +296,7 @@
                       <div class="mb-4 flex items-center justify-between gap-4">
                         <div>
                           <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Eventos y estado</p>
-                          <p class="mt-1 text-[10px] text-gray-400">Cada evento deja rastro, puede cambiar estado y, si cancela, desliga el producto del apartado.</p>
+                          <p class="mt-1 text-[10px] text-gray-400">Usa Siguiente para el flujo normal. Mas opciones queda para notas o cancelaciones.</p>
                           <p class="mt-2 inline-flex rounded-sm bg-gray-50 px-2 py-1 text-[9px] uppercase tracking-widest text-gray-500">Resumen: {{ getReservationSummary(res) }}</p>
                         </div>
                         @if (activeTimelineReservationId() === res.id) {
@@ -543,8 +543,8 @@
           @if (activeTimelineReservationId() === res.id && advancedEventReservationId() === res.id) {
             <div class="rounded-lamour border border-gray-100 bg-white p-3">
               <div class="mb-3">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Movimiento manual</p>
-                <p class="mt-1 text-[10px] text-gray-500">{{ getEventEffect(getEventDraft(res.id!).eventKey).message }}</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-lamour-stone">Mas opciones</p>
+                <p class="mt-1 text-[10px] text-gray-500">Solo para nota interna, cancelar o marcar un paso puntual.</p>
               </div>
 
               <div class="grid gap-2">
