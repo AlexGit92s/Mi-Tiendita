@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import QRCode from 'qrcode';
 import { SupabaseService } from '../../../core/supabase.service';
 import { PrintDocumentData } from '../../../print/models/print.types';
 import { PrintDocumentService } from '../../../print/services/print-document.service';
@@ -38,6 +39,8 @@ export class ShoppingCartComponent implements OnInit {
   createdProductDetails = signal<{ name: string, price: number, size?: string, color?: string }[]>([]);
   createdTotals = signal<{ deposit: number, remaining: number, total: number }>({ deposit: 0, remaining: 0, total: 0 });
   reservationDate = signal<string>('');
+  trackingQrCodes = signal<string[]>([]);
+  copiedTrackId = signal<string | null>(null);
 
   checkoutForm: FormGroup = this.fb.group({
     customer_name: ['', [Validators.required, Validators.minLength(3)]],
@@ -135,6 +138,42 @@ export class ShoppingCartComponent implements OnInit {
       document.execCommand('copy');
       document.body.removeChild(ta);
     }
+    this.copiedTrackId.set(reservationId);
+    setTimeout(() => {
+      if (this.copiedTrackId() === reservationId) this.copiedTrackId.set(null);
+    }, 2000);
+  }
+
+  private async generateTrackingQrCodes(reservationIds: string[]): Promise<string[]> {
+    const codes = await Promise.all(
+      reservationIds.map((id) =>
+        QRCode.toDataURL(this.trackUrl(id), {
+          errorCorrectionLevel: 'M',
+          margin: 1,
+          width: 480,
+          color: { dark: '#252222', light: '#ffffff' }
+        }).catch((error) => {
+          console.error('No se pudo generar el QR de seguimiento:', error);
+          return '';
+        })
+      )
+    );
+    return codes;
+  }
+
+  downloadQr(reservationId: string) {
+    const index = this.createdReservationIds().indexOf(reservationId);
+    if (index < 0) return;
+    const dataUrl = this.trackingQrCodes()[index];
+    if (!dataUrl) return;
+
+    const ticket = this.createdTicketNumbers()[index] ?? this.getTicketNumber(reservationId);
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `${ticket}-seguimiento.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   printTicket() {
@@ -414,6 +453,9 @@ export class ShoppingCartComponent implements OnInit {
       });
       this.reservationDate.set(formData.reservation_date || new Date().toISOString().split('T')[0]);
       this.success.set(true);
+
+      const qrCodes = await this.generateTrackingQrCodes(createdIds);
+      this.trackingQrCodes.set(qrCodes);
     } catch (error: any) {
       console.error('Reservation failed:', error);
       alert(`Error al procesar el apartado: ${error?.message ?? 'intente nuevamente'}`);

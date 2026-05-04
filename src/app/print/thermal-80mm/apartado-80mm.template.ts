@@ -1,5 +1,5 @@
 import { PrintRenderRequest } from '../models/print.types';
-import { escapeHtml, money, qrPlaceholder } from '../templates/print-template-utils';
+import { escapeHtml, money, qrMarkup } from '../templates/print-template-utils';
 
 export function renderApartado80mm(request: PrintRenderRequest): string {
   const { data, settings } = request;
@@ -66,13 +66,26 @@ export function renderApartado80mm(request: PrintRenderRequest): string {
       .qr-box {
         margin: 8px auto 0;
         width: 32mm;
-        min-height: 22mm;
+        text-align: center;
+      }
+      .qr-box .qr-image {
+        width: 32mm;
+        height: 32mm;
+        display: block;
+        background: #fff;
+      }
+      .qr-box .qr-fallback {
+        display: block;
         border: 1px solid #111;
         padding: 4px;
-        display: grid;
-        place-items: center;
-        word-break: break-all;
         font-size: 8px;
+        word-break: break-all;
+      }
+      .qr-box .qr-caption {
+        display: block;
+        margin-top: 2px;
+        font-size: 8px;
+        letter-spacing: .04em;
       }
     </style>
 
@@ -94,7 +107,7 @@ export function renderApartado80mm(request: PrintRenderRequest): string {
       <div class="separator"></div>
       <div><strong>Referencia:</strong> ${escapeHtml(data.payment?.reference || '-')}</div>
       <div><strong>Resumen:</strong> ${escapeHtml(data.summary || '-')}</div>
-      ${settings.showQr ? `<div class="qr-box">${qrPlaceholder(data)}</div>` : ''}
+      ${settings.showQr ? `<div class="qr-box">${qrMarkup(data)}<span class="qr-caption">Escanea para seguimiento</span></div>` : ''}
       <p class="center muted">${escapeHtml(data.notes || 'Conserve este comprobante para seguimiento.')}</p>
     </section>
   `;

@@ -164,6 +164,15 @@ export function buildMasterPrintCss(request: PrintRenderRequest): string {
   `;
 }
 
+export function qrMarkup(data: PrintDocumentData): string {
+  if (data.qrDataUrl) {
+    const altText = data.qrValue || data.documentNumber;
+    return `<img class="qr-image" src="${escapeHtml(data.qrDataUrl)}" alt="QR ${escapeHtml(altText)}" />`;
+  }
+  return `<span class="qr-fallback">${escapeHtml(data.documentNumber)}</span>`;
+}
+
+/** @deprecated use qrMarkup */
 export function qrPlaceholder(data: PrintDocumentData): string {
-  return escapeHtml(data.documentNumber);
+  return qrMarkup(data);
 }

@@ -1,5 +1,5 @@
 import { PrintRenderRequest } from '../models/print.types';
-import { escapeHtml, money, qrPlaceholder } from '../templates/print-template-utils';
+import { escapeHtml, money, qrMarkup } from '../templates/print-template-utils';
 
 export function renderApartadoCarta(request: PrintRenderRequest): string {
   const { data, settings } = request;
@@ -159,15 +159,31 @@ export function renderApartadoCarta(request: PrintRenderRequest): string {
         margin-top: 22px;
       }
       .qr-box {
-        width: 90px;
-        height: 90px;
-        border: 1px solid var(--print-line);
+        width: 96px;
         display: grid;
-        place-items: center;
-        padding: 8px;
+        gap: 4px;
         text-align: center;
+      }
+      .qr-box .qr-image {
+        width: 96px;
+        height: 96px;
+        display: block;
+        border: 1px solid var(--print-line);
+        padding: 4px;
+        background: #fff;
+      }
+      .qr-box .qr-fallback {
+        display: block;
+        padding: 8px;
         font-size: 8px;
         word-break: break-all;
+        border: 1px solid var(--print-line);
+      }
+      .qr-box .qr-caption {
+        font-size: 7.5px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--print-muted);
       }
       .signature-line {
         border-top: 1px solid var(--print-ink);
@@ -249,7 +265,7 @@ export function renderApartadoCarta(request: PrintRenderRequest): string {
       </div>
 
       <div class="qr-signature avoid-break">
-        ${settings.showQr ? `<div class="qr-box">${qrPlaceholder(data)}</div>` : ''}
+        ${settings.showQr ? `<div class="qr-box">${qrMarkup(data)}<span class="qr-caption">Escanea para seguimiento</span></div>` : ''}
         <div class="doc-footer">${escapeHtml(data.notes || 'Documento generado por el sistema. Valido para seguimiento administrativo y respaldo del cliente.')}</div>
         ${settings.showSignature ? `<div class="signature-line">${escapeHtml(data.signatureLabel || 'Firma autorizada')}</div>` : ''}
       </div>

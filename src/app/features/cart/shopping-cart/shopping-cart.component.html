@@ -33,51 +33,110 @@
         </div>
 
         @if (createdTicketNumbers().length > 0) {
-          <!-- Aviso destacado: el código es la llave del seguimiento -->
-          <div class="mb-4 rounded-lg border border-lamour-gold bg-lamour-gold/5 px-4 py-3 print:border-gray-400 print:bg-white">
-            <div class="flex items-start gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5 text-lamour-gold flex-shrink-0 mt-0.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-              </svg>
-              <div class="flex-1">
-                <p class="text-[11px] uppercase tracking-[0.22em] text-lamour-stone font-black">Importante · Guarda tu código</p>
-                <p class="text-xs text-gray-600 mt-1 leading-relaxed">
-                  Este código ({{ isMultipleItems() ? 'o cada uno de ellos' : '' }} <span class="font-mono font-bold text-lamour-gold">{{ createdTicketNumbers()[0] }}</span>{{ isMultipleItems() ? ', …' : '' }})
-                  es tu <strong class="text-lamour-stone">llave de seguimiento</strong>. Sin él no podrás consultar el estado de tu apartado.
-                  Compártelo por WhatsApp o imprímelo.
-                </p>
-              </div>
+          <!-- HÉROE: QR + 3 pasos. Lo más importante para el cliente. -->
+          <div class="mb-6 rounded-2xl border-2 border-lamour-gold/40 bg-gradient-to-b from-lamour-gold/5 to-white p-5 sm:p-7 print:hidden">
+            <div class="text-center mb-5">
+              <p class="text-[10px] uppercase tracking-[0.28em] text-lamour-stone font-black">Tu llave de seguimiento</p>
+              <p class="text-[11px] text-gray-500 mt-1">Guarda este QR · es lo único que necesitas para ver el estado de tu pedido</p>
             </div>
+
+            <div class="grid gap-5 sm:grid-cols-[auto,1fr] sm:items-center">
+              <div class="flex flex-col items-center gap-3 sm:items-start">
+                @for (id of createdReservationIds(); track id; let i = $index) {
+                  <div class="flex flex-col items-center gap-2">
+                    @if (trackingQrCodes()[i]) {
+                      <img [src]="trackingQrCodes()[i]" [alt]="'QR de seguimiento ' + createdTicketNumbers()[i]"
+                        class="w-44 h-44 sm:w-48 sm:h-48 rounded-lg border border-lamour-gold/30 bg-white p-2 shadow-sm" />
+                    } @else {
+                      <div class="w-44 h-44 sm:w-48 sm:h-48 rounded-lg border border-dashed border-lamour-gold/30 bg-white grid place-items-center text-[10px] uppercase tracking-widest text-gray-400">
+                        Generando QR…
+                      </div>
+                    }
+                    <span class="rounded-full border border-lamour-gold bg-white px-4 py-1.5 font-mono text-xs sm:text-sm font-black tracking-[0.2em] text-lamour-gold">{{ createdTicketNumbers()[i] }}</span>
+                    @if (createdReservationIds().length > 1) {
+                      <span class="text-[9px] uppercase tracking-widest text-gray-400">Apartado #{{ i + 1 }}</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <ol class="space-y-3 text-sm text-gray-700">
+                <li class="flex gap-3">
+                  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-lamour-gold text-white grid place-items-center font-black text-xs">1</span>
+                  <div>
+                    <p class="font-bold text-lamour-stone uppercase tracking-widest text-[11px]">Guarda este QR</p>
+                    <p class="text-[12px] text-gray-500 leading-relaxed">Toma una captura, descárgalo o envíatelo por WhatsApp. Es tu única llave para ver el estado de tu apartado.</p>
+                  </div>
+                </li>
+                <li class="flex gap-3">
+                  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-lamour-gold text-white grid place-items-center font-black text-xs">2</span>
+                  <div>
+                    <p class="font-bold text-lamour-stone uppercase tracking-widest text-[11px]">Completa el pago</p>
+                    <p class="text-[12px] text-gray-500 leading-relaxed">Tu seña ya quedó registrada. Cuando pagues el saldo restante, te avisaremos por WhatsApp.</p>
+                  </div>
+                </li>
+                <li class="flex gap-3">
+                  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-lamour-gold text-white grid place-items-center font-black text-xs">3</span>
+                  <div>
+                    <p class="font-bold text-lamour-stone uppercase tracking-widest text-[11px]">Sigue tu pedido</p>
+                    <p class="text-[12px] text-gray-500 leading-relaxed">Escanea el QR (o abre el enlace) cuando quieras. Verás cada paso: pago confirmado, en preparación, en camino y entregado.</p>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <!-- Acciones rápidas -->
+            <div class="mt-6 pt-5 border-t border-lamour-gold/20 grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button type="button" (click)="createdReservationIds().length > 0 && downloadQr(createdReservationIds()[0])"
+                [disabled]="!trackingQrCodes()[0]"
+                class="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-white border border-lamour-gold/30 text-lamour-stone hover:border-lamour-gold hover:bg-lamour-gold/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+                <span class="text-[9px] uppercase tracking-widest font-bold">Descargar QR</span>
+              </button>
+              <button type="button" (click)="shareViaWhatsApp()"
+                class="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-[#25D366] text-white hover:bg-[#1da851] transition-all rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.6 6.3A7.85 7.85 0 0 0 12 4a7.94 7.94 0 0 0-6.8 12l-1 3.6 3.7-1A7.9 7.9 0 0 0 12 19.8a7.94 7.94 0 0 0 5.6-13.5Zm-5.6 12a6.6 6.6 0 0 1-3.4-.9l-.3-.2-2.2.6.6-2.1-.2-.3a6.6 6.6 0 1 1 5.5 2.9Zm3.6-4.9c-.2-.1-1.2-.6-1.4-.6-.2-.1-.3-.1-.5.1s-.5.6-.6.8c-.1.1-.2.1-.4 0a5.4 5.4 0 0 1-2.7-2.3c-.2-.4.2-.3.6-1 .1-.1 0-.3 0-.4s-.5-1.2-.7-1.6c-.2-.4-.4-.3-.5-.3h-.4c-.2 0-.4.1-.6.3a2.2 2.2 0 0 0-.7 1.6 3.8 3.8 0 0 0 .8 2 8.7 8.7 0 0 0 3.3 2.9c1.2.5 1.7.5 2.3.4a2 2 0 0 0 1.3-.9 1.6 1.6 0 0 0 .1-.9c0-.1-.2-.2-.4-.3Z"/></svg>
+                <span class="text-[9px] uppercase tracking-widest font-bold">WhatsApp</span>
+              </button>
+              <button type="button" (click)="createdReservationIds().length > 0 && copyTrackUrl(createdReservationIds()[0])"
+                class="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-white border border-lamour-stone/20 text-lamour-stone hover:border-lamour-stone hover:bg-lamour-stone/5 transition-all rounded-lg">
+                @if (copiedTrackId() === createdReservationIds()[0]) {
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-emerald-500">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <span class="text-[9px] uppercase tracking-widest font-bold text-emerald-600">¡Copiado!</span>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                  </svg>
+                  <span class="text-[9px] uppercase tracking-widest font-bold">Copiar enlace</span>
+                }
+              </button>
+              <button type="button" (click)="printTicket()"
+                class="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-lamour-stone text-white hover:bg-black transition-all rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2m0 0v2m0-2h-2m-1.5 0H13m1.5 0h2M4.5 19.5h15a2 2 0 002-2V6.5a2 2 0 00-2-2H4.5a2 2 0 00-2 2v11a2 2 0 002 2z" /></svg>
+                <span class="text-[9px] uppercase tracking-widest font-bold">Imprimir</span>
+              </button>
+            </div>
+
+            <!-- CTA primario: ir directo al seguimiento -->
+            @if (createdReservationIds().length === 1) {
+              <a [routerLink]="['/track', createdReservationIds()[0]]"
+                class="mt-4 flex items-center justify-center gap-2 w-full px-5 py-3.5 bg-lamour-gold text-white text-[11px] uppercase tracking-[0.2em] font-bold rounded-lg hover:bg-lamour-stone transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Ver el estado de mi pedido
+              </a>
+            }
           </div>
 
-          <div class="mb-6 rounded-lg border-2 border-lamour-gold/50 bg-white p-4 print:border-gray-300">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-lamour-blush/20 pb-3 mb-3 print:border-gray-200">
-              <div>
-                <p class="text-[9px] uppercase tracking-[0.25em] text-lamour-stone font-bold">Tu ticket de apartado</p>
-                <p class="text-[8px] text-gray-400 uppercase tracking-widest mt-1">Guárdalo · es tu llave para ver el seguimiento</p>
-              </div>
-              <div class="print:hidden grid grid-cols-1 sm:flex items-center gap-2 w-full sm:w-auto">
-                <button type="button" (click)="shareViaWhatsApp()" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25D366] text-white text-[10px] uppercase tracking-widest font-bold rounded-sm hover:bg-[#1da851] transition-all">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M17.6 6.3A7.85 7.85 0 0 0 12 4a7.94 7.94 0 0 0-6.8 12l-1 3.6 3.7-1A7.9 7.9 0 0 0 12 19.8a7.94 7.94 0 0 0 5.6-13.5Zm-5.6 12a6.6 6.6 0 0 1-3.4-.9l-.3-.2-2.2.6.6-2.1-.2-.3a6.6 6.6 0 1 1 5.5 2.9Zm3.6-4.9c-.2-.1-1.2-.6-1.4-.6-.2-.1-.3-.1-.5.1s-.5.6-.6.8c-.1.1-.2.1-.4 0a5.4 5.4 0 0 1-2.7-2.3c-.2-.4.2-.3.6-1 .1-.1 0-.3 0-.4s-.5-1.2-.7-1.6c-.2-.4-.4-.3-.5-.3h-.4c-.2 0-.4.1-.6.3a2.2 2.2 0 0 0-.7 1.6 3.8 3.8 0 0 0 .8 2 8.7 8.7 0 0 0 3.3 2.9c1.2.5 1.7.5 2.3.4a2 2 0 0 0 1.3-.9 1.6 1.6 0 0 0 .1-.9c0-.1-.2-.2-.4-.3Z"/></svg>
-                  WhatsApp
-                </button>
-                <button type="button" (click)="printTicket()" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-lamour-stone text-white text-[10px] uppercase tracking-widest font-bold rounded-sm hover:bg-lamour-stone/80 transition-all">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2m0 0v2m0-2h-2m-1.5 0H13m1.5 0h2M4.5 19.5h15a2 2 0 002-2V6.5a2 2 0 00-2-2H4.5a2 2 0 00-2 2v11a2 2 0 002 2z" /></svg>
-                  Guardar / Imprimir
-                </button>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center justify-center gap-2 mb-4">
-              @for (ticket of createdTicketNumbers(); track ticket; let i = $index) {
-                <div class="inline-flex items-center gap-2">
-                  @if (createdTicketNumbers().length > 1) {
-                    <span class="text-[9px] text-gray-400 uppercase">#{{ i + 1 }}:</span>
-                  }
-                  <span class="rounded-full border-2 border-lamour-gold bg-lamour-gold/5 px-5 py-2 font-mono text-sm font-black tracking-[0.2em] text-lamour-gold">{{ ticket }}</span>
-                </div>
-              }
-            </div>
+          <!-- Detalle del apartado: artículo(s), totales, fecha -->
+          <div class="mb-6 rounded-lg border border-lamour-blush/30 bg-white p-4 print:border-gray-300">
+            <p class="text-[9px] uppercase tracking-[0.25em] text-lamour-stone font-bold mb-3">Detalle del apartado</p>
 
             @if (createdProductDetails().length > 0) {
               <div class="bg-lamour-blush/10 rounded p-3 mb-3 print:bg-gray-50">
@@ -120,72 +179,73 @@
                 Apartado registrado: {{ formatDate(reservationDate()) }}
               </p>
             </div>
+          </div>
 
-            @if (createdReservationIds().length > 0) {
-              <div class="mt-5 pt-4 border-t border-lamour-blush/20 print:hidden">
-                <p class="text-[9px] uppercase tracking-[0.25em] text-lamour-stone font-bold text-center mb-1">
-                  Sigue tu apartado en línea
-                </p>
-                <p class="text-[10px] text-gray-500 text-center mb-3">
-                  Copia y guarda este enlace — con él podrás ver el estado de tu pedido en cualquier momento.
-                </p>
-                <div class="flex flex-col gap-2">
-                  @for (id of createdReservationIds(); track id; let i = $index) {
-                    <div class="flex items-center justify-between gap-2 bg-lamour-blush/5 border border-lamour-blush/20 rounded-sm px-3 py-2">
-                      <div class="flex items-center gap-2 min-w-0 flex-1">
-                        @if (createdReservationIds().length > 1) {
-                          <span class="text-[9px] text-gray-400 uppercase flex-shrink-0">#{{ i + 1 }}</span>
-                        }
-                        <code class="text-[10px] font-mono text-gray-500 truncate">{{ trackUrl(id) }}</code>
-                      </div>
-                      <div class="flex items-center gap-1 flex-shrink-0">
-                        <button type="button"
-                                (click)="copyTrackUrl(id)"
-                                class="p-2 text-gray-500 hover:text-lamour-stone hover:bg-lamour-blush/10 transition-colors rounded-sm"
-                                title="Copiar enlace">
+          <!-- Lista de tickets (cuando hay varios) -->
+          @if (createdReservationIds().length > 1) {
+            <div class="mb-6 print:hidden">
+              <p class="text-[9px] uppercase tracking-[0.25em] text-lamour-stone font-bold mb-2">Enlaces de seguimiento</p>
+              <div class="flex flex-col gap-2">
+                @for (id of createdReservationIds(); track id; let i = $index) {
+                  <div class="flex items-center justify-between gap-2 bg-lamour-blush/5 border border-lamour-blush/20 rounded-sm px-3 py-2">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                      <span class="text-[9px] text-gray-400 uppercase flex-shrink-0">#{{ i + 1 }}</span>
+                      <code class="text-[10px] font-mono text-gray-500 truncate">{{ trackUrl(id) }}</code>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                      <button type="button" (click)="copyTrackUrl(id)"
+                        class="p-2 text-gray-500 hover:text-lamour-stone hover:bg-lamour-blush/10 transition-colors rounded-sm"
+                        [title]="copiedTrackId() === id ? '¡Copiado!' : 'Copiar enlace'">
+                        @if (copiedTrackId() === id) {
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-emerald-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                        } @else {
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
                           </svg>
-                        </button>
-                        <a [routerLink]="['/track', id]"
-                           class="inline-flex items-center gap-1 px-3 py-2 bg-lamour-stone text-white text-[10px] uppercase tracking-widest font-bold rounded-sm hover:bg-lamour-stone/80 transition-all">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          Ver
-                        </a>
-                      </div>
+                        }
+                      </button>
+                      <button type="button" (click)="downloadQr(id)" [disabled]="!trackingQrCodes()[i]"
+                        class="p-2 text-gray-500 hover:text-lamour-stone hover:bg-lamour-blush/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-sm"
+                        title="Descargar QR">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                      </button>
+                      <a [routerLink]="['/track', id]"
+                        class="inline-flex items-center gap-1 px-3 py-2 bg-lamour-stone text-white text-[10px] uppercase tracking-widest font-bold rounded-sm hover:bg-lamour-stone/80 transition-all">
+                        Ver
+                      </a>
                     </div>
-                  }
-                </div>
-                <p class="text-[9px] text-gray-400 uppercase tracking-widest mt-3 text-center">
-                  No requiere cuenta · sólo necesitas el código o el enlace
-                </p>
+                  </div>
+                }
               </div>
-            }
-          </div>
+            </div>
+          }
         }
 
-        <div class="border-t border-b border-lamour-blush/30 py-6 mb-6 text-center">
-          <p class="text-[11px] uppercase tracking-[0.25em] text-gray-400 mb-2">{{ isMultipleItems() ? 'Anticipo total declarado' : 'Anticipo declarado' }}</p>
-          <p class="font-sans font-black text-4xl text-lamour-gold">L. {{ depositAmount() }}</p>
-          <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">por transferencia · pago total pendiente antes de entrega</p>
-        </div>
-
-        <div class="bg-gray-50 border border-lamour-blush/30 rounded-sm p-5 mb-6">
-          <h3 class="text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold mb-3">Datos bancarios</h3>
-          <dl class="text-xs space-y-1.5 font-mono text-gray-700">
-            <div class="flex justify-between"><dt class="text-gray-500">Banco:</dt><dd class="font-bold">{{ bankDetails.bank }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">Cuenta:</dt><dd class="font-bold">{{ bankDetails.accountNumber }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">Titular:</dt><dd class="font-bold">{{ bankDetails.accountHolder }}</dd></div>
-            <div class="flex justify-between"><dt class="text-gray-500">Tipo:</dt><dd class="font-bold">{{ bankDetails.accountType }}</dd></div>
-          </dl>
-          <p class="text-[10px] uppercase tracking-widest text-lamour-stone mt-4 pt-3 border-t border-lamour-blush/20">
-            Envia el comprobante por WhatsApp:
-            <span class="font-black text-lamour-gold">{{ bankDetails.whatsapp }}</span>
-          </p>
-        </div>
+        <details class="mb-6 rounded-lg border border-lamour-blush/30 bg-gray-50 print:open print:border-0">
+          <summary class="cursor-pointer px-5 py-3 text-[11px] uppercase tracking-[0.2em] text-lamour-stone font-bold flex items-center justify-between print:hidden">
+            <span>¿Aún no transferiste? Ver datos bancarios</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 transition-transform">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </summary>
+          <div class="px-5 pb-5 print:px-0 print:pb-0">
+            <p class="text-[10px] text-gray-500 mb-3 print:hidden">Si solo pagaste la seña, transfiere el restante (L. {{ createdTotals().remaining }}) antes de la entrega.</p>
+            <dl class="text-xs space-y-1.5 font-mono text-gray-700">
+              <div class="flex justify-between"><dt class="text-gray-500">Banco:</dt><dd class="font-bold">{{ bankDetails.bank }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">Cuenta:</dt><dd class="font-bold">{{ bankDetails.accountNumber }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">Titular:</dt><dd class="font-bold">{{ bankDetails.accountHolder }}</dd></div>
+              <div class="flex justify-between"><dt class="text-gray-500">Tipo:</dt><dd class="font-bold">{{ bankDetails.accountType }}</dd></div>
+            </dl>
+            <p class="text-[10px] uppercase tracking-widest text-lamour-stone mt-4 pt-3 border-t border-lamour-blush/20">
+              Envía el comprobante por WhatsApp:
+              <span class="font-black text-lamour-gold">{{ bankDetails.whatsapp }}</span>
+            </p>
+          </div>
+        </details>
 
         <div class="flex items-center justify-center gap-3 text-center print:hidden">
           <a routerLink="/catalog" class="w-full sm:w-auto px-8 py-3 border border-lamour-stone text-lamour-stone hover:bg-lamour-stone hover:text-white transition-all text-xs uppercase tracking-widest font-bold rounded-sm">Explorar colecciones</a>

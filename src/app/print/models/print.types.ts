@@ -79,6 +79,7 @@ export interface PrintDocumentData {
   customer?: PrintParty;
   summary?: string;
   qrValue?: string;
+  qrDataUrl?: string;
   notes?: string | null;
   payment?: {
     reference?: string | null;
