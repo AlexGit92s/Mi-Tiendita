@@ -221,7 +221,7 @@ export class ShoppingCartComponent implements OnInit {
       items,
       totals: [
         { label: 'Total', amount: totals.total },
-        { label: 'Sena / anticipo', amount: totals.deposit },
+        { label: 'Adelanto', amount: totals.deposit },
         { label: 'Restante', amount: totals.remaining, strong: true }
       ],
       timeline: ids.map((id, index) => ({
@@ -261,7 +261,7 @@ export class ShoppingCartComponent implements OnInit {
     const totals = this.createdTotals();
     if (totals.total > 0) {
       lines.push(`Total: L. ${totals.total}`);
-      if (totals.deposit > 0) lines.push(`Sena: L. ${totals.deposit}`);
+      if (totals.deposit > 0) lines.push(`Adelanto: L. ${totals.deposit}`);
       if (totals.remaining > 0) lines.push(`Restante: L. ${totals.remaining}`);
       lines.push('');
     }

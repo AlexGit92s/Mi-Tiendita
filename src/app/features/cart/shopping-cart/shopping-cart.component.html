@@ -72,7 +72,7 @@
                   <span class="flex-shrink-0 w-7 h-7 rounded-full bg-lamour-gold text-white grid place-items-center font-black text-xs">2</span>
                   <div>
                     <p class="font-bold text-lamour-stone uppercase tracking-widest text-[11px]">Completa el pago</p>
-                    <p class="text-[12px] text-gray-500 leading-relaxed">Tu seña ya quedó registrada. Cuando pagues el saldo restante, te avisaremos por WhatsApp.</p>
+                    <p class="text-[12px] text-gray-500 leading-relaxed">Tu adelanto ya quedó registrado. Cuando pagues el saldo restante, te avisaremos por WhatsApp.</p>
                   </div>
                 </li>
                 <li class="flex gap-3">
@@ -164,7 +164,7 @@
                   <p class="font-black text-lamour-stone text-lg">L. {{ createdTotals().total }}</p>
                 </div>
                 <div>
-                  <p class="text-[9px] uppercase tracking-widest text-gray-400">Seña</p>
+                  <p class="text-[9px] uppercase tracking-widest text-gray-400">Adelanto</p>
                   <p class="font-black text-lamour-gold text-lg">L. {{ createdTotals().deposit }}</p>
                 </div>
                 <div>
@@ -233,7 +233,7 @@
             </svg>
           </summary>
           <div class="px-5 pb-5 print:px-0 print:pb-0">
-            <p class="text-[10px] text-gray-500 mb-3 print:hidden">Si solo pagaste la seña, transfiere el restante (L. {{ createdTotals().remaining }}) antes de la entrega.</p>
+            <p class="text-[10px] text-gray-500 mb-3 print:hidden">Si solo pagaste el adelanto, transfiere el restante (L. {{ createdTotals().remaining }}) antes de la entrega.</p>
             <dl class="text-xs space-y-1.5 font-mono text-gray-700">
               <div class="flex justify-between"><dt class="text-gray-500">Banco:</dt><dd class="font-bold">{{ bankDetails.bank }}</dd></div>
               <div class="flex justify-between"><dt class="text-gray-500">Cuenta:</dt><dd class="font-bold">{{ bankDetails.accountNumber }}</dd></div>
